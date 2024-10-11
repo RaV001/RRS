@@ -161,9 +161,11 @@ bool FreeManipulator::handleMouseWheel(const osgGA::GUIEventAdapter &ea,
 
     osgGA::GUIEventAdapter::ScrollingMotion sm = ea.getScrollingMotion();
 
-    double step = static_cast<double>(settings.free_cam_fovy_step);
-    float speed = settings.free_cam_speed;
+    double step = settings.free_cam_fovy_step;
+    double fovy_min = settings.fovy_min;
+    double fovy_max = settings.fovy_max;
 
+    float speed = settings.free_cam_speed;
     switch (sm)
     {
     case osgGA::GUIEventAdapter::SCROLL_UP:
@@ -176,6 +178,8 @@ bool FreeManipulator::handleMouseWheel(const osgGA::GUIEventAdapter &ea,
         else
         {
             fovy -= step;
+            if (fovy < fovy_min)
+                fovy = fovy_min;
         }
 
         break;
@@ -190,6 +194,8 @@ bool FreeManipulator::handleMouseWheel(const osgGA::GUIEventAdapter &ea,
         else
         {
             fovy += step;
+            if (fovy > fovy_max)
+                fovy = fovy_max;
         }
 
         break;

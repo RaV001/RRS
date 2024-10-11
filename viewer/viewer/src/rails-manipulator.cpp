@@ -88,9 +88,9 @@ bool RailsManipulator::handleMouseWheel(const osgGA::GUIEventAdapter &ea,
 
     osgGA::GUIEventAdapter::ScrollingMotion sm = ea.getScrollingMotion();
 
-    double step = static_cast<double>(settings.cabine_cam_fovy_step);
-    double fovy_min = static_cast<double>(settings.fovy_min);
-    double fovy_max = static_cast<double>(settings.fovy_max);
+    double step = settings.cabine_cam_fovy_step;
+    double fovy_min = settings.fovy_min;
+    double fovy_max = settings.fovy_max;
 
     float speed = settings.cabine_cam_speed;
     float z_min = settings.cabine_cam_z_min;

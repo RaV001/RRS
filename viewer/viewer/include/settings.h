@@ -113,12 +113,12 @@ struct settings_t
     /// Free camera speed coeff
     float           free_cam_speed_coeff;
     /// Free camera FovY step
-    float           free_cam_fovy_step;
+    double          free_cam_fovy_step;
 
     /// Cabine camera rotation coeff
     float           cabine_cam_rot_coeff;
     /// Cabine camera FovY step
-    float           cabine_cam_fovy_step;
+    double          cabine_cam_fovy_step;
     /// Cabine camera speed
     float           cabine_cam_speed;
 
@@ -178,10 +178,10 @@ struct settings_t
         , free_cam_rot_coeff(1.0f)
         , free_cam_speed(5.0f)
         , free_cam_speed_coeff(10.0f)
-        , free_cam_fovy_step(1.0f)
+        , free_cam_fovy_step(1.0)
         , cabine_cam_rot_coeff(1.0f)
-        , cabine_cam_fovy_step(1.0f)
-        , cabine_cam_speed(5.0)
+        , cabine_cam_fovy_step(1.0)
+        , cabine_cam_speed(5.0f)
         , cabine_cam_z_min(-1.0f)
         , cabine_cam_z_max(0.5f)
         , stat_cam_dist(8.0f)
