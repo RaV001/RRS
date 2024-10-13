@@ -207,15 +207,7 @@ bool Model::init(const simulator_command_line_t &command_line)
 
     initSimClient("virtual-railway");
 
-    //initSignaling(init_data);
-
     //initTraffic(init_data);
-
-    /*for (Vehicle *vehicle : *(train->getVehicles()))
-    {
-        connect(vehicle, &Vehicle::sendCoord,
-                signaling, &Signaling::set_busy_sections);
-    }*/
 
     initTopology(init_data);
 
@@ -279,18 +271,7 @@ void Model::preStep(double t)
 //------------------------------------------------------------------------------
 bool Model::step(double t, double &dt)
 {
-    if (!train->step(t, dt))
-        return false;
-
-    //signaling->step(t, dt);
-
-    /*double coord = train->getVehicles()->at(0)->getRailwayCoord() +
-            train->getDirection() * train->getVehicles()->at(0)->getLength() / 2.0;*/
-
-    //alsn_info_t alsn_info = signaling->getALSN(coord);
-    //train->getVehicles()->at(0)->setASLN(alsn_info);
-
-    return true;
+    return train->step(t, dt);
 }
 
 //------------------------------------------------------------------------------
@@ -347,7 +328,7 @@ void Model::loadInitData(init_data_t &init_data)
 
         if (!cfg.getString(secName, "TrajectoryName", init_data.trajectory_name))
         {
-            init_data.trajectory_name = "route1_0001";
+            init_data.trajectory_name = "route1_0001_1";
         }
 
         if (!cfg.getInt(secName, "Direction", init_data.direction))
@@ -357,7 +338,7 @@ void Model::loadInitData(init_data_t &init_data)
 
         if (!cfg.getDouble(secName, "InitCoord", init_data.init_coord))
         {
-            init_data.init_coord = 0.0;
+            init_data.init_coord = 780.0;
         }
 
         if (!cfg.getDouble(secName, "InitVelocity", init_data.init_velocity))
@@ -609,23 +590,6 @@ void Model::initSimClient(QString cfg_path)
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-void Model::initSignaling(const init_data_t &init_data)
-{
-    /*signaling = new Signaling;
-
-    FileSystem &fs = FileSystem::getInstance();
-    std::string route_dir_path = fs.combinePath(fs.getRouteRootDir(), init_data.route_dir_name.toStdString());
-
-    if (!signaling->init(init_data.direction, route_dir_path.c_str()))
-    {
-        Journal::instance()->error("Failed signaling initialization at route " +
-                                   QString(route_dir_path.c_str()));
-    }*/
-}
-
-//------------------------------------------------------------------------------
-//
-//------------------------------------------------------------------------------
 void Model::initTraffic(const init_data_t &init_data)
 {
     traffic_machine = new TrafficMachine();
@@ -744,10 +708,6 @@ void Model::tcpFeedBack()
 
         tcp_simulator_update.vehicles[i].orientation = vehicle->getOrientation();
         tcp_simulator_update.vehicles[i].length = vehicle->getLength();
-
-        /*std::copy(vehicle->getAnalogSignals().begin(),
-                  vehicle->getAnalogSignals().end(),
-                  tcp_simulator_update.vehicles[i].analogSignal.begin());*/
 
         tcp_simulator_update.vehicles[i].analogSignal = vehicle->getAnalogSignals();
 
@@ -918,9 +878,6 @@ void Model::process()
         preStep(t);
 
         controlStep(control_time, control_delay);
-
-        //double v = 50.0 / Physics::kmh;
-        //signaling->set_busy_sections(5000.0 + v * t);
 
         is_step_correct = step(t, dt);
 

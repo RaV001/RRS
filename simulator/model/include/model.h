@@ -76,8 +76,6 @@ signals:
 
     void sendDataToServer(QByteArray data);
 
-//    void sendDataToTrain(QByteArray data);
-
     //void getRecvData(sim_dispatcher_data_t &disp_data);
 
 public slots:
@@ -153,19 +151,12 @@ private:
     QThread     model_thread;
 
     KeysControl keys_control;
-/*
-    /// Server data to clinet transmission
-    server_data_t   viewer_data;*/
-/*
-    /// Server info to clinet transmission
-    simulator_info_t   info_data;*/
     /// Server update data to clinet transmission
     simulator_update_t   update_data;
 
     QSharedMemory   memory_sim_info;
     QSharedMemory   memory_sim_update;
     QSharedMemory   memory_controlled;
-//    QSharedMemory   shared_memory;
     QSharedMemory   keys_data;
     QByteArray      data;
 
@@ -201,9 +192,6 @@ private:
 
     void initSimClient(QString cfg_path);
 
-    /// Инициализация СЦБ
-    void initSignaling(const init_data_t &init_data);
-
     /// Инициализация трафика
     void initTraffic(const init_data_t &init_data);
 
@@ -215,7 +203,6 @@ private:
 
     /// TCP feedback
     void tcpFeedBack();
-
 
     /// Shered memory feedback
     void sharedMemoryFeedback();

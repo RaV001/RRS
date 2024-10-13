@@ -31,9 +31,9 @@ struct init_data_t
 {
     QString route_dir_name = "experimental-polygon";
     QString train_config = "vl60pk-1543";
-    QString trajectory_name = "route1_0001";
+    QString trajectory_name = "route1_0001_1";
     int     direction = 1;
-    double  init_coord = 0.0;
+    double  init_coord = 780.0;
     double  init_velocity = 0.0;
     double  coeff_to_wheel_rail_friction = 1.0;
     int     integration_time_interval = 15;

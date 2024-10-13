@@ -148,7 +148,7 @@ void SafetyDevice::alsn_process(int code_alsn)
 {
     switch (code_alsn)
     {
-    case ALSN_NOCODE:
+    case ALSN::NO_CODE:
         {
             if (is_lamp_on(RED_YELLOW_LAMP))
             {
@@ -163,7 +163,7 @@ void SafetyDevice::alsn_process(int code_alsn)
 
             break;
         }
-    case ALSN_RED_YELLOW:
+    case ALSN::RED_YELLOW:
         {
             if (!is_lamp_on(RED_YELLOW_LAMP))
             {
@@ -175,14 +175,14 @@ void SafetyDevice::alsn_process(int code_alsn)
             break;
         }
 
-    case ALSN_YELLOW:
+    case ALSN::YELLOW:
         {
             lamp_on(YELLOW_LAMP);
 
             break;
         }
 
-    case ALSN_GREEN:
+    case ALSN::GREEN:
         {
             lamp_on(GREEN_LAMP);
 

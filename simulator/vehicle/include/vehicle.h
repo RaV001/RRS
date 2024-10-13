@@ -31,8 +31,6 @@
 #include    "profile-point.h"
 #include    "device-list.h"
 
-#include    "alsn-struct.h"
-
 #if defined(VEHICLE_LIB)
     #define VEHICLE_EXPORT  Q_DECL_EXPORT
 #else
@@ -181,8 +179,6 @@ public:
 
     void setCurrentKind(int value);
 
-    void setASLN(alsn_info_t alsn_info);
-
     void setKeysData(QByteArray data);
 
     void resetKeysData();
@@ -319,9 +315,6 @@ protected:
     control_signals_t   control_signals;
 
     feedback_signals_t  feedback_signals;
-
-    /// Информация АЛСН
-    alsn_info_t     alsn_info;
 
     /// User defined initialization
     virtual void initialization();
