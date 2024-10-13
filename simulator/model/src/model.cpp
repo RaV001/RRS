@@ -139,27 +139,9 @@ bool Model::init(const simulator_command_line_t &command_line)
     dt = init_data.solver_config.step;
     integration_time_interval = init_data.integration_time_interval;
 
-    // Load profile
-    Journal::instance()->info("==== Profile data loading ====");
-    FileSystem &fs = FileSystem::getInstance();
-    std::string route_dir_path = fs.combinePath(fs.getRouteRootDir(), init_data.route_dir_name.toStdString());
-    profile = new Profile(init_data.direction, route_dir_path);
-
-    Journal::instance()->info(QString("State Profile object at address: 0x%1")
-                              .arg(reinterpret_cast<quint64>(profile), 0, 16));
-
-    if (profile->isReady())
-    {
-        Journal::instance()->info("Profile loaded successfully");
-    }
-    else
-    {
-        Journal::instance()->warning("Profile is't loaded. Using flat profile");
-    }
-
     // Train creation and initialization
     Journal::instance()->info("==== Train initialization ====");
-    train = new Train(profile);
+    train = new Train();
     train->setTopology(topology);
 
     Journal::instance()->info(QString("Created Train object at address: 0x%1")

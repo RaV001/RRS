@@ -24,7 +24,6 @@
 #include    "device-joint.h"
 #include    "solver.h"
 #include    "solver-config.h"
-#include    "profile.h"
 
 #include    <topology.h>
 
@@ -50,7 +49,7 @@ class TRAIN_EXPORT Train : public OdeSystem
 public:
 
     /// Constructor
-    explicit Train(Profile *profile, QObject *parent = Q_NULLPTR);
+    explicit Train(QObject *parent = Q_NULLPTR);
     /// Destructor
     virtual ~Train();
 
@@ -114,9 +113,6 @@ private:
 
     /// Direction of motion on railway
     int             dir = 1;
-
-    /// Profile manager
-    Profile     *profile = nullptr;
 
     /// Coefficient to friction between wheel and rail
     double      coeff_to_wheel_rail_friction = 1.0;

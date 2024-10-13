@@ -31,8 +31,6 @@
 #include    <simulator-update-struct.h>
 #include    <controlled-struct.h>
 
-#include    <profile.h>
-
 #include    <keys-control.h>
 
 #include    <virtual-interface-device.h>
@@ -125,9 +123,6 @@ private:
 
     /// Train model
     Train       *train = nullptr;
-
-    /// Profile
-    Profile     *profile = nullptr;
 
     /// TCP-server
     //Server      *server = nullptr;
