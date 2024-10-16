@@ -19,63 +19,62 @@ public:
 private:
 
     /// Сцепка спереди
-    Coupling *coupling_fwd;
+    Coupling *coupling_fwd = nullptr;
+    QString coupling_module_name = "sa3";
     /// Сцепка сзади
-    Coupling *coupling_bwd;
-    QString coupling_module_name;
-    QString coupling_config_name;
+    Coupling *coupling_bwd = nullptr;
+    QString coupling_config_name = "sa3";
 
     /// Расцепной рычаг спереди
-    OperatingRod *oper_rod_fwd;
+    OperatingRod *oper_rod_fwd = nullptr;
     /// Расцепной рычаг сзади
-    OperatingRod *oper_rod_bwd;
+    OperatingRod *oper_rod_bwd = nullptr;
 
     /// Тормозная магистраль
-    Reservoir   *brakepipe;
-    double      bp_leak;
+    Reservoir   *brakepipe = nullptr;
+    double      bp_leak = 0.0;
 
     /// Воздухораспределитель
-    AirDistributor  *air_dist;
-    QString     air_dist_module;
-    QString     air_dist_config;
+    AirDistributor  *air_dist = nullptr;
+    QString     air_dist_module = "vr483";
+    QString     air_dist_config = "vr483";
 
     /// Электровоздухораспределитель
-    ElectroAirDistributor   *electro_air_dist;
-    QString     electro_air_dist_module;
-    QString     electro_air_dist_config;
+    ElectroAirDistributor   *electro_air_dist = nullptr;
+    QString     electro_air_dist_module = "";
+    QString     electro_air_dist_config = "";
 
     /// Запасный резервуар
-    Reservoir   *supply_reservoir;
-    double      sr_volume;
-    double      sr_leak;
+    Reservoir   *supply_reservoir = nullptr;
+    double      sr_volume = 0.078;
+    double      sr_leak = 0.0;
 
     /// Концевой кран тормозной магистрали спереди
-    PneumoAngleCock *anglecock_bp_fwd;
+    PneumoAngleCock *anglecock_bp_fwd = nullptr;
     /// Концевой кран тормозной магистрали сзади
-    PneumoAngleCock *anglecock_bp_bwd;
-    QString     anglecock_bp_config;
+    PneumoAngleCock *anglecock_bp_bwd = nullptr;
+    QString     anglecock_bp_config = "pneumo-anglecock-BP";
 
     /// Рукав тормозной магистрали спереди
-    PneumoHoseEPB   *hose_bp_fwd;
+    PneumoHoseEPB   *hose_bp_fwd = nullptr;
     /// Рукав тормозной магистрали сзади
-    PneumoHoseEPB   *hose_bp_bwd;
-    QString     hose_bp_module;
-    QString     hose_bp_config;
+    PneumoHoseEPB   *hose_bp_bwd = nullptr;
+    QString     hose_bp_module = "";
+    QString     hose_bp_config = "pneumo-hose-BP";
 
     /// Авторежим
-    BrakeAutoMode *automode;
-    QString     automode_module;
-    QString     automode_config;
+    BrakeAutoMode *automode = nullptr;
+    QString     automode_module = "";
+    QString     automode_config = "";
 
     /// Тормозная рычажная передача
-    BrakeMech   *brake_mech;
-    QString     brake_mech_config;
-
-    /// Признак включения регистрации
-    bool is_Registrator_on;
+    BrakeMech   *brake_mech = nullptr;
+    QString     brake_mech_config = "carbrakes-mech-composite";
 
     /// Регистратор параметров
-    Registrator *registrator;
+    Registrator *registrator = nullptr;
+    /// Признак включения регистрации
+    bool is_Registrator_on = false;
 
     void initialization();
 
