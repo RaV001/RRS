@@ -28,48 +28,6 @@
 //
 //------------------------------------------------------------------------------
 Vehicle::Vehicle(QObject *parent) : QObject(parent)
-  , module_dir("")
-  , module_name("")
-  , config_dir("")
-  , config_name("")
-  , route_dir("")
-  , soundDirectory("")
-  , idx(0)
-  , empty_mass(24000.0)
-  , payload_mass(68000.0)
-  , payload_coeff(0.0)
-  , full_mass(empty_mass + payload_mass * payload_coeff)
-  , length(14.7)
-  , num_axis(0)
-  , psi_coeff(1.0)
-  , F_fwd(0.0)
-  , F_bwd(0.0)
-  , F_g(0.0)
-  , s(1)
-  , train_coord(0.0)
-  , velocity(0.0)
-  , b0(0.0)
-  , b1(0.0)
-  , b2(0.0)
-  , b3(0.0)
-  , q0(24.0)
-  , W_coef((b0 + b1 / q0) * Physics::g / 1000.0)
-  , W_coef_v((b2 / q0) * Physics::g * Physics::kmh / 1000.0)
-  , W_coef_v2((b3 / q0) * Physics::g * Physics::kmh * Physics::kmh / 1000.0)
-  , W_coef_curv(700.0 * Physics::g / 1000.0)
-  , psi_a(0.0)
-  , psi_b(30.0)
-  , psi_c(100.0)
-  , psi_d(1.0)
-  , psi_e(0.0)
-  , profile_point_data(profile_point_t())
-  , dir(1)
-  , orient(1)
-  , DebugMsg(" ")
-  , prev_vehicle(nullptr)
-  , next_vehicle(nullptr)
-  , Uks(0.0)
-  , current_kind(0)
 {
     std::fill(analogSignal.begin(), analogSignal.end(), 0.0f);
 }
@@ -299,14 +257,6 @@ QString Vehicle::getModuleDir() const
 QString Vehicle::getModuleName() const
 {
     return module_name;
-}
-
-//------------------------------------------------------------------------------
-//
-//------------------------------------------------------------------------------
-QString Vehicle::getSoundsDir() const
-{
-    return soundDirectory;
 }
 
 //------------------------------------------------------------------------------
@@ -773,7 +723,6 @@ void Vehicle::loadConfiguration(QString cfg_path)
         cfg.getInt(secName, "NumAxis", axis);
         cfg.getDouble(secName, "WheelDiameter", diameter);
         cfg.getDouble(secName, "WheelInertia", J);
-        cfg.getString(secName, "SoundDir", soundDirectory);
 
         Journal::instance()->info(QString("EmptyMass: %1 kg").arg(empty_mass));
         Journal::instance()->info(QString("PayloadMass: %1 kg").arg(payload_mass));
@@ -817,8 +766,6 @@ void Vehicle::loadConfiguration(QString cfg_path)
             num_axis = 0;
             Journal::instance()->warning(QString("NumAxis is zero. Wheel's model will't used"));
         }
-
-        Journal::instance()->info(QString("SoundsDirectory: " + soundDirectory));
 
         QString main_resist_cfg = "";
         cfg.getString(secName, "MainResist", main_resist_cfg);

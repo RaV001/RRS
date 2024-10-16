@@ -113,8 +113,6 @@ public:
     QString getConfigDir() const;
     /// Get Vehicle configuration file name
     QString getConfigName() const;
-    /// Get vehicle sounds directory
-    QString getSoundsDir() const;
 
     /// Get vehicle index
     size_t getIndex() const;
@@ -194,109 +192,106 @@ signals:
 protected:
 
     /// Vehicle configuration file directory
-    QString module_dir;
+    QString module_dir = "";
     /// Vehicle configuration file name
-    QString module_name;
+    QString module_name = "";
     /// Vehicle configuration file directory
-    QString config_dir;
+    QString config_dir = "";
     /// Vehicle configuration file name
-    QString config_name;
+    QString config_name = "";
     /// Current route directory
-    QString route_dir;
-    /// Vehicle sounds directory
-    QString soundDirectory;
+    QString route_dir = "";
 
     /// Vehicle ODE system index
-    size_t     idx;
+    size_t     idx = 0;
 
     /// Empty vehicle mass (without payload)
-    double  empty_mass;
+    double  empty_mass = 25000.0;
     /// Full payload mass
-    double  payload_mass;
+    double  payload_mass = 65000.0;
     /// Payload coefficient (0.0 - empty, 1.0 - full payload)
-    double  payload_coeff;
+    double  payload_coeff = 0.0;
     /// Full vehicle mass
-    double  full_mass;
+    double  full_mass = 25000.0;
     /// Length between coupling's axis
-    double  length;
-
-    /// Numder of axis
-    size_t              num_axis;
-    /// Wheels rotation angles
-    std::vector<double> wheel_rotation_angle;
-    /// Wheels angular velocities
-    std::vector<double> wheel_omega;
-    /// Wheel diameter
-    std::vector<double> wheel_diameter;
-    /// Wheel radius
-    std::vector<double> rk;
-    /// Axis moment of inertia
-    std::vector<double> J_axis;
-    /// Vertical axis load
-    std::vector<double> axis_load;
-    /// Friction coefficient between wheel and rail
-    std::vector<double> psi;
-    /// Friction coefficient changing
-    double              psi_coeff;
-
-    /// Forward coupling force
-    double  F_fwd;
-    /// Backward coupling force
-    double  F_bwd;
-    /// Gravity force from profile inclination
-    double  F_g;
-
-    /// Number of degrees of freedom
-    size_t  s;
-
-    /// Train coordinate
-    double train_coord;
-    /// Body velocity
-    double velocity;
+    double  length = 13.92;
 
     // Main resistant's coefficients
-    double  b0;
-    double  b1;
-    double  b2;
-    double  b3;
-    double  q0;
-    double  W_coef;
-    double  W_coef_v;
-    double  W_coef_v2;
-    double  W_coef_curv;
+    double  b0 = 0.7;
+    double  b1 = 8.0;
+    double  b2 = 0.08;
+    double  b3 = 0.002;
+    double  q0 = full_mass / 4.0;
+    double  W_coef = (b0 + b1 / q0) * Physics::g / 1000.0;
+    double  W_coef_v = (b2 / q0) * Physics::g * Physics::kmh / 1000.0;
+    double  W_coef_v2 = (b3 / q0) * Physics::g * Physics::kmh * Physics::kmh / 1000.0;
+    double  W_coef_curv = 700.0 * Physics::g / 1000.0;
 
     // Wheels model's coefficients
-    double  psi_a;
-    double  psi_b;
-    double  psi_c;
-    double  psi_d;
-    double  psi_e;
+    double  psi_a = 0.0;
+    double  psi_b = 30.0;
+    double  psi_c = 100.0;
+    double  psi_d = 1.0;
+    double  psi_e = 0.0;
 
+    /// Numder of axis
+    size_t              num_axis = 4;
+    /// Wheels rotation angles
+    std::vector<double> wheel_rotation_angle = {0.0, 0.0, 0.0, 0.0};
+    /// Wheels angular velocities
+    std::vector<double> wheel_omega = {0.0, 0.0, 0.0, 0.0};
+    /// Wheel diameter
+    std::vector<double> wheel_diameter = {0.95, 0.95, 0.95, 0.95};
+    /// Wheel radius
+    std::vector<double> rk = {0.475, 0.475, 0.475, 0.475};
+    /// Axis moment of inertia
+    std::vector<double> J_axis = {100.0, 100.0, 100.0, 100.0};
+    /// Vertical axis load
+    std::vector<double> axis_load = {full_mass/4.0, full_mass/4.0, full_mass/4.0, full_mass/4.0};
+    /// Friction coefficient between wheel and rail
+    std::vector<double> psi = {psi_a+psi_b/psi_c, psi_a+psi_b/psi_c, psi_a+psi_b/psi_c, psi_a+psi_b/psi_c};
+    /// Friction coefficient changing
+    double              psi_coeff = 1.0;
 
-    profile_point_t profile_point_data;
+    /// Forward coupling force
+    double  F_fwd = 0.0;
+    /// Backward coupling force
+    double  F_bwd = 0.0;
+    /// Gravity force from profile inclination
+    double  F_g = 0.0;
+
+    /// Number of degrees of freedom
+    size_t  s = num_axis + 1;
+
+    /// Train coordinate
+    double train_coord = 0.0;
+    /// Body velocity
+    double velocity = 0.0;
+
+    profile_point_t profile_point_data = profile_point_t();
 
     /// Railway motion direction
-    int     dir;
+    int     dir = 1;
     /// Vehicle orientation
-    int     orient;
+    int     orient = 1;
 
-    QString DebugMsg;
+    QString DebugMsg = "";
 
-    Vehicle *prev_vehicle;
-    Vehicle *next_vehicle;
+    Vehicle *prev_vehicle = nullptr;
+    Vehicle *next_vehicle = nullptr;
 
     /// Напряжение в КС
-    double      Uks;
+    double      Uks = 25000.0;
 
     /// Род тока в КС
-    int         current_kind;
+    int         current_kind = 1;
 
     /// Active common forces
-    state_vector_t  Q_a;
+    state_vector_t  Q_a = {0.0, 0.0, 0.0, 0.0, 0.0};
     /// Reactive common forces
-    state_vector_t  Q_r;
+    state_vector_t  Q_r = {0.0, 0.0, 0.0, 0.0, 0.0};
     /// Vehicle common acceleration
-    state_vector_t  acceleration;
+    state_vector_t  acceleration = {0.0, 0.0, 0.0, 0.0, 0.0};
 
     /// Keyboard state
     QMap<int, bool> keys;
