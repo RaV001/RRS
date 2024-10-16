@@ -13,5 +13,6 @@
 #include    <overload-relay.h>
 #include    <sl2m.h>
 #include    <alsn-ukbm.h>
+#include    <ALSN-decoder.h>
 
 #endif // VL60K_HEADERS_H

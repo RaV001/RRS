@@ -94,4 +94,15 @@ void VL60k::stepSignalsOutput(double t, double dt)
     analogSignal[WHEEL_4] = static_cast<float>(wheel_rotation_angle[3] / 2.0 / Physics::PI);
     analogSignal[WHEEL_5] = static_cast<float>(wheel_rotation_angle[4] / 2.0 / Physics::PI);
     analogSignal[WHEEL_6] = static_cast<float>(wheel_rotation_angle[5] / 2.0 / Physics::PI);
+
+    // Лампы предварительной световой сигнализации УКБМ
+    analogSignal[SIG_LIGHT_PSS_L] = safety_device->getStatePSS();
+    analogSignal[SIG_LIGHT_PSS_R] = safety_device->getStatePSS();
+
+    // Лампы локомотивного светофора
+    analogSignal[LS_W] = safety_device->getWhiteLamp();
+    analogSignal[LS_YK] = safety_device->getRedYellowLamp();
+    analogSignal[LS_R] = safety_device->getRedLamp();
+    analogSignal[LS_Y] = safety_device->getYellowLamp();
+    analogSignal[LS_G] = safety_device->getGreenLamp();
 }

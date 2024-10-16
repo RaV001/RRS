@@ -13,7 +13,6 @@
 #include    <overload-relay.h>
 #include    <sl2m.h>
 #include    <alsn-ukbm.h>
-#include    <automatic-train-stop.h>
 #include    <ALSN-decoder.h>
 
 #endif // VL60PK_HEADERS_H

@@ -52,7 +52,7 @@ private:
     double  charge_press = 0.0;
 
     /// Передаточное число редуктора
-    double  ip = 2.73;
+    double  ip = 3.83;
 
     /// Подключение рукавов магистрали тормозных цилиндров к импульсной магистрали
     bool bc_hose_to_impulse_line = true;
@@ -326,6 +326,8 @@ private:
     std::array<Relay *, NUM_MOTORS> linear_contactor;
 
     double U_bat = 55.0;
+
+    DecoderALSN *alsn_decoder = new DecoderALSN;
 
     /// Общая инициализация локомотива
     void initialization();
