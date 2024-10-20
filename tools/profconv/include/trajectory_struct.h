@@ -101,6 +101,10 @@ struct split_zds_trajectory_t
 
     double length_bwd_traj = 0.0;
 
+    int state_bwd = 1;
+
+    int state_fwd = 1;
+
     split_zds_trajectory_t()
     {
 

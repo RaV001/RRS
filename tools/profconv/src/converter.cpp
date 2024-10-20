@@ -453,3 +453,58 @@ zds_track_t ZDSimConverter::getNearestTrack(dvec3 point, const zds_trajectory_da
     coord = result.route_coord;
     return result;
 }
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+double ZDSimConverter::calcCurvature(const zds_trajectory_data_t &tracks_data, size_t idx)
+{
+    if ((idx == 0) || (idx >= (tracks_data.size() - 1)))
+    {
+        return 0.0;
+    }
+
+    zds_track_t track0 = tracks_data[idx - 1];
+    zds_track_t track1 = tracks_data[idx];
+
+    return calcCurvature(track0, track1);
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+double ZDSimConverter::calcCurvature(const zds_track_t &track0, const zds_track_t &track1)
+{
+    // Направление первого трека
+    double A0 = track0.orth.x;
+    double B0 = track0.orth.y;
+
+    // Направление второго трека
+    double A1 = track1.orth.x;
+    double B1 = track1.orth.y;
+
+    double det = A0*B1 - A1*B0;
+
+    // Если треки параллельны - кривизна нулевая
+    if ( qAbs(det) < 1e-5 )
+    {
+        return 0.0;
+    }
+
+    // Центр первого трека
+    dvec3 S0 = - track0.orth * 0.5 * track0.length;
+    double D0 = A0 * S0.x + B0 * S0.y;
+
+    // Центр второго трека
+    dvec3 S1 = track1.orth * 0.5 * track1.length;
+    double D1 = A1 * S1.x + B1 * S1.y;
+
+    double xC = (B0*D1 - B1*D0) / det;
+    double yC = (A0*D1 - A1*D0) / det;
+
+    double rho = std::sqrt(xC * xC + yC * yC);
+
+    double curvature = 1 / rho;
+
+    return curvature;
+}

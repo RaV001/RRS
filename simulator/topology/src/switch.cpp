@@ -165,23 +165,57 @@ void Switch::configure(CfgReader &cfg, QDomNode secNode, traj_list_t &traj_list)
     if (inputs_count == 0)
     {
         Journal::instance()->error("Switch " + name + " has't incomming trajectories!!!");
+        state_bwd = 0;
+        ref_state_bwd = 0;
     }
     else
     {
         Journal::instance()->info("Incommnig trajectories: " + QString("%1").arg(inputs_count));
-        if (inputs_count == 2)
-            state_bwd = 1;
+        if (inputs_count != 2)
+        {
+            state_bwd = 0;
+            ref_state_bwd = 0;
+        }
+        else
+        {
+            if (state_bwd == -1)
+            {
+                ref_state_bwd = -1;
+            }
+            else
+            {
+                state_bwd = 1;
+                ref_state_bwd = 1;
+            }
+        }
     }
 
     if (outputs_count == 0)
     {
         Journal::instance()->error("Switch " + name + " has't outgoing trajectories!!!");
+        state_fwd = 0;
+        ref_state_fwd = 0;
     }
     else
     {
         Journal::instance()->info("Outgoing trajectories: " + QString("%1").arg(outputs_count));
-        if (outputs_count == 2)
-            state_fwd = 1;
+        if (outputs_count != 2)
+        {
+            state_fwd = 0;
+            ref_state_fwd = 0;
+        }
+        else
+        {
+            if (state_fwd == -1)
+            {
+                ref_state_fwd = -1;
+            }
+            else
+            {
+                state_fwd = 1;
+                ref_state_fwd = 1;
+            }
+        }
     }
 
     // Загружаем модули

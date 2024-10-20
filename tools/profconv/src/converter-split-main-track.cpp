@@ -670,12 +670,28 @@ void ZDSimConverter::splitMainTrajectory(const int &dir)
 
                         trajectories->push_back(new trajectory_t(trajectory));
 
-                        // Делаем траекторию главного пути "туда" сзади боковой
-                        (*split)->bwd_side_traj = (*split)->bwd_main_traj;
-                        // Делаем траекторию данного пути "обратно" сзади основной
-                        (*split)->bwd_main_traj = name_cur;
-                        (*split)->length_bwd_traj = trajectory_length;
+                        // Считаем кривизну каждого главного пути перед стрелкой
+                        // по двум предыдущим трекам
+                        double curvature1 = calcCurvature(tracks_data1, it->begin_at_track1 - 1);
+                        double curvature2 = calcCurvature(tracks_data2, it->prev_uid - 1);
 
+                        if (curvature1 <= curvature2)
+                        {
+                            // Делаем траекторию данного пути "обратно" сзади боковой
+                            (*split)->bwd_side_traj = name_cur;
+                            // Переключаем стрелку на данный боковой путь
+                            (*split)->state_bwd = -1;
+                        }
+                        else
+                        {
+                            // Делаем траекторию главного пути "туда" сзади боковой
+                            (*split)->bwd_side_traj = (*split)->bwd_main_traj;
+                            // Делаем траекторию данного пути "обратно" сзади основной
+                            (*split)->bwd_main_traj = name_cur;
+                            (*split)->length_bwd_traj = trajectory_length;
+                        }
+
+                        // Очистка
                         trajectory.points.clear();
                         trajectory_length = 0.0;
                         if (!(*split)->signal_bwd_liter.empty() || !(*split)->signal_fwd_liter.empty())
@@ -711,8 +727,25 @@ void ZDSimConverter::splitMainTrajectory(const int &dir)
                     {
                         if ((*split)->track_id == ((it)->begin_at_track1))
                         {
-                            // Делаем траекторию данного пути "обратно" спереди боковой
-                            (*split)->fwd_side_traj = name_next;
+                            // Считаем кривизну каждого главного пути перед стрелкой
+                            // по двум следующим трекам
+                            double curvature1 = calcCurvature(tracks_data1, it->begin_at_track1 + 1);
+                            double curvature2 = calcCurvature(tracks_data2, it->prev_uid + 1);
+
+                            if (curvature1 <= curvature2)
+                            {
+                                // Делаем траекторию данного пути "обратно" спереди боковой
+                                (*split)->fwd_side_traj = name_next;
+                            }
+                            else
+                            {
+                                // Делаем траекторию главного пути "туда" спереди боковой
+                                (*split)->fwd_side_traj = (*split)->fwd_main_traj;
+                                // Делаем траекторию данного пути "обратно" спереди основной
+                                (*split)->fwd_main_traj = name_next;
+                                // Переключаем стрелку на боковой путь "туда"
+                                (*split)->state_fwd = -1;
+                            }
                         }
                     }
                 }

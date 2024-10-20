@@ -147,6 +147,10 @@ private:
 
     zds_track_t getNearestTrack(dvec3 point, const zds_trajectory_data_t &tracks_data, float &coord);
 
+    double calcCurvature(const zds_trajectory_data_t &tracks_data, size_t idx);
+
+    double calcCurvature(const zds_track_t &track0, const zds_track_t &track1);
+
     bool readRouteMAP(const std::string &path, zds_route_map_data_t &map_data);
 
     bool readRouteMAP(QTextStream &stream, zds_route_map_data_t &map_data);
