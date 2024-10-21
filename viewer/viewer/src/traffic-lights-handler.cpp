@@ -43,7 +43,13 @@ bool TrafficLightsHandler::handle(const osgGA::GUIEventAdapter &ea,
     {
     case osgGA::GUIEventAdapter::FRAME:
         {
-            for (auto tl = traffic_lights.begin(); tl != traffic_lights.end(); ++tl)
+            for (auto tl = traffic_lights_fwd.begin(); tl != traffic_lights_fwd.end(); ++tl)
+            {
+                TrafficLight *traffic_light = tl.value();
+                traffic_light->update();
+            }
+
+            for (auto tl = traffic_lights_bwd.begin(); tl != traffic_lights_bwd.end(); ++tl)
             {
                 TrafficLight *traffic_light = tl.value();
                 traffic_light->update();
@@ -72,7 +78,8 @@ void TrafficLightsHandler::deserialize(QByteArray &data)
     std::cout << "Line signals : " << data_size << std::endl;
 
     // Очищаем список сигналов
-    traffic_lights.clear();
+    traffic_lights_fwd.clear();
+    traffic_lights_bwd.clear();
 
     for (size_t i = 0; i < data_size; ++i)
     {
@@ -89,7 +96,9 @@ void TrafficLightsHandler::deserialize(QByteArray &data)
 
         printSignalInfo(tl);
 
-        traffic_lights.insert(tl->getConnectorName(), tl);
+        (tl->getSignalDirection() == -1) ?
+            traffic_lights_bwd.insert(tl->getConnectorName(), tl) :
+            traffic_lights_fwd.insert(tl->getConnectorName(), tl);
     }
 
     stream >> data_size;
@@ -111,7 +120,9 @@ void TrafficLightsHandler::deserialize(QByteArray &data)
 
         printSignalInfo(tl);
 
-        traffic_lights.insert(tl->getConnectorName(), tl);
+        (tl->getSignalDirection() == -1) ?
+            traffic_lights_bwd.insert(tl->getConnectorName(), tl) :
+            traffic_lights_fwd.insert(tl->getConnectorName(), tl);
     }
 
     stream >> data_size;
@@ -133,7 +144,9 @@ void TrafficLightsHandler::deserialize(QByteArray &data)
 
         printSignalInfo(tl);
 
-        traffic_lights.insert(tl->getConnectorName(), tl);
+        (tl->getSignalDirection() == -1) ?
+            traffic_lights_bwd.insert(tl->getConnectorName(), tl) :
+            traffic_lights_fwd.insert(tl->getConnectorName(), tl);
     }
 }
 
@@ -205,7 +218,9 @@ void TrafficLightsHandler::slotUpdateSignal(QByteArray data)
         return;
     }
 
-    TrafficLight *tl = traffic_lights.value(conn_name, nullptr);
+    TrafficLight *tl = (signal_dir == -1) ?
+                            traffic_lights_bwd.value(conn_name, nullptr) :
+                            traffic_lights_fwd.value(conn_name, nullptr);
 
     if (tl == nullptr)
     {
@@ -220,41 +235,56 @@ void TrafficLightsHandler::slotUpdateSignal(QByteArray data)
 //------------------------------------------------------------------------------
 void TrafficLightsHandler::load_signal_models(const settings_t &settings)
 {
-    for (auto tl = traffic_lights.begin(); tl != traffic_lights.end(); ++tl)
+    for (auto it = traffic_lights_fwd.begin(); it != traffic_lights_fwd.end(); ++it)
     {
-        if (!signal_nodes_paths.value(tl.value()->getModelName(), "").isEmpty())
-        {
-            osg::ref_ptr<osg::MatrixTransform> transform = new osg::MatrixTransform;
+        TrafficLight *tl = it.value();
+        load_signal_model(tl, settings);
+    }
 
-            osg::Matrixd m1 = osg::Matrixd::translate(tl.value()->getPosition());
+    for (auto it = traffic_lights_bwd.begin(); it != traffic_lights_bwd.end(); ++it)
+    {
+        TrafficLight *tl = it.value();
+        load_signal_model(tl, settings);
+    }
+}
 
-            int sd = tl.value()->getSignalDirection();
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+void TrafficLightsHandler::load_signal_model(TrafficLight *tl, const settings_t &settings)
+{
+    if (!signal_nodes_paths.value(tl->getModelName(), "").isEmpty())
+    {
+        osg::ref_ptr<osg::MatrixTransform> transform = new osg::MatrixTransform;
 
-            osg::Vec3d o = tl.value()->getOrth();
-            osg::Vec3d r = tl.value()->getRight();
-            osg::Vec3d u = tl.value()->getUp();
+        osg::Matrixd m1 = osg::Matrixd::translate(tl->getPosition());
+
+        int sd = tl->getSignalDirection();
+
+        osg::Vec3d o = tl->getOrth();
+        osg::Vec3d r = tl->getRight();
+        osg::Vec3d u = tl->getUp();
 
 
-            osg::Matrixd m2(r.x(), -o.x(), u.x(), 0,
-                            -r.y(), o.y(), u.y(), 0,
-                            r.z(), o.z(), u.z(), 0,
-                            0, 0, 0, 1);
+        osg::Matrixd m2(r.x(), -o.x(), u.x(), 0,
+                        -r.y(), o.y(), u.y(), 0,
+                        r.z(), o.z(), u.z(), 0,
+                        0, 0, 0, 1);
 
-            QString node_path = signal_nodes_paths.value(tl.value()->getModelName(), "");
+        QString node_path = signal_nodes_paths.value(tl->getModelName(), "");
 
-            osg::ref_ptr<osg::Node> signal_node = osgDB::readNodeFile(node_path.toStdString());
-            signal_node->setDataVariance(osg::Object::DYNAMIC);
+        osg::ref_ptr<osg::Node> signal_node = osgDB::readNodeFile(node_path.toStdString());
+        signal_node->setDataVariance(osg::Object::DYNAMIC);
 
-            TrafficLight *traffic_light = tl.value();
-            traffic_light->setNode(signal_node.get());
-            traffic_light->load_animations(animations_dir);            
+        TrafficLight *traffic_light = tl;
+        traffic_light->setNode(signal_node.get());
+        traffic_light->load_animations(animations_dir);
 
-            animation_mangers.push_back(new AnimationManager(traffic_light->getAnimationsListPtr()));
+        animation_mangers.push_back(new AnimationManager(traffic_light->getAnimationsListPtr()));
 
-            transform->setMatrix(m2 * m1);
-            transform->addChild(signal_node.get());
-            signals_group->addChild(transform);
-        }
+        transform->setMatrix(m2 * m1);
+        transform->addChild(signal_node.get());
+        signals_group->addChild(transform);
     }
 }
 

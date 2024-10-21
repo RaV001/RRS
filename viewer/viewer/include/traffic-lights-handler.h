@@ -51,7 +51,9 @@ public slots:
 
 private:
 
-    QMap<QString, TrafficLight *> traffic_lights;
+    QMap<QString, TrafficLight *> traffic_lights_fwd;
+
+    QMap<QString, TrafficLight *> traffic_lights_bwd;
 
     osg::ref_ptr<osg::Group> signals_group = new osg::Group;
 
@@ -63,7 +65,7 @@ private:
 
     void printSignalInfo(TrafficLight *tl);
 
-
+    void load_signal_model(TrafficLight *tl, const settings_t &settings);
 };
 
 #endif
