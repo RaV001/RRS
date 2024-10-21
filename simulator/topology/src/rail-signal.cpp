@@ -110,13 +110,15 @@ bool Signal::calcPosition(dvec3 &pos)
         return false;
     }
 
-    pos = conn_pos + track.trav * (rel_pos.x * signal_dir) +
+    pos = conn_pos +
+          track.trav * (rel_pos.x * signal_dir) +
           track.orth * (rel_pos.y * signal_dir) +
-           track.up * rel_pos.z;
+          track.up * rel_pos.z;
 
-    right = track.trav;
-    orth = track.orth;
-    up = track.up;
+    // Делаем систему координат светофора вертикальной и повёрнутой в нужную сторону
+    right = normalize(dvec3(track.trav.x * signal_dir, track.trav.y * signal_dir, 0.0));
+    orth = normalize(dvec3(track.orth.x * signal_dir, track.orth.y * signal_dir, 0.0));
+    up = dvec3(0.0, 0.0, 1.0);
 
     return true;
 }

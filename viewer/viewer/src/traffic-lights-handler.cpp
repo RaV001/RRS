@@ -230,13 +230,13 @@ void TrafficLightsHandler::load_signal_models(const settings_t &settings)
 
             int sd = tl.value()->getSignalDirection();
 
-            osg::Vec3d o = tl.value()->getOrth() * sd;
-            osg::Vec3d r = tl.value()->getRight() * sd;
+            osg::Vec3d o = tl.value()->getOrth();
+            osg::Vec3d r = tl.value()->getRight();
             osg::Vec3d u = tl.value()->getUp();
 
 
-            osg::Matrixd m2(r.x(), o.x(), u.y(), 0,
-                            r.y(), o.y(), u.y(), 0,
+            osg::Matrixd m2(r.x(), -o.x(), u.x(), 0,
+                            -r.y(), o.y(), u.y(), 0,
                             r.z(), o.z(), u.z(), 0,
                             0, 0, 0, 1);
 
@@ -263,12 +263,16 @@ void TrafficLightsHandler::load_signal_models(const settings_t &settings)
 //------------------------------------------------------------------------------
 void TrafficLightsHandler::printSignalInfo(TrafficLight *tl)
 {
-    QString msg = QString("Signal in connector %1 is initialized. Letter: %2 | position: {%3, %4, %5}")
+    QString msg = QString("Signal at connector %1 is initialized. Letter: %2 | position: {%3, %4, %5} | direction: %6 {%7, %8, %9}")
                       .arg(tl->getConnectorName())
                       .arg(tl->getLetter())
-                      .arg(tl->getPosition().x())
-                      .arg(tl->getPosition().y())
-                      .arg(tl->getPosition().z());
+                      .arg(tl->getPosition().x(), 8, 'f', 1)
+                      .arg(tl->getPosition().y(), 8, 'f', 1)
+                      .arg(tl->getPosition().z(), 8, 'f', 1)
+                      .arg(tl->getSignalDirection() == -1 ? "BWD" : "FWD")
+                      .arg(tl->getOrth().x(), 6, 'f', 3)
+                      .arg(tl->getOrth().y(), 6, 'f', 3)
+                      .arg(tl->getOrth().z(), 6, 'f', 3);
 
     std::cout << msg.toStdString() << std::endl;
 }
