@@ -42,6 +42,9 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
     connect(tcp_client, &TcpClient::updateSignal,
             this, &MainWindow::slotUpdateSignal);
 
+    connect(tcp_client, &TcpClient::sendLogMessage,
+            this, &MainWindow::slotRecvLogMessage);
+
     map = new MapWidget(ui->Map);
 
     load_config("../cfg/route-map-tcp.xml");
@@ -496,4 +499,9 @@ void MainWindow::slotUpdateSignal(QByteArray signal_data)
     {
         conn->getSignalBwd()->deserialize(signal_data);
     }
+}
+
+void MainWindow::slotRecvLogMessage(QString msg)
+{
+    ui->ptLog->appendPlainText(msg);
 }

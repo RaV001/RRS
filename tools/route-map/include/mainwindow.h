@@ -82,6 +82,8 @@ private slots:
     void slotGetSignalsData(QByteArray &sig_data);
 
     void slotUpdateSignal(QByteArray signal_data);
+
+    void slotRecvLogMessage(QString msg);
 };
 
 #endif // MAINWINDOW_H

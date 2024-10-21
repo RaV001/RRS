@@ -56,7 +56,9 @@ signals:
 
     void setSignalsData(QByteArray &signals_data);
 
-    void updateSignal(QByteArray signal_data);    
+    void updateSignal(QByteArray signal_data);
+
+    void sendLogMessage(QString msg);
 
 private:
 
@@ -73,6 +75,8 @@ private:
     qsizetype wait_data_size = 0;
 
     bool is_first_data = true;
+
+    QDataStream     in;
 
     void connectToServer(const tcp_config_t &tcp_config);
 

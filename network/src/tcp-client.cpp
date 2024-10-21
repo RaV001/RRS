@@ -28,6 +28,8 @@ bool TcpClient::init(const tcp_config_t &tcp_config)
     connect(connectionTimer, &QTimer::timeout, this, &TcpClient::slotOnConnectionTimeout);
 
     socket = new QTcpSocket(this);
+    in.setDevice(socket);
+    in.setVersion(QDataStream::Qt_4_0);
 
     connect(socket, &QTcpSocket::connected, this, &TcpClient::slotConnect);
     connect(socket, &QTcpSocket::destroyed, this, &TcpClient::slotDisconnect);
@@ -114,7 +116,7 @@ bool TcpClient::isConnected() const
 void TcpClient::connectToServer(const tcp_config_t &tcp_config)
 {
     socket->abort();
-    socket->connectToHost(tcp_config.host_addr,
+    socket->connectToHost(QHostAddress(tcp_config.host_addr),
                           tcp_config.port,
                           QIODevice::ReadWrite);
 }
@@ -187,6 +189,8 @@ void TcpClient::slotOnConnectionTimeout()
     {
         this->connectToServer(tcp_config);
         Journal::instance()->info("Try connect to server...");
+
+        emit sendLogMessage("Try connect to server...");
     }
 }
 
