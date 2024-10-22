@@ -1,6 +1,8 @@
 #include    <tcp-client.h>
 #include    <CfgReader.h>
-#include    <Journal.h>
+#include    <iostream>
+#include    <QTcpSocket>
+#include    <QNetworkProxy>
 
 //------------------------------------------------------------------------------
 //
@@ -23,9 +25,11 @@ TcpClient::~TcpClient()
 //------------------------------------------------------------------------------
 bool TcpClient::init(const tcp_config_t &tcp_config)
 {
+    this->tcp_config = tcp_config;
     connectionTimer = new QTimer(this);
     connectionTimer->setInterval(tcp_config.reconnect_interval);
     connect(connectionTimer, &QTimer::timeout, this, &TcpClient::slotOnConnectionTimeout);
+    connect(socket, &QTcpSocket::errorOccurred, this, &TcpClient::slotAcceptError);
 
     socket = new QTcpSocket(this);
     in.setDevice(socket);
@@ -34,6 +38,8 @@ bool TcpClient::init(const tcp_config_t &tcp_config)
     connect(socket, &QTcpSocket::connected, this, &TcpClient::slotConnect);
     connect(socket, &QTcpSocket::destroyed, this, &TcpClient::slotDisconnect);
     connect(socket, &QTcpSocket::readyRead, this, &TcpClient::slotReceive);
+
+    socket->setProxy(QNetworkProxy(QNetworkProxy::NoProxy));
 
     connectionTimer->start();
 
@@ -107,7 +113,12 @@ bool TcpClient::isConnected() const
         return false;
     }
 
-    return socket->state() == QTcpSocket::ConnectedState;
+    if (socket->state() == QAbstractSocket::ConnectedState)
+    {
+        return true;
+    }
+
+    return false;
 }
 
 //------------------------------------------------------------------------------
@@ -185,13 +196,13 @@ void TcpClient::slotDisconnect()
 //------------------------------------------------------------------------------
 void TcpClient::slotOnConnectionTimeout()
 {
-    if (!isConnected())
-    {
+    //if (!isConnected())
+    //{
         this->connectToServer(tcp_config);
-        Journal::instance()->info("Try connect to server...");
+        //Journal::instance()->info("Try connect to server...");
 
         emit sendLogMessage("Try connect to server...");
-    }
+    //}
 }
 
 //------------------------------------------------------------------------------
@@ -229,4 +240,9 @@ void TcpClient::slotReceive()
 
         is_first_data = true;
     }
+}
+
+void TcpClient::slotAcceptError(QAbstractSocket::SocketError error)
+{
+
 }

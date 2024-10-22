@@ -90,7 +90,9 @@ public slots:
 
     void slotOnConnectionTimeout();
 
-    void slotReceive();    
+    void slotReceive();
+
+    void slotAcceptError(QAbstractSocket::SocketError error);
 };
 
 #endif
