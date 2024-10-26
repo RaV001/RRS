@@ -198,19 +198,82 @@ bool Trajectory::isBusy(double coord_begin, double coord_end) const
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
+int Trajectory::getBusyVehicle(double coord, double distance, int direction)
+{
+    double coord_begin = coord;
+    double coord_end = coord;
+    if (direction == -1)
+    {
+        coord_begin = coord_begin - distance;
+        if (is_busy)
+        {
+            // TODO // Сделать поиск ближайшей, а не первой попавшейся ПЕ
+            for (auto vc_it = vehicles_coords.begin(); vc_it != vehicles_coords.end(); ++vc_it)
+            {
+                if ((vc_it.value()[1] >= coord_begin) && (vc_it.value()[0] <= coord_end))
+                    return vc_it.key();
+            }
+        }
+
+        // Проверяем переход на предыдущую траекторию
+        if (coord_begin < 0.0)
+        {
+            if (bwd_connector == Q_NULLPTR)
+                return -1;
+
+            Trajectory *traj = bwd_connector->getBwdTraj();
+            if (traj == Q_NULLPTR)
+                return -1;
+
+            return traj->getBusyVehicle(traj->getLength(), -coord_begin, -1);
+        }
+    }
+    else
+    {
+        coord_end = coord_end + distance;
+        if (is_busy)
+        {
+            // TODO // Сделать поиск ближайшей, а не первой попавшейся ПЕ
+            for (auto vc_it = vehicles_coords.begin(); vc_it != vehicles_coords.end(); ++vc_it)
+            {
+                if ((vc_it.value()[1] >= coord_begin) && (vc_it.value()[0] <= coord_end))
+                    return vc_it.key();
+            }
+        }
+
+        // Проверяем переход на следующую траекторию
+        if (coord_end > len)
+        {
+            if (fwd_connector == Q_NULLPTR)
+                return -1;
+
+            Trajectory *traj = fwd_connector->getFwdTraj();
+            if (traj == Q_NULLPTR)
+                return -1;
+
+            return traj->getBusyVehicle(0.0, coord_end - len, 1);
+        }
+    }
+
+    return -1;
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
 void Trajectory::getBusyCoords(double &busy_begin_coord, double &busy_end_coord)
 {
-    busy_begin_coord = 0.0;
-    busy_end_coord = len;
+    busy_begin_coord = len;
+    busy_end_coord = 0.0;
     if (is_busy)
     {
         for (auto vehicle_coord : vehicles_coords)
         {
-            if (busy_begin_coord < vehicle_coord[0])
-                busy_begin_coord = vehicle_coord[0];
+            if (busy_begin_coord > vehicle_coord[1])
+                busy_begin_coord = vehicle_coord[1];
 
-            if (busy_end_coord > vehicle_coord[1])
-                busy_end_coord = vehicle_coord[1];
+            if (busy_end_coord < vehicle_coord[0])
+                busy_end_coord = vehicle_coord[0];
         }
     }
 }

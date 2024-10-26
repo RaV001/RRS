@@ -54,7 +54,7 @@ void TrajectoryALSN::step(double t, double dt)
     // так как он зашунтирован колёсными парами ПЕ
     double busy_begin_coord;
     double busy_end_coord;
-    trajectory->getBusyCoords(busy_begin_coord, busy_end_coord);
+    trajectory->getBusyCoords(busy_end_coord, busy_begin_coord);
 
     // Ищем приёмные катушки АЛСН возле начала и конца занятого участка
     Device *first_device = nullptr;

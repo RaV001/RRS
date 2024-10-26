@@ -185,12 +185,11 @@ void VehicleController::updateTrajectories()
 {
     double vehicle_begin = traj_coord + length_half;
     double vehicle_end = traj_coord - length_half;
-    Trajectory *next_traj = current_traj;
 
     // Занятость пути
-    next_traj->setBusy(index, max(0.0, vehicle_end), min(vehicle_begin, next_traj->getLength()));
+    current_traj->setBusy(index, max(0.0, vehicle_end), min(vehicle_begin, current_traj->getLength()));
 
-
+    Trajectory *next_traj = current_traj;
     // Если траекторная координата превысила длину траектории
     // (заехали за стык или стрелку спереди), пока она её превышает...
     while (vehicle_begin > next_traj->getLength())

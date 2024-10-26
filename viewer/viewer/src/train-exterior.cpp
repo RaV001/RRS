@@ -537,7 +537,7 @@ void TrainExteriorHandler::processSharedData(double &ref_time)
         if (curr >= 0)
         {
             int curr_train = update_data[new_data].vehicles[curr].train_id;
-            hud_text += QString("Данная ПЕ: #%1 | Поезд #%2 | pos{%3,%4,%5} | dir{%6,%7,%8}\n")
+            hud_text += QString("Данная ПЕ: %1 | Поезд %2 | pos{%3,%4,%5} | dir{%6,%7,%8}\n")
                             .arg(curr, 3)
                             .arg(curr_train, 3)
                             .arg(update_data[new_data].vehicles[curr].position_x, 8, 'f', 1)
@@ -558,7 +558,7 @@ void TrainExteriorHandler::processSharedData(double &ref_time)
         if (control >= 0)
         {
             int control_train = update_data[new_data].vehicles[control].train_id;
-            hud_text += QString("Управляемая ПЕ: %1 | Поезд #%2 | pos{%3,%4,%5} | dir{%6,%7,%8}\n")
+            hud_text += QString("Управляемая ПЕ: %1 | Поезд %2 | pos{%3,%4,%5} | dir{%6,%7,%8}\n")
                             .arg(control, 3)
                             .arg(control_train, 3)
                             .arg(update_data[new_data].vehicles[control].position_x, 8, 'f', 1)

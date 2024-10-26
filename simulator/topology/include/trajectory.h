@@ -67,16 +67,27 @@ public:
         return bwd_connector;
     }
 
+    /// Задать занятость единицей подвижного состава idx в интервале координат
     void setBusy(size_t idx, double coord_begin, double coord_end);
 
+    /// Очистить занятость подвижным составом
     void clearBusy();
 
+    /// Задать признак занятости (для работы копии топологии вне движка)
     void setBusyState(bool busy_state);
 
+    /// Признак занятости подвижным составом
     bool isBusy() const;
 
+    /// Проверка занятости подвижным составом в интервале координат
     bool isBusy(double coord_begin, double coord_end) const;
 
+    /// Индекс ближайшей единицы подвижного состава, если есть;
+    /// -1, если нет подвижного состава в пределах дистанции поиска
+    int getBusyVehicle(double coord, double distance, int direction);
+
+    /// Интервал координат, занятых подвижным составом;
+    /// если пустая, busy_begin_coord = length; busy_end_coord = 0.0
     void getBusyCoords(double &busy_begin_coord, double &busy_end_coord);
 
     /// Вернуть первый трек траектории
