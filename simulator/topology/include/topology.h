@@ -29,8 +29,8 @@ public:
     /// Загрузка топологии ж/д полигона
     bool load(QString route_dir);
 
-    /// Общая инициализация
-    bool init(const topology_pos_t &tp, std::vector<Vehicle *> *vehicles);
+    /// Инициализация поезда
+    bool addTrain(const topology_pos_t &tp, std::vector<Vehicle *> *vehicles);
 
     /// Вернуть контроллер конкретной ПЕ
     VehicleController *getVehicleController(size_t idx);

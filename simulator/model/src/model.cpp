@@ -123,32 +123,27 @@ bool Model::init(const simulator_command_line_t &command_line)
     init_data_t init_data;
 
     // Load initial data configuration
-    Journal::instance()->info("==== Init data loading ====");
     loadInitData(init_data);
 
     // Override init data by command line
-    Journal::instance()->info("==== Command line processing ====");
     overrideByCommandLine(init_data, command_line);
 
     // Read solver configuration
-    Journal::instance()->info("==== Solver configurating ====");
     configSolver(init_data.solver_config);
 
-    start_time = init_data.solver_config.start_time;
-    stop_time = init_data.solver_config.stop_time;
-    dt = init_data.solver_config.step;
-    integration_time_interval = init_data.integration_time_interval;
+    // Load route topology
+    initTopology(init_data);
 
     // Train creation and initialization
-    Journal::instance()->info("==== Train initialization ====");
-    train = new Train();
-    train->setTopology(topology);
-
-    Journal::instance()->info(QString("Created Train object at address: 0x%1")
-                              .arg(reinterpret_cast<quint64>(train), 0, 16));
-
-    if (!train->init(init_data))
-        return false;
+    Train *train = addTrain(init_data);
+    if (train == nullptr)
+    {
+        exit(0);
+    }
+    else
+    {
+        trains.push_back(train);
+    }
 
     Journal::instance()->info("==== Info to shared memory ====");
     simulator_info_t   info_data;
@@ -185,13 +180,16 @@ bool Model::init(const simulator_command_line_t &command_line)
         Journal::instance()->error("Can't lock shared memory");
     }
 
+    start_time = init_data.solver_config.start_time;
+    stop_time = init_data.solver_config.stop_time;
+    dt = init_data.solver_config.step;
+    integration_time_interval = init_data.integration_time_interval;
+
     initControlPanel("control-panel");
 
     initSimClient("virtual-railway");
 
     //initTraffic(init_data);
-
-    initTopology(init_data);
 
     initTcpServer();
 
@@ -245,7 +243,8 @@ void Model::controlProcess()
 //------------------------------------------------------------------------------
 void Model::preStep(double t)
 {
-    train->preStep(t);
+    for (auto train : trains)
+        train->preStep(t);
 }
 
 //------------------------------------------------------------------------------
@@ -253,7 +252,10 @@ void Model::preStep(double t)
 //------------------------------------------------------------------------------
 bool Model::step(double t, double &dt)
 {
-    return train->step(t, dt);
+    bool step_correct = true;
+    for (auto train : trains)
+        step_correct &= train->step(t, dt);
+    return step_correct;
 }
 
 //------------------------------------------------------------------------------
@@ -261,7 +263,8 @@ bool Model::step(double t, double &dt)
 //------------------------------------------------------------------------------
 void Model::postStep(double t)
 {
-    train->postStep(t);
+    for (auto train : trains)
+        train->postStep(t);
 }
 
 //------------------------------------------------------------------------------
@@ -273,14 +276,14 @@ void Model::debugPrint()
             .arg(t)
             .arg(realtime_delay)
             .arg(dt)
-            .arg(train->getFirstVehicle()->getVelocity() * 3.6)
-            .arg(train->getLastVehicle()->getVelocity() * 3.6)
-            .arg(static_cast<double>(train->getFirstVehicle()->getAnalogSignal(0)))
-            .arg(static_cast<int>(train->getFirstVehicle()->getAnalogSignal(3)))
-            .arg(static_cast<double>(train->getFirstVehicle()->getAnalogSignal(2)))
-            .arg(static_cast<double>(train->getFirstVehicle()->getAnalogSignal(4)))
-            .arg(train->getFirstVehicle()->getTrainCoord())
-            .arg(static_cast<double>(train->getFirstVehicle()->getAnalogSignal(20)));
+            .arg(trains[0]->getFirstVehicle()->getVelocity() * 3.6)
+            .arg(trains[0]->getLastVehicle()->getVelocity() * 3.6)
+            .arg(static_cast<double>(trains[0]->getFirstVehicle()->getAnalogSignal(0)))
+            .arg(static_cast<int>(trains[0]->getFirstVehicle()->getAnalogSignal(3)))
+            .arg(static_cast<double>(trains[0]->getFirstVehicle()->getAnalogSignal(2)))
+            .arg(static_cast<double>(trains[0]->getFirstVehicle()->getAnalogSignal(4)))
+            .arg(trains[0]->getFirstVehicle()->getTrainCoord())
+            .arg(static_cast<double>(trains[0]->getFirstVehicle()->getAnalogSignal(20)));
 
     fputs(qPrintable(debug_info), stdout);
 }
@@ -290,6 +293,8 @@ void Model::debugPrint()
 //------------------------------------------------------------------------------
 void Model::loadInitData(init_data_t &init_data)
 {
+    Journal::instance()->info("==== Init data loading ====");
+
     CfgReader cfg;
     FileSystem &fs = FileSystem::getInstance();
     QString cfg_path = QString(fs.getConfigDir().c_str()) + fs.separator() + "init-data.xml";
@@ -364,6 +369,8 @@ void Model::loadInitData(init_data_t &init_data)
 void Model::overrideByCommandLine(init_data_t &init_data,
                                   const simulator_command_line_t &command_line)
 {
+    Journal::instance()->info("==== Command line processing ====");
+
     if (command_line.train_config.is_present)
     {
         init_data.train_config = command_line.train_config.value;
@@ -402,6 +409,8 @@ void Model::overrideByCommandLine(init_data_t &init_data,
 //------------------------------------------------------------------------------
 void Model::configSolver(solver_config_t &solver_config)
 {
+    Journal::instance()->info("==== Solver configuration ====");
+
     CfgReader cfg;
     FileSystem &fs = FileSystem::getInstance();
     QString cfg_path = QString(fs.getConfigDir().c_str()) + fs.separator() + "solver.xml";
@@ -510,7 +519,7 @@ void Model::initControlPanel(QString cfg_path)
         if (!cfg.getInt(secName, "Vehicle", v_idx))
             v_idx = 0;
 
-        Vehicle *vehicle = train->getVehicles()->at(static_cast<size_t>(v_idx));
+        Vehicle *vehicle = trains[0]->getVehicles()->at(static_cast<size_t>(v_idx));
 
         connect(vehicle, &Vehicle::sendFeedBackSignals,
                 control_panel, &VirtualInterfaceDevice::receiveFeedback);
@@ -527,10 +536,10 @@ void Model::initControlPanel(QString cfg_path)
 //------------------------------------------------------------------------------
 void Model::initSimClient(QString cfg_path)
 {
-    /*if (train->getTrainID().isEmpty())
+    /*if (trains[0]->getTrainID().isEmpty())
         return;
 
-    if (train->getClientName().isEmpty())
+    if (trains[0]->getClientName().isEmpty())
         return;
 
     CfgReader cfg;
@@ -551,7 +560,7 @@ void Model::initSimClient(QString cfg_path)
         }
 
         tcp_config.port = static_cast<quint16>(port);
-        tcp_config.name = train->getClientName();
+        tcp_config.name = trains[0]->getClientName();
 
         sim_client = new SimTcpClient();
         connect(this, &Model::getRecvData, sim_client, &SimTcpClient::getRecvData);
@@ -567,6 +576,51 @@ void Model::initSimClient(QString cfg_path)
     {
         Journal::instance()->error("There is no virtual railway configuration in file " + full_path);
     }*/
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+Train *Model::addTrain(const init_data_t &init_data)
+{
+    Journal::instance()->info("==== Train initialization ====");
+    Train *train = new Train();
+    train->setTopology(topology);
+    Journal::instance()->info(QString("Created Train object at address: 0x%1")
+                                  .arg(reinterpret_cast<quint64>(train), 0, 16));
+
+    if (train->init(init_data))
+    {
+        Journal::instance()->info(QString("Train initialized successfully"));
+
+        for (auto vehicle : *(train->getVehicles()))
+        {
+            vehicle->setModelIndex(vehicles.size());
+            vehicles.push_back(vehicle);
+        }
+
+        topology_pos_t tp;
+        tp.traj_name = init_data.trajectory_name;
+        tp.traj_coord = init_data.init_coord;
+        tp.dir = init_data.direction;
+
+        if (topology->addTrain(tp, train->getVehicles()))
+        {
+            Journal::instance()->info("Train added to topology successfully");
+        }
+        else
+        {
+            Journal::instance()->critical("CAN'T INITIALIZE TRAIN AT TOPOLOGY");
+            return nullptr;
+        }
+
+        return train;
+    }
+    else
+    {
+        Journal::instance()->error("Can't initialize Train");
+        return nullptr;
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -591,6 +645,8 @@ void Model::initTraffic(const init_data_t &init_data)
 //------------------------------------------------------------------------------
 void Model::initTopology(const init_data_t &init_data)
 {
+    Journal::instance()->info("==== Route topology loading ====");
+
     if (topology->load(init_data.route_dir_name))
     {
         Journal::instance()->info("Loaded topology for route " + init_data.route_dir_name);
@@ -598,20 +654,6 @@ void Model::initTopology(const init_data_t &init_data)
     else
     {
         Journal::instance()->error("FAILED TOPOLOGY LOAD!!!");
-    }
-
-    topology_pos_t tp;
-    tp.traj_name = init_data.trajectory_name;
-    tp.traj_coord = init_data.init_coord;
-    tp.dir = init_data.direction;
-
-    if (topology->init(tp, train->getVehicles()))
-    {
-        Journal::instance()->info("Topology initialized successfully");
-    }
-    else
-    {
-        Journal::instance()->critical("CAN'T INITIALIZE TOPOLOGY");
         exit(0);
     }
 }
@@ -628,7 +670,7 @@ void Model::initTcpServer()
 
     connect(tpc_server, &TcpServer::setTopologyData, this, &Model::slotGetTopologyData);
 
-    tcp_simulator_update.vehicles.resize(train->getVehiclesNumber());
+    tcp_simulator_update.vehicles.resize(vehicles.size());
 
     connect(tpc_server, &TcpServer::setSwitchState, topology, &Topology::getSwitchState);
     connect(topology, &Topology::sendSwitchState, tpc_server, &TcpServer::slotSendSwitchState);
@@ -672,9 +714,7 @@ void Model::tcpFeedBack()
     tcp_simulator_update.controlled_vehicle = controlled_vehicle;
 
     int i = 0;
-    std::vector<Vehicle *> *vehicles = train->getVehicles();
-
-    for (auto vehicle : *vehicles)
+    for (auto vehicle : vehicles)
     {
         profile_point_t *pp = vehicle->getProfilePoint();
 
@@ -688,7 +728,33 @@ void Model::tcpFeedBack()
         tcp_simulator_update.vehicles[i].up_y = pp->up.y;
         tcp_simulator_update.vehicles[i].up_z = pp->up.z;
 
-        tcp_simulator_update.vehicles[i].orientation = vehicle->getOrientation();
+        int orient = vehicle->getOrientation();
+        tcp_simulator_update.vehicles[i].orientation = orient;
+        if (orient == -1)
+        {
+            tcp_simulator_update.vehicles[i].next_vehicle =
+                (vehicle->getPrevVehicle() == nullptr) ?
+                    -1 :
+                    vehicle->getPrevVehicle()->getModelIndex();
+
+            tcp_simulator_update.vehicles[i].prev_vehicle =
+                (vehicle->getNextVehicle() == nullptr) ?
+                    -1 :
+                    vehicle->getNextVehicle()->getModelIndex();
+        }
+        else
+        {
+            tcp_simulator_update.vehicles[i].next_vehicle =
+                (vehicle->getNextVehicle() == nullptr) ?
+                    -1 :
+                    vehicle->getNextVehicle()->getModelIndex();
+
+            tcp_simulator_update.vehicles[i].prev_vehicle =
+                (vehicle->getPrevVehicle() == nullptr) ?
+                    -1 :
+                    vehicle->getPrevVehicle()->getModelIndex();
+        }
+
         tcp_simulator_update.vehicles[i].length = vehicle->getLength();
 
         tcp_simulator_update.vehicles[i].analogSignal = vehicle->getAnalogSignals();
@@ -751,9 +817,8 @@ void Model::sharedMemoryFeedback()
     update_data.controlled_vehicle = controlled_vehicle;
 
     int i = 0;
-    std::vector<Vehicle *> *vehicles = train->getVehicles();
 
-    for (auto vehicle : *vehicles)
+    for (auto vehicle : vehicles)
     {
         profile_point_t *pp = vehicle->getProfilePoint();
 
@@ -767,7 +832,32 @@ void Model::sharedMemoryFeedback()
         update_data.vehicles[i].up_y = pp->up.y;
         update_data.vehicles[i].up_z = pp->up.z;
 
-        update_data.vehicles[i].orientation = vehicle->getOrientation();
+        int orient = vehicle->getOrientation();
+        update_data.vehicles[i].orientation = orient;
+        if (orient == -1)
+        {
+            update_data.vehicles[i].next_vehicle =
+                (vehicle->getPrevVehicle() == nullptr) ?
+                    -1 :
+                    vehicle->getPrevVehicle()->getModelIndex();
+
+            update_data.vehicles[i].prev_vehicle =
+                (vehicle->getNextVehicle() == nullptr) ?
+                    -1 :
+                    vehicle->getNextVehicle()->getModelIndex();
+        }
+        else
+        {
+            update_data.vehicles[i].next_vehicle =
+                (vehicle->getNextVehicle() == nullptr) ?
+                    -1 :
+                    vehicle->getNextVehicle()->getModelIndex();
+
+            update_data.vehicles[i].prev_vehicle =
+                (vehicle->getPrevVehicle() == nullptr) ?
+                    -1 :
+                    vehicle->getPrevVehicle()->getModelIndex();
+        }
 
         std::copy(vehicle->getAnalogSignals().begin(),
                   vehicle->getAnalogSignals().end(),
@@ -875,7 +965,8 @@ void Model::process()
 
     tcpFeedBack();
 
-    train->inputProcess();
+    for (auto train : trains)
+        train->inputProcess();
 
     // Debug print, is allowed
     if (is_debug_print)

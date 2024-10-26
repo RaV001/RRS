@@ -121,8 +121,11 @@ private:
     int             controlled_vehicle = -1;
     int             prev_controlled_vehicle = -1;
 
+    /// All vehicles
+    std::vector<Vehicle *> vehicles;
+
     /// Train model
-    Train       *train = nullptr;
+    std::vector<Train *> trains;
 
     /// TCP-server
     //Server      *server = nullptr;
@@ -186,6 +189,9 @@ private:
     void initControlPanel(QString cfg_path);
 
     void initSimClient(QString cfg_path);
+
+    /// Инициализация поезда
+    Train *addTrain(const init_data_t &init_data);
 
     /// Инициализация трафика
     void initTraffic(const init_data_t &init_data);

@@ -17,7 +17,7 @@
 //------------------------------------------------------------------------------
 Topology::Topology(QObject *parent) : QObject(parent)
 {
-
+    vehicle_control.clear();
 }
 
 //------------------------------------------------------------------------------
@@ -107,15 +107,13 @@ bool Topology::load(QString route_dir)
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-bool Topology::init(const topology_pos_t &tp, std::vector<Vehicle *> *vehicles)
+bool Topology::addTrain(const topology_pos_t &tp, std::vector<Vehicle *> *vehicles)
 {
     if (vehicles->empty())
     {
         Journal::instance()->error("Vehicles list is empty!!!");
         return false;
     }
-
-    vehicle_control.resize(vehicles->size());
 
     // Находим уазатель на стартовую траекторию
     Trajectory *cur_traj = traj_list.value(tp.traj_name, Q_NULLPTR);
@@ -129,7 +127,8 @@ bool Topology::init(const topology_pos_t &tp, std::vector<Vehicle *> *vehicles)
 
     for (size_t i = 0; i < vehicles->size(); ++i)
     {
-        vehicle_control[i] = new VehicleController;
+        VehicleController *vc = new VehicleController;
+        //vehicle_control[i] = new VehicleController;
 
         // Смещаем координату центра данной ПЕ
         // на половину её длины и половину длины предыдущей ПЕ
@@ -196,14 +195,27 @@ bool Topology::init(const topology_pos_t &tp, std::vector<Vehicle *> *vehicles)
             cur_traj = next_traj;
         }
 
-        vehicle_control[i]->setIndex(i);
-        vehicle_control[i]->setLength(L);
-        vehicle_control[i]->setVehicleRailwayConnectors((*vehicles)[i]->getRailwayConnectors());
-        vehicle_control[i]->setInitCurrentTraj(cur_traj, traj_coord);
-        vehicle_control[i]->setDirection(tp.dir);
-        vehicle_control[i]->setInitCoord((*vehicles)[i]->getTrainCoord());
+        size_t idx = vehicle_control.size();
+        if ((*vehicles)[i]->getModelIndex() != idx)
+        {
+            Journal::instance()->warning(QString(
+                "Sizes of vehicles array at model and at topology are different."));
+            Journal::instance()->warning(QString(
+                "For vehicle [%1] index from topology vehicle controller [%2] will be used.")
+                                             .arg((*vehicles)[i]->getModelIndex())
+                                             .arg(idx));
 
-        Journal::instance()->info(QString("Vehcile #%1").arg(i) +
+            (*vehicles)[i]->setModelIndex(idx);
+        }
+        vc->setIndex(idx);
+        vc->setLength(L);
+        vc->setVehicleRailwayConnectors((*vehicles)[i]->getRailwayConnectors());
+        vc->setInitCurrentTraj(cur_traj, traj_coord);
+        vc->setDirection(tp.dir);
+        vc->setInitCoord((*vehicles)[i]->getTrainCoord());
+        vehicle_control.push_back(vc);
+
+        Journal::instance()->info(QString("Vehcile #%1").arg(idx) +
                                   " at traj: " + cur_traj->getName() +
                                   QString(" %1 m from start").arg(traj_coord));
     }

@@ -105,7 +105,7 @@ void Train::calcDerivative(state_vector_t &Y, state_vector_t &dYdt, double t, do
     for (auto it = begin; it != end; ++it)
     {
         Vehicle *vehicle = *it;
-        size_t idx = vehicle->getIndex();
+        size_t idx = vehicle->getStateIndex();
         size_t s = vehicle->getDegressOfFreedom();
 
         state_vector_t a = vehicle->getAcceleration(Y, t, dt);
@@ -125,19 +125,18 @@ void Train::preStep(double t)
     auto begin = vehicles.begin();
     auto end = vehicles.end();
 
-    int i = 0;
     for (auto it = begin; it != end; ++it)
     {
         Vehicle *vehicle = *it;
-        size_t idx = vehicle->getIndex();
+        size_t model_idx = vehicle->getModelIndex();
+        size_t idx = vehicle->getStateIndex();
 
-        topology->getVehicleController(i)->setDirection(dir * vehicle->getOrientation());
-        topology->getVehicleController(i)->setCoord(y[idx]);
-        *vehicle->getProfilePoint() = topology->getVehicleController(i)->getPosition();
+        topology->getVehicleController(model_idx)->setDirection(dir * vehicle->getOrientation());
+        topology->getVehicleController(model_idx)->setCoord(y[idx]);
+        *vehicle->getProfilePoint() = topology->getVehicleController(model_idx)->getPosition();
         vehicle->setFrictionCoeff(coeff_to_wheel_rail_friction);
 
         vehicle->integrationPreStep(y, t);
-        ++i;
     }
 }
 
@@ -251,7 +250,7 @@ double Train::getVelocity(size_t i) const
 {
     if (i < vehicles.size())
     {
-        size_t idx = vehicles[i]->getIndex();
+        size_t idx = vehicles[i]->getStateIndex();
         size_t s = vehicles[i]->getDegressOfFreedom();
         return y[idx + s];
     }
@@ -449,7 +448,7 @@ bool Train::loadTrain(QString cfg_path, const init_data_t &init_data)
                 vehicle->setConfigName(module_cfg_name);
                 vehicle->setRouteDir(init_data.route_dir_name);
 
-                vehicle->setIndex(ode_order);
+                vehicle->setStateIndex(ode_order);
                 vehicle->setPayloadCoeff(payload_coeff);
                 vehicle->setDirection(dir);
                 vehicle->setOrientation(orient);
@@ -706,7 +705,7 @@ void Train::setInitConditions(const init_data_t &init_data)
         Vehicle *vehicle = vehicles[i];
 
         size_t s = vehicle->getDegressOfFreedom();
-        size_t idx = vehicle->getIndex();
+        size_t idx = vehicle->getStateIndex();
 
         y[idx + s] = init_data.init_velocity / Physics::kmh;
         for (size_t j = 1; j < s; j++)
@@ -726,10 +725,10 @@ void Train::setInitConditions(const init_data_t &init_data)
     for (size_t i = 1; i < vehicles.size(); i++)
     {
         double Li_1 = vehicles[i-1]->getLength();
-        size_t idxi_1 = vehicles[i-1]->getIndex();
+        size_t idxi_1 = vehicles[i-1]->getStateIndex();
 
         double Li = vehicles[i]->getLength();
-        size_t idxi = vehicles[i]->getIndex();
+        size_t idxi = vehicles[i]->getStateIndex();
 
         y[idxi] = y[idxi_1] - dir *(Li + Li_1) / 2;
 

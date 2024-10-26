@@ -66,7 +66,10 @@ public:
     void setRouteDir(QString route_dir);
 
     /// Set vehicle index
-    void setIndex(size_t idx);
+    void setModelIndex(size_t idx);
+
+    /// Set vehicle state index
+    void setStateIndex(size_t idx);
 
     /// Set inclination
     void setProfilePoint(profile_point_t point_data);
@@ -115,7 +118,10 @@ public:
     QString getConfigName() const;
 
     /// Get vehicle index
-    size_t getIndex() const;
+    size_t getModelIndex() const;
+
+    /// Get vehicle index
+    size_t getStateIndex() const;
 
     profile_point_t *getProfilePoint();
 
@@ -144,6 +150,9 @@ public:
     double getWheelAngle(size_t i);
 
     double getWheelOmega(size_t i);
+
+    Vehicle *getPrevVehicle();
+    Vehicle *getNextVehicle();
 
     float getAnalogSignal(size_t i);
     std::array<float, MAX_ANALOG_SIGNALS> getAnalogSignals();
@@ -202,8 +211,11 @@ protected:
     /// Current route directory
     QString route_dir = "";
 
+    /// Vehicle index
+    size_t  model_idx = 0;
+
     /// Vehicle ODE system index
-    size_t     idx = 0;
+    size_t  state_idx = 0;
 
     /// Empty vehicle mass (without payload)
     double  empty_mass = 25000.0;

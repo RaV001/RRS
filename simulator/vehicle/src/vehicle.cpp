@@ -97,9 +97,17 @@ void Vehicle::setRouteDir(QString route_dir)
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-void Vehicle::setIndex(size_t idx)
+void Vehicle::setModelIndex(size_t idx)
 {
-    this->idx = idx;
+    this->model_idx = idx;
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+void Vehicle::setStateIndex(size_t idx)
+{
+    this->state_idx = idx;
 }
 
 //------------------------------------------------------------------------------
@@ -262,9 +270,17 @@ QString Vehicle::getModuleName() const
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-size_t Vehicle::getIndex() const
+size_t Vehicle::getModelIndex() const
 {
-    return idx;
+    return model_idx;
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+size_t Vehicle::getStateIndex() const
+{
+    return state_idx;
 }
 
 //------------------------------------------------------------------------------
@@ -367,6 +383,22 @@ double Vehicle::getWheelOmega(size_t i)
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
+Vehicle *Vehicle::getPrevVehicle()
+{
+    return prev_vehicle;
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+Vehicle *Vehicle::getNextVehicle()
+{
+    return next_vehicle;
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
 float Vehicle::getAnalogSignal(size_t i)
 {
     if (i < analogSignal.size())
@@ -418,7 +450,7 @@ state_vector_t Vehicle::getAcceleration(state_vector_t &Y, double t, double dt)
     int d = dir * orient;
 
     // Body velocity from state vector
-    double v = d * Y[idx + s];
+    double v = d * Y[state_idx + s];
     double abs_v = abs(v);
 
     // Forces from wheels to vehicle body
@@ -436,7 +468,7 @@ state_vector_t Vehicle::getAcceleration(state_vector_t &Y, double t, double dt)
             ++Qa_it;
             ++Qr_it;
             // Wheel's angular velocity
-            double w = Y[idx + s + 1 + i];
+            double w = Y[state_idx + s + 1 + i];
             double abs_w = abs(w);
             // Wheel's slip velocity
             double slip = w * rk[i] - v;
@@ -567,8 +599,8 @@ state_vector_t Vehicle::getAcceleration(state_vector_t &Y, double t, double dt)
 //------------------------------------------------------------------------------
 void Vehicle::integrationPreStep(state_vector_t &Y, double t)
 {
-    train_coord = Y[idx];
-    velocity = dir * orient * Y[idx + s];
+    train_coord = Y[state_idx];
+    velocity = dir * orient * Y[state_idx + s];
 
     // Calculate gravity force from profile inclination
     double weight = full_mass * Physics::g;
@@ -585,8 +617,8 @@ void Vehicle::integrationPreStep(state_vector_t &Y, double t)
 
         for (size_t i = 0; i < num_axis; i++)
         {
-            wheel_rotation_angle[i] = Y[idx + 1 + i];
-            wheel_omega[i] = Y[idx + s + 1 + i];
+            wheel_rotation_angle[i] = Y[state_idx + 1 + i];
+            wheel_omega[i] = Y[state_idx + s + 1 + i];
             psi[i] = psi_v;
             axis_load[i] = weight / static_cast<double>(num_axis);
         }

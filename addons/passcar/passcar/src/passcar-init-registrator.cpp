@@ -10,7 +10,7 @@ void PassCar::initRegistrator(const QString &modules_dir, const QString &custom_
     (void) modules_dir;
 
     registrator = new Registrator();
-    registrator->setFileName(QString("passcar_%1").arg(idx));
+    registrator->setFileName(QString("passcar_%1").arg(model_idx));
     registrator->setReplaceDotByComma(true);
     registrator->read_config("registrator", custom_cfg_dir);
     registrator->init();
