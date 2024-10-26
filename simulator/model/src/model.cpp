@@ -125,8 +125,21 @@ bool Model::init(const simulator_command_line_t &command_line)
     // Load initial data configuration
     loadInitData(init_data);
 
+    // ТЕСТ: ЗАПОМИНАЕМ ПОЕЗД ИЗ init-data.cfg
+    QString cfg_train_config = init_data.train_config;
+    QString cfg_trajectory_name = init_data.trajectory_name;
+    int     cfg_direction = init_data.direction;
+    double  cfg_init_coord = init_data.init_coord;
+
     // Override init data by command line
     overrideByCommandLine(init_data, command_line);
+
+    // ТЕСТ: КОНФИГ ДЛЯ ПОЕЗДА ИЗ init-data.cfg
+    init_data_t cfg_init_data = init_data;
+    cfg_init_data.train_config = cfg_train_config;
+    cfg_init_data.trajectory_name = cfg_trajectory_name;
+    cfg_init_data.direction = cfg_direction;
+    cfg_init_data.init_coord = cfg_init_coord;
 
     // Read solver configuration
     configSolver(init_data.solver_config);
@@ -145,6 +158,17 @@ bool Model::init(const simulator_command_line_t &command_line)
         trains.push_back(train);
     }
 
+    // ТЕСТ: ДОПОЛНИТЕЛЬНО ЗАГРУЖАЕМ  ПОЕЗД ИЗ init-data.cfg
+    Train *cfg_train = addTrain(cfg_init_data);
+    if (cfg_train == nullptr)
+    {
+        exit(0);
+    }
+    else
+    {
+        trains.push_back(cfg_train);
+    }
+
     Journal::instance()->info("==== Info to shared memory ====");
     simulator_info_t   info_data;
     info_data.num_updates = 1;
@@ -152,10 +176,9 @@ bool Model::init(const simulator_command_line_t &command_line)
     init_data.route_dir_name.toWCharArray(info_data.route_info.route_dir_name);
     Journal::instance()->info("Ready route info for shared memory");
 
-    std::vector<Vehicle *> *vehicles = train->getVehicles();
-    info_data.num_vehicles = vehicles->size();
+    info_data.num_vehicles = vehicles.size();
     size_t i = 0;
-    for (auto it = vehicles->begin(); it != vehicles->end(); ++it)
+    for (auto it = vehicles.begin(); it != vehicles.end(); ++it)
     {
         QString dir = (*it)->getConfigDir();
         info_data.vehicles_info[i].vehicle_config_dir_length = dir.size();
@@ -595,6 +618,7 @@ Train *Model::addTrain(const init_data_t &init_data)
 
         for (auto vehicle : *(train->getVehicles()))
         {
+            vehicle->setTrainIndex(trains.size());
             vehicle->setModelIndex(vehicles.size());
             vehicles.push_back(vehicle);
         }
@@ -713,7 +737,17 @@ void Model::tcpFeedBack()
     tcp_simulator_update.current_vehicle = current_vehicle;
     tcp_simulator_update.controlled_vehicle = controlled_vehicle;
 
+    tcp_simulator_update.trains.resize(trains.size());
     int i = 0;
+    for (auto train : trains)
+    {
+        tcp_simulator_update.trains[i].first_vehicle_id = train->getFirstVehicle()->getModelIndex();
+        tcp_simulator_update.trains[i].last_vehicle_id = train->getLastVehicle()->getModelIndex();
+
+        ++i;
+    }
+
+    i = 0;
     for (auto vehicle : vehicles)
     {
         profile_point_t *pp = vehicle->getProfilePoint();
@@ -728,6 +762,7 @@ void Model::tcpFeedBack()
         tcp_simulator_update.vehicles[i].up_y = pp->up.y;
         tcp_simulator_update.vehicles[i].up_z = pp->up.z;
 
+        tcp_simulator_update.vehicles[i].train_id = vehicle->getTrainIndex();
         int orient = vehicle->getOrientation();
         tcp_simulator_update.vehicles[i].orientation = orient;
         if (orient == -1)
@@ -816,8 +851,17 @@ void Model::sharedMemoryFeedback()
     update_data.current_vehicle = current_vehicle;
     update_data.controlled_vehicle = controlled_vehicle;
 
+    update_data.num_trains = trains.size();
     int i = 0;
+    for (auto train : trains)
+    {
+        update_data.trains[i].first_vehicle_id = train->getFirstVehicle()->getModelIndex();
+        update_data.trains[i].last_vehicle_id = train->getLastVehicle()->getModelIndex();
 
+        ++i;
+    }
+
+    i = 0;
     for (auto vehicle : vehicles)
     {
         profile_point_t *pp = vehicle->getProfilePoint();
@@ -832,6 +876,7 @@ void Model::sharedMemoryFeedback()
         update_data.vehicles[i].up_y = pp->up.y;
         update_data.vehicles[i].up_z = pp->up.z;
 
+        update_data.vehicles[i].train_id = vehicle->getTrainIndex();
         int orient = vehicle->getOrientation();
         update_data.vehicles[i].orientation = orient;
         if (orient == -1)

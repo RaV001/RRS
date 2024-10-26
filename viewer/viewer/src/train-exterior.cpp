@@ -126,42 +126,102 @@ bool TrainExteriorHandler::handle(const osgGA::GUIEventAdapter &ea,
         {
             int key = ea.getUnmodifiedKey();
             controlled_t tmp;
+            tmp.current_vehicle = cur_vehicle;
+            tmp.controlled_vehicle = controlled_vehicle;
             switch (key)
             {
+            case osgGA::GUIEventAdapter::KEY_Home:
+                // Переключаем на первый вагон следующего поезда
+                if (vehicles_ext[cur_vehicle].train_id >= (update_data[new_data].num_trains - 1))
+                {
+                    cur_vehicle = update_data[new_data].trains[0].first_vehicle_id;
+                }
+                else
+                {
+                    int new_train_id = vehicles_ext[cur_vehicle].train_id + 1;
+                    cur_vehicle = update_data[new_data].trains[new_train_id].first_vehicle_id;
+                }
+
+                if (tmp.current_vehicle != cur_vehicle)
+                {
+                    tmp.current_vehicle = cur_vehicle;
+                    sendControlledVehicle(tmp);
+                }
+
+                break;
+
+            case osgGA::GUIEventAdapter::KEY_End:
+                // Переключаем на первый вагон предыдущего поезда
+                if (vehicles_ext[cur_vehicle].train_id <= 0)
+                {
+                    cur_vehicle = update_data[new_data].trains[update_data[new_data].num_trains - 1].first_vehicle_id;
+                }
+                else
+                {
+                    int new_train_id = vehicles_ext[cur_vehicle].train_id - 1;
+                    cur_vehicle = update_data[new_data].trains[new_train_id].first_vehicle_id;
+                }
+
+                if (tmp.current_vehicle != cur_vehicle)
+                {
+                    tmp.current_vehicle = cur_vehicle;
+                    sendControlledVehicle(tmp);
+                }
+
+                break;
+
             case osgGA::GUIEventAdapter::KEY_Page_Down:
+                // Переключение по вагонам поезда назад
+                if (vehicles_ext[cur_vehicle].next_vehicle >= 0)
+                {
+                    cur_vehicle = vehicles_ext[cur_vehicle].next_vehicle;
+                }
+                else
+                {
+                    // С последнего вагона переключаемся на первый
+                    int cur_train_id = vehicles_ext[cur_vehicle].train_id;
+                    cur_vehicle = update_data[new_data].trains[cur_train_id].first_vehicle_id;
+                }
 
-                cur_vehicle++;
-
-                if (cur_vehicle > static_cast<int>(vehicles_ext.size() - 1))
-                    cur_vehicle = 0;
-
-                tmp.current_vehicle = cur_vehicle;
-                tmp.controlled_vehicle = controlled_vehicle;
-                sendControlledVehicle(tmp);
+                if (tmp.current_vehicle != cur_vehicle)
+                {
+                    tmp.current_vehicle = cur_vehicle;
+                    sendControlledVehicle(tmp);
+                }
 
                 break;
 
             case osgGA::GUIEventAdapter::KEY_Page_Up:
+                // Переключение по вагонам поезда вперёд
+                if (vehicles_ext[cur_vehicle].prev_vehicle >= 0)
+                {
+                    cur_vehicle = vehicles_ext[cur_vehicle].prev_vehicle;
+                }
+                else
+                {
+                    // С первого вагона переключаемся на последний
+                    int cur_train_id = vehicles_ext[cur_vehicle].train_id;
+                    cur_vehicle = update_data[new_data].trains[cur_train_id].last_vehicle_id;
+                }
 
-                cur_vehicle--;
-
-                if (cur_vehicle < 0)
-                    cur_vehicle = static_cast<int>(vehicles_ext.size() - 1);
-
-                tmp.current_vehicle = cur_vehicle;
-                tmp.controlled_vehicle = controlled_vehicle;
-                sendControlledVehicle(tmp);
+                if (tmp.current_vehicle != cur_vehicle)
+                {
+                    tmp.current_vehicle = cur_vehicle;
+                    sendControlledVehicle(tmp);
+                }
 
                 break;
 
             case osgGA::GUIEventAdapter::KEY_KP_Enter:
             case osgGA::GUIEventAdapter::KEY_Return:
-
+                // Берём контроль над данным вагоном
                 controlled_vehicle = cur_vehicle;
 
-                tmp.current_vehicle = cur_vehicle;
-                tmp.controlled_vehicle = controlled_vehicle;
-                sendControlledVehicle(tmp);
+                if (tmp.controlled_vehicle != controlled_vehicle)
+                {
+                    tmp.controlled_vehicle = controlled_vehicle;
+                    sendControlledVehicle(tmp);
+                }
                 break;
 
             case osgGA::GUIEventAdapter::KEY_Shift_L:
@@ -184,16 +244,18 @@ bool TrainExteriorHandler::handle(const osgGA::GUIEventAdapter &ea,
                 return false;
 
             case osgGA::GUIEventAdapter::KEY_F2:
-
+                // Возвращаемся к вагону, которым управляем
                 if (is_Shift_L || is_Shift_R || is_Ctrl_L || is_Ctrl_R || is_Alt_L || is_Alt_R)
                     return false;
                 if (controlled_vehicle >= 0)
                     cur_vehicle = controlled_vehicle;
                 is_displays_locked = false;
 
-                tmp.current_vehicle = cur_vehicle;
-                tmp.controlled_vehicle = controlled_vehicle;
-                sendControlledVehicle(tmp);
+                if (tmp.current_vehicle != cur_vehicle)
+                {
+                    tmp.current_vehicle = cur_vehicle;
+                    sendControlledVehicle(tmp);
+                }
                 break;
 
             case osgGA::GUIEventAdapter::KEY_F3:
@@ -362,7 +424,10 @@ void TrainExteriorHandler::moveTrain(double ref_time, const std::array<simulator
             0.0,
             (vehicles_ext[i].orth.x() > 0.0) ? acos(vehicles_ext[i].orth.y()) : - acos(vehicles_ext[i].orth.y()) );
 
+        vehicles_ext[i].train_id = update_data[new_data].vehicles[i].train_id;
         vehicles_ext[i].orientation = update_data[new_data].vehicles[i].orientation;
+        vehicles_ext[i].prev_vehicle = update_data[new_data].vehicles[i].prev_vehicle;
+        vehicles_ext[i].next_vehicle = update_data[new_data].vehicles[i].next_vehicle;
 
         // Apply vehicle body matrix transform
         osg::Matrixd  matrix;
@@ -471,8 +536,10 @@ void TrainExteriorHandler::processSharedData(double &ref_time)
         int curr = update_data[new_data].current_vehicle;
         if (curr >= 0)
         {
-            hud_text += QString("Данная ПЕ: %1 | pos{%2,%3,%4} | dir{%5,%6,%7}\n")
+            int curr_train = update_data[new_data].vehicles[curr].train_id;
+            hud_text += QString("Данная ПЕ: #%1 | Поезд #%2 | pos{%3,%4,%5} | dir{%6,%7,%8}\n")
                             .arg(curr, 3)
+                            .arg(curr_train, 3)
                             .arg(update_data[new_data].vehicles[curr].position_x, 8, 'f', 1)
                             .arg(update_data[new_data].vehicles[curr].position_y, 8, 'f', 1)
                             .arg(update_data[new_data].vehicles[curr].position_z, 8, 'f', 1)
@@ -490,8 +557,10 @@ void TrainExteriorHandler::processSharedData(double &ref_time)
         int control = update_data[new_data].controlled_vehicle;
         if (control >= 0)
         {
-            hud_text += QString("Управляемая ПЕ: %1 | pos{%2,%3,%4} | dir{%5,%6,%7}\n")
+            int control_train = update_data[new_data].vehicles[control].train_id;
+            hud_text += QString("Управляемая ПЕ: %1 | Поезд #%2 | pos{%3,%4,%5} | dir{%6,%7,%8}\n")
                             .arg(control, 3)
+                            .arg(control_train, 3)
                             .arg(update_data[new_data].vehicles[control].position_x, 8, 'f', 1)
                             .arg(update_data[new_data].vehicles[control].position_y, 8, 'f', 1)
                             .arg(update_data[new_data].vehicles[control].position_z, 8, 'f', 1)

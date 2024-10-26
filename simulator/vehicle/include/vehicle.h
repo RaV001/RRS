@@ -67,7 +67,8 @@ public:
 
     /// Set vehicle index
     void setModelIndex(size_t idx);
-
+    /// Set vehicle index
+    void setTrainIndex(size_t idx);
     /// Set vehicle state index
     void setStateIndex(size_t idx);
 
@@ -119,8 +120,9 @@ public:
 
     /// Get vehicle index
     size_t getModelIndex() const;
-
-    /// Get vehicle index
+    /// Get train index
+    size_t getTrainIndex() const;
+    /// Get vehicle state index
     size_t getStateIndex() const;
 
     profile_point_t *getProfilePoint();
@@ -213,7 +215,8 @@ protected:
 
     /// Vehicle index
     size_t  model_idx = 0;
-
+    /// Train index
+    size_t  train_idx = 0;
     /// Vehicle ODE system index
     size_t  state_idx = 0;
 
