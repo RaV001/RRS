@@ -284,18 +284,20 @@ void Model::findNearestTrains()
         int nearest_idx_fwd = topology->getVehicleController(idx_fwd)->getNearestVehicle(distance_fwd, 40.0, 1);
         if (nearest_idx_fwd >= 0)
         {
-            size_t idx_pair = (idx_fwd < nearest_idx_fwd) ?
+            /*size_t idx_pair = (idx_fwd < nearest_idx_fwd) ?
                                   1000 * idx_fwd + nearest_idx_fwd :
-                                  1000 * nearest_idx_fwd + idx_fwd;
+                                  1000 * nearest_idx_fwd + idx_fwd;*/
+            size_t idx_pair = 1000 * idx_fwd + nearest_idx_fwd;
             trains_distances.insert(idx_pair, distance_fwd);
         }
 
         int nearest_idx_bwd = topology->getVehicleController(idx_bwd)->getNearestVehicle(distance_bwd, 40.0, -1);
         if (nearest_idx_bwd >= 0)
         {
-            size_t idx_pair = (idx_fwd < nearest_idx_bwd) ?
+            /*size_t idx_pair = (idx_bwd < nearest_idx_bwd) ?
                                   1000 * idx_bwd + nearest_idx_bwd :
-                                  1000 * nearest_idx_bwd + idx_bwd;
+                                  1000 * nearest_idx_bwd + idx_bwd;*/
+            size_t idx_pair = 1000 * idx_bwd + nearest_idx_bwd;
             trains_distances.insert(idx_pair, distance_bwd);
         }
     }
@@ -306,9 +308,25 @@ void Model::findNearestTrains()
         Journal::instance()->info(QString("t = %1 Founded vehicles near to each other:").arg(t));
         for (auto d_it = trains_distances.begin(); d_it != trains_distances.end(); ++d_it)
         {
-            Journal::instance()->info(QString("#%1 and #%2 at distance %3 m")
-                                          .arg(d_it.key() / 1000)
-                                          .arg(d_it.key() % 1000)
+            int idx_1 = d_it.key() / 1000;
+            double coord_1 = topology->getVehicleController(idx_1)->getTrajCoord();
+            double coord_11 = coord_1 - vehicles[idx_1]->getLength() / 2.0;
+            double coord_12 = coord_1 + vehicles[idx_1]->getLength() / 2.0;
+
+            int idx_2 = d_it.key() % 1000;
+            double coord_2 = topology->getVehicleController(idx_2)->getTrajCoord();
+            double coord_21 = coord_2 - vehicles[idx_2]->getLength() / 2.0;
+            double coord_22 = coord_2 + vehicles[idx_2]->getLength() / 2.0;
+
+            Journal::instance()->info(QString("#%1 at %2 (%3 - %4) and #%5 at %6 (%7 - %8) at distance %9 m")
+                                          .arg(idx_1)
+                                          .arg(coord_1, 6, 'f', 1)
+                                          .arg(coord_11, 6, 'f', 1)
+                                          .arg(coord_12, 6, 'f', 1)
+                                          .arg(idx_2)
+                                          .arg(coord_2, 6, 'f', 1)
+                                          .arg(coord_21, 6, 'f', 1)
+                                          .arg(coord_22, 6, 'f', 1)
                                           .arg(d_it.value(), 5, 'f', 1));
         }
     }
