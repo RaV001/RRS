@@ -271,15 +271,15 @@ void Model::findNearestTrains()
     {
         int train_dir = train->getDirection();
 
-        double distance_fwd = 0.0;
-        double distance_bwd = 0.0;
-
         int idx_fwd = (train_dir == -1) ?
             train->getLastVehicle()->getModelIndex() :
             train->getFirstVehicle()->getModelIndex();
         int idx_bwd = (train_dir == -1) ?
             train->getFirstVehicle()->getModelIndex() :
             train->getLastVehicle()->getModelIndex();
+
+        double distance_fwd = 0.0;
+        double distance_bwd = 0.0;
 
         int nearest_idx_fwd = topology->getVehicleController(idx_fwd)->getNearestVehicle(distance_fwd, 40.0, 1);
         if (nearest_idx_fwd >= 0)
@@ -1064,11 +1064,11 @@ void Model::process()
 
     topology->step(t, integration_time);
 
+    findNearestTrains();
+
     // Integrate all ODE in train motion model
     do
     {
-        findNearestTrains();
-
         preStep(t);
 
         controlStep(control_time, control_delay);

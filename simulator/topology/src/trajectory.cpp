@@ -238,7 +238,7 @@ int Trajectory::getBusyVehicle(double &distance, double coord, double search_dis
             if (traj == Q_NULLPTR)
                 return -1;
 
-            distance = distance - coord_begin;
+            distance = distance + coord_end;
             return traj->getBusyVehicle(distance, traj->getLength(), -coord_begin, -1);
         }
     }
@@ -278,7 +278,7 @@ int Trajectory::getBusyVehicle(double &distance, double coord, double search_dis
             if (traj == Q_NULLPTR)
                 return -1;
 
-            distance = distance + coord_end - len;
+            distance = distance + len - coord_begin;
             return traj->getBusyVehicle(distance, 0.0, coord_end - len, 1);
         }
     }

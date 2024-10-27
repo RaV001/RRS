@@ -174,7 +174,7 @@ profile_point_t VehicleController::getPosition()
 int VehicleController::getNearestVehicle(double &distance, double search_distance, int direction)
 {
     distance = 0.0;
-    double coord = traj_coord + length_half * direction;
+    double coord = traj_coord;
     Trajectory *next_traj = current_traj;
     if (direction == -1)
     {
