@@ -127,6 +127,9 @@ private:
     /// Train model
     std::vector<Train *> trains;
 
+    /// Trains which are near to each other
+    QMap<size_t, double> trains_distances;
+
     /// TCP-server
     //Server      *server = nullptr;
 
@@ -163,9 +166,12 @@ private:
 
     ElapsedTimer    simTimer;
 
-    TcpServer   *tpc_server = new TcpServer;
+    TcpServer   *tcp_server = new TcpServer;
 
     tcp_simulator_update_t tcp_simulator_update;
+
+    /// Find trains which are near to each other;
+    void findNearestTrains();
 
     /// Actions, which prerare integration step and also update shared data
     void preStep(double t);

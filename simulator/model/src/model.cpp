@@ -134,15 +134,15 @@ bool Model::init(const simulator_command_line_t &command_line)
     // Override init data by command line
     overrideByCommandLine(init_data, command_line);
 
+    // Read solver configuration
+    configSolver(init_data.solver_config);
+
     // ТЕСТ: КОНФИГ ДЛЯ ПОЕЗДА ИЗ init-data.cfg
     init_data_t cfg_init_data = init_data;
     cfg_init_data.train_config = cfg_train_config;
     cfg_init_data.trajectory_name = cfg_trajectory_name;
     cfg_init_data.direction = cfg_direction;
     cfg_init_data.init_coord = cfg_init_coord;
-
-    // Read solver configuration
-    configSolver(init_data.solver_config);
 
     // Load route topology
     initTopology(init_data);
@@ -216,7 +216,7 @@ bool Model::init(const simulator_command_line_t &command_line)
 
     initTcpServer();
 
-    Journal::instance()->info("Train is initialized successfully");
+    Journal::instance()->info("Simulator model is initialized successfully");
 
     return true;
 }
@@ -259,6 +259,59 @@ void Model::outMessage(QString msg)
 void Model::controlProcess()
 {
     control_panel->process();
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+void Model::findNearestTrains()
+{
+    trains_distances.clear();
+    for (auto train : trains)
+    {
+        int train_dir = train->getDirection();
+
+        double distance_fwd = 0.0;
+        double distance_bwd = 0.0;
+
+        int idx_fwd = (train_dir == -1) ?
+            train->getLastVehicle()->getModelIndex() :
+            train->getFirstVehicle()->getModelIndex();
+        int idx_bwd = (train_dir == -1) ?
+            train->getFirstVehicle()->getModelIndex() :
+            train->getLastVehicle()->getModelIndex();
+
+        int nearest_idx_fwd = topology->getVehicleController(idx_fwd)->getNearestVehicle(distance_fwd, 40.0, 1);
+        if (nearest_idx_fwd >= 0)
+        {
+            size_t idx_pair = (idx_fwd < nearest_idx_fwd) ?
+                                  1000 * idx_fwd + nearest_idx_fwd :
+                                  1000 * nearest_idx_fwd + idx_fwd;
+            trains_distances.insert(idx_pair, distance_fwd);
+        }
+
+        int nearest_idx_bwd = topology->getVehicleController(idx_bwd)->getNearestVehicle(distance_bwd, 40.0, -1);
+        if (nearest_idx_bwd >= 0)
+        {
+            size_t idx_pair = (idx_fwd < nearest_idx_bwd) ?
+                                  1000 * idx_bwd + nearest_idx_bwd :
+                                  1000 * nearest_idx_bwd + idx_bwd;
+            trains_distances.insert(idx_pair, distance_bwd);
+        }
+    }
+
+    // ОТЛАДКА
+    if (!trains_distances.empty())
+    {
+        Journal::instance()->info(QString("t = %1 Founded vehicles near to each other:").arg(t));
+        for (auto d_it = trains_distances.begin(); d_it != trains_distances.end(); ++d_it)
+        {
+            Journal::instance()->info(QString("#%1 and #%2 at distance %3 m")
+                                          .arg(d_it.key() / 1000)
+                                          .arg(d_it.key() % 1000)
+                                          .arg(d_it.value(), 5, 'f', 1));
+        }
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -687,40 +740,44 @@ void Model::initTopology(const init_data_t &init_data)
 //------------------------------------------------------------------------------
 void Model::initTcpServer()
 {
+    Journal::instance()->info("==== TCP server initialization ====");
+
     FileSystem &fs = FileSystem::getInstance();
     std::string cfg_path = fs.getConfigDir() + fs.separator() + "tcp-server.xml";
 
-    tpc_server->init(QString(cfg_path.c_str()));
+    tcp_server->init(QString(cfg_path.c_str()));
 
-    connect(tpc_server, &TcpServer::setTopologyData, this, &Model::slotGetTopologyData);
+    connect(tcp_server, &TcpServer::setTopologyData, this, &Model::slotGetTopologyData);
 
     tcp_simulator_update.vehicles.resize(vehicles.size());
 
-    connect(tpc_server, &TcpServer::setSwitchState, topology, &Topology::getSwitchState);
-    connect(topology, &Topology::sendSwitchState, tpc_server, &TcpServer::slotSendSwitchState);
+    connect(tcp_server, &TcpServer::setSwitchState, topology, &Topology::getSwitchState);
+    connect(topology, &Topology::sendSwitchState, tcp_server, &TcpServer::slotSendSwitchState);
 
-    connect(topology, &Topology::sendTrajBusyState, tpc_server, &TcpServer::slotSendTrajBusyState);
+    connect(topology, &Topology::sendTrajBusyState, tcp_server, &TcpServer::slotSendTrajBusyState);
 
-    connect(tpc_server, &TcpServer::setSignalsData, this, &Model::slotGetSignalsData);
+    connect(tcp_server, &TcpServer::setSignalsData, this, &Model::slotGetSignalsData);
 
     for (auto signal : topology->getSignalsData()->line_signals)
     {
-        connect(signal, &Signal::sendDataUpdate, tpc_server, &TcpServer::slotUpdateSignal);
+        connect(signal, &Signal::sendDataUpdate, tcp_server, &TcpServer::slotUpdateSignal);
     }
 
     for (auto signal : topology->getSignalsData()->enter_signals)
     {
-        connect(signal, &Signal::sendDataUpdate, tpc_server, &TcpServer::slotUpdateSignal);
+        connect(signal, &Signal::sendDataUpdate, tcp_server, &TcpServer::slotUpdateSignal);
     }
 
-    connect(tpc_server, &TcpServer::openSignal, topology, &Topology::slotOpenSignal);
+    connect(tcp_server, &TcpServer::openSignal, topology, &Topology::slotOpenSignal);
 
-    connect(tpc_server, &TcpServer::closeSignal, topology, &Topology::slotCloseSignal);
+    connect(tcp_server, &TcpServer::closeSignal, topology, &Topology::slotCloseSignal);
 
     for (auto signal : topology->getSignalsData()->exit_signals)
     {
-        connect(signal, &Signal::sendDataUpdate, tpc_server, &TcpServer::slotUpdateSignal);
+        connect(signal, &Signal::sendDataUpdate, tcp_server, &TcpServer::slotUpdateSignal);
     }
+
+    Journal::instance()->info("TCP server is initialized successfully");
 }
 
 //------------------------------------------------------------------------------
@@ -807,7 +864,7 @@ void Model::tcpFeedBack()
         ++i;
     }
 
-    tpc_server->setSimulatorData(tcp_simulator_update.serialize());
+    tcp_server->setSimulatorData(tcp_simulator_update.serialize());
 }
 
 //------------------------------------------------------------------------------
@@ -992,6 +1049,8 @@ void Model::process()
     // Integrate all ODE in train motion model
     do
     {
+        findNearestTrains();
+
         preStep(t);
 
         controlStep(control_time, control_delay);

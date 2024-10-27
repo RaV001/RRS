@@ -171,6 +171,65 @@ profile_point_t VehicleController::getPosition()
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
+int VehicleController::getNearestVehicle(double &distance, double search_distance, int direction)
+{
+    distance = search_distance;
+    double coord = traj_coord + length_half * direction;
+    Trajectory *next_traj = current_traj;
+    if (direction == -1)
+    {
+        coord = coord - length_half;
+        while (coord < 0.0)
+        {
+            // Получаем указатель на коннектор сзади
+            Connector *conn = next_traj->getBwdConnector();
+            if (conn == Q_NULLPTR)
+                return -1;
+
+            // Получаем указатель на траекторию сзади,
+            // с которой нас соединяет коннектор сзади
+            next_traj = conn->getBwdTraj();
+            if (next_traj == Q_NULLPTR)
+                return -1;
+
+            // Добавляем к траекторной координате длину новой траектории,
+            // чтобы получить координату на новой траектории сзади
+            coord = coord + next_traj->getLength();
+        }
+
+        // Поиск ближайшей ПЕ по топологии
+        return next_traj->getBusyVehicle(distance, coord, search_distance, -1);
+    }
+    else
+    {
+        coord = coord + length_half;
+        while (coord > next_traj->getLength())
+        {
+            // Получаем указатель на коннектор спереди
+            Connector *conn = next_traj->getFwdConnector();
+            if (conn == Q_NULLPTR)
+                return -1;
+
+            // Вычитаем из траекторной координаты длину предыдущей траектории,
+            // чтобы получить координату на новой траектории впереди
+            coord = coord - next_traj->getLength();
+
+            // Получаем указатель на траекторию впереди,
+            // с которой нас соединяет коннектор спереди
+            next_traj = conn->getFwdTraj();
+            if (next_traj == Q_NULLPTR)
+                return -1;
+        }
+
+        // Поиск ближайшей ПЕ по топологии
+        return next_traj->getBusyVehicle(distance, coord, search_distance, 1);
+    }
+    return -1;
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
 void VehicleController::step(double t, double dt)
 {
     (void) t;

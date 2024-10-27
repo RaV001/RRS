@@ -198,13 +198,16 @@ bool Trajectory::isBusy(double coord_begin, double coord_end) const
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-int Trajectory::getBusyVehicle(double coord, double distance, int direction)
+int Trajectory::getBusyVehicle(double &distance, double coord, double search_distance, int direction)
 {
+    // TODO // Сделать подсчёт дистанции до найденной ближайшей ПЕ
+    distance = search_distance;
+
     double coord_begin = coord;
     double coord_end = coord;
     if (direction == -1)
     {
-        coord_begin = coord_begin - distance;
+        coord_begin = coord_begin - search_distance;
         if (is_busy)
         {
             // TODO // Сделать поиск ближайшей, а не первой попавшейся ПЕ
@@ -225,12 +228,12 @@ int Trajectory::getBusyVehicle(double coord, double distance, int direction)
             if (traj == Q_NULLPTR)
                 return -1;
 
-            return traj->getBusyVehicle(traj->getLength(), -coord_begin, -1);
+            return traj->getBusyVehicle(distance, traj->getLength(), -coord_begin, -1);
         }
     }
     else
     {
-        coord_end = coord_end + distance;
+        coord_end = coord_end + search_distance;
         if (is_busy)
         {
             // TODO // Сделать поиск ближайшей, а не первой попавшейся ПЕ
@@ -251,7 +254,7 @@ int Trajectory::getBusyVehicle(double coord, double distance, int direction)
             if (traj == Q_NULLPTR)
                 return -1;
 
-            return traj->getBusyVehicle(0.0, coord_end - len, 1);
+            return traj->getBusyVehicle(distance, 0.0, coord_end - len, 1);
         }
     }
 

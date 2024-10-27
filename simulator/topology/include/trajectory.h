@@ -84,7 +84,7 @@ public:
 
     /// Индекс ближайшей единицы подвижного состава, если есть;
     /// -1, если нет подвижного состава в пределах дистанции поиска
-    int getBusyVehicle(double coord, double distance, int direction);
+    int getBusyVehicle(double &distance, double coord, double search_distance, int direction);
 
     /// Интервал координат, занятых подвижным составом;
     /// если пустая, busy_begin_coord = length; busy_end_coord = 0.0
