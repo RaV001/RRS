@@ -56,6 +56,9 @@ public:
     /// Train initialization
     bool init(const init_data_t &init_data);
 
+    /// Train coupling
+    void couple(bool is_coupling_to_head, bool is_other_coupled_by_head, Train *other_train);
+
     /// Calculation of right part motion ODE's
     void calcDerivative(state_vector_t &Y, state_vector_t &dYdt, double t, double dt);
 
@@ -79,7 +82,11 @@ public:
     /// Get last vehicle
     Vehicle *getLastVehicle() const;
 
-    double getVelocity(size_t i) const;
+    state_vector_t getStateVector();
+
+    std::vector<std::vector<Joint *>> getJoints();
+
+    double getVelocity(size_t i = 0) const;
 
     /// Get train mass
     double getMass() const;

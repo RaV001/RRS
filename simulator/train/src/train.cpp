@@ -97,6 +97,166 @@ bool Train::init(const init_data_t &init_data)
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
+void Train::couple(bool is_coupling_to_head, bool is_other_coupled_by_head, Train *other_train)
+{
+    // ПЕ поезда, с которым сцепляемся
+    std::vector<Vehicle *> other_vehicles = other_train->getVehicles();
+    size_t num_other_vehicles = other_vehicles.size();
+    // Массив межвагонных связей поезда, с которым сцепляемся
+    std::vector<std::vector<Joint *>> other_joints_list = other_train->getJoints();
+    size_t num_other_joints_list = other_joints_list.size();
+    // Вектор состояния поезда, с которым сцепляемся
+    state_vector_t other_y = other_train->getStateVector();
+    size_t num_other_y = other_y.size();
+
+    // Соединяем ПЕ в общий массив
+    if (is_coupling_to_head)
+    {
+        Vehicle *veh = vehicles.begin();
+        device_list_t *cons = (veh->getOrientation() == -1) ?
+                                  veh->getBwdConnectors() :
+                                  veh->getFwdConnectors();
+
+        Vehicle *other_veh;
+        device_list_t *other_cons;
+
+        std::vector<Vehicle *> new_vehicles;
+        std::vector<std::vector<Joint *>> new_joints_list;
+        state_vector_t new_y;
+        if (is_other_coupled_by_head)
+        {
+            other_veh = vehicles.begin();
+            other_cons = (other_veh->getOrientation() == -1) ?
+                             other_veh->getBwdConnectors() :
+                             other_veh->getFwdConnectors();
+
+            for (size_t i = num_other_vehicles; i > 0; --i)
+                new_vehicles.push_back(other_vehicles[i - 1]);
+            for (size_t i = num_other_joints_list; i > 0; --i)
+                new_joints_list.push_back(other_joints_list[i - 1]);
+            for (size_t i = num_other_y; i > 0; --i)
+                new_y.push_back(other_y[i - 1]);
+        }
+        else
+        {
+            other_veh = vehicles.end() - 1;
+            other_cons = (other_veh->getOrientation() == -1) ?
+                             other_veh->getFwdConnectors() :
+                             other_veh->getBwdConnectors();
+
+            for (size_t i = 0; i < num_other_vehicles; ++i)
+                new_vehicles.push_back(other_vehicles[i]);
+            for (size_t i = 0; i < num_other_joints_list; ++i)
+                new_joints_list.push_back(other_joints_list[i]);
+            for (size_t i = 0; i < num_other_y; ++i)
+                new_y.push_back(other_y[i]);
+        }
+
+        // Создаём новый массив межвагонных связей между крайними ПЕ сцепляемых поездов
+        std::vector<Joint *> joints;
+
+        if ((cons->empty()) || (other_cons->empty()))
+        {
+            new_joints_list.push_back(joints);
+            Journal::instance()->warning(QString("#%1 or #%2 have no connectors. Created empty array of joints.")
+                                             .arg(veh->getModelIndex())
+                                             .arg(other_veh->getModelIndex()));
+        }
+
+        // First try link connectors with the same name
+        for (auto con_fwd_it = cons_fwd->begin(); con_fwd_it != cons_fwd->end(); ++con_fwd_it)
+        {
+            Device *con_fwd = *con_fwd_it;
+            QString name_fwd = con_fwd->getName();
+
+            for (auto con_bwd_it = cons_bwd->begin(); con_bwd_it != cons_bwd->end(); ++con_bwd_it)
+            {
+                Device *con_bwd = *con_bwd_it;
+                QString name_bwd = con_bwd->getName();
+
+                if (name_fwd == name_bwd)
+                {
+                    loadJointModule(con_fwd, con_bwd, joints);
+                    break;
+                }
+            }
+        }
+
+        // Try link any connectors
+        for (auto con_fwd_it = cons_fwd->begin(); con_fwd_it != cons_fwd->end(); ++con_fwd_it)
+        {
+            Device *con_fwd = *con_fwd_it;
+            if (con_fwd->isLinked())
+                continue;
+
+            for (auto con_bwd_it = cons_bwd->begin(); con_bwd_it != cons_bwd->end(); ++con_bwd_it)
+            {
+                Device *con_bwd = *con_bwd_it;
+                if (con_bwd->isLinked())
+                    continue;
+
+                loadJointModule(con_fwd, con_bwd, joints);
+
+                if (con_fwd->isLinked())
+                    break;
+            }
+        }
+
+        if (joints.empty())
+        {
+            Journal::instance()->warning(QString("No joints beetween #%1 and #%2. Created empty array of joints.")
+                                             .arg(i - 1)
+                                             .arg(i));
+        }
+        else
+        {
+            Journal::instance()->info(QString("Created %1 joints beetween #%2 and #%3")
+                                          .arg(joints.size())
+                                          .arg(i - 1)
+                                          .arg(i));
+        }
+
+        for (size_t i = 0; i < vehicles.size(); ++i)
+            new_vehicles.push_back(vehicles[i]);
+        vehicles.clear();
+        vehicles = new_vehicles;
+
+        for (size_t i = 0; i < joints_list.size(); ++i)
+            new_joints.push_back(joints[i]);
+        joints_list.clear();
+        joints_list = new_joints_list;
+
+        for (size_t i = 0; i < y.size(); ++i)
+            new_y.push_back(y[i]);
+        y.clear();
+        y = new_y;
+    }
+    else
+    {
+        if (is_other_coupled_by_head)
+        {
+            for (size_t i = num_other_vehicles; i > 0; --i)
+                vehicles.push_back(other_vehicles[i - 1]);
+            for (size_t i = num_other_joints_list; i > 0; --i)
+                joints_list.push_back(other_joints_list[i - 1]);
+            for (size_t i = num_other_y; i > 0; --i)
+                y.push_back(other_y[i - 1]);
+        }
+        else
+        {
+            for (size_t i = 0; i < num_other_vehicles; ++i)
+                vehicles.push_back(other_vehicles[i]);
+            for (size_t i = 0; i < num_other_joints_list; ++i)
+                joints_list.push_back(other_joints_list[i]);
+            for (size_t i = 0; i < num_other_y; ++i)
+                y.push_back(other_y[i]);
+        }
+    }
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
 void Train::calcDerivative(state_vector_t &Y, state_vector_t &dYdt, double t, double dt)
 {
     auto begin = vehicles.begin();
@@ -241,6 +401,22 @@ Vehicle *Train::getFirstVehicle() const
 Vehicle *Train::getLastVehicle() const
 {
     return *(vehicles.end() - 1);
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+state_vector_t Train::getStateVector()
+{
+    return y;
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+std::vector<std::vector<Joint *> > Train::getJoints()
+{
+    return joints_list;
 }
 
 //------------------------------------------------------------------------------
