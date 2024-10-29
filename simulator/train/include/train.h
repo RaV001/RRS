@@ -57,7 +57,7 @@ public:
     bool init(const init_data_t &init_data);
 
     /// Train coupling
-    void couple(bool is_coupling_to_head, bool is_other_coupled_by_head, Train *other_train);
+    void couple(double current_distance, bool is_coupling_to_head, bool is_other_coupled_by_head, Train *other_train = nullptr);
 
     /// Calculation of right part motion ODE's
     void calcDerivative(state_vector_t &Y, state_vector_t &dYdt, double t, double dt);
@@ -156,7 +156,9 @@ private:
     /// Train's loading
     bool loadTrain(QString cfg_path, const init_data_t &init_data);
     /// Joints loading
-    bool loadJoints();
+    bool loadTrainJoints();
+    /// Joints loading
+    void loadJoints(device_list_t *cons_fwd, device_list_t *cons_bwd, std::vector<Joint *> &joints);
     /// Joint module loading
     void loadJointModule(Device *con_fwd, Device *con_bwd, std::vector<Joint *> &joints);
 
