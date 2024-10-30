@@ -56,13 +56,52 @@ struct network_data_t
         QDataStream stream(&buff);
 
         stream >> data_size;
-        stream >> stype;
+        stream >> stype;        
+
         stream >> this->data;
 
         // Контрольная сериализация полученных данных
         QByteArray tmp = this->serialize();
         // Удаляем из полученного блока фактически сериализованное
-        data = data.mid(tmp.size());
+        if (tmp.size() >= data.size())
+        {
+            data = data.mid(tmp.size());
+        }
+    }
+
+    bool check_data(StructureType stype)
+    {
+        switch (stype)
+        {
+        case STYPE_EMPTY_DATA:
+            return false;
+
+        case STYPE_TOPOLOGY_DATA:
+            return true;
+
+        case STYPE_TRAIN_POSITION:
+            return true;
+
+        case STYPE_CONNECTOR_STATE:
+            return true;
+
+        case STYPE_TRAJ_BUSY_STATE:
+            return true;
+
+        case STYPE_SIGNALS_LIST:
+            return true;
+
+        case STYPE_SIGNAL_STATE:
+            return true;
+
+        case STYPE_OPEN_SIGNAL:
+            return true;
+
+        case STYPE_CLOSE_SIGNAL:
+            return true;
+        }
+
+        return false;
     }
 };
 

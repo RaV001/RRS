@@ -137,6 +137,11 @@ void TcpClient::connectToServer(const tcp_config_t &tcp_config)
 //------------------------------------------------------------------------------
 void TcpClient::process_received_data(network_data_t &net_data)
 {
+    if (net_data.data.isEmpty())
+    {
+        return;
+    }
+
     switch (net_data.stype)
     {
     case STYPE_TOPOLOGY_DATA:
@@ -214,7 +219,6 @@ void TcpClient::slotReceive()
     {
         if (is_first_data)
         {
-            recvBuff.append(socket->readAll());
 
             QBuffer b(&recvBuff);
             b.open(QIODevice::ReadOnly);
@@ -223,6 +227,8 @@ void TcpClient::slotReceive()
             stream >> wait_data_size;
 
             is_first_data = false;
+
+            recvBuff.append(socket->readAll());
         }
         else
         {
@@ -230,7 +236,7 @@ void TcpClient::slotReceive()
         }
     }
 
-    if (recvBuff.size() > wait_data_size)
+    while (recvBuff.size() > wait_data_size)
     {
         // Десириализуем принятые данные в структуру сетевого пакета
         received_data.deserialize(recvBuff);
@@ -245,4 +251,9 @@ void TcpClient::slotReceive()
 void TcpClient::slotAcceptError(QAbstractSocket::SocketError error)
 {
 
+}
+
+void TcpClient::slotGetRecvBufferSize(qsizetype &size) const
+{
+    size = recvBuff.size();
 }

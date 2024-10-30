@@ -457,16 +457,23 @@ void TrainExteriorHandler::processSharedData(double &ref_time)
 
         ref_time = 0;
 
+        qsizetype size = 0;
+        emit getRecvBufferSize(size);
+
+
         // Update debug string
         int seconds = static_cast<int>(std::floor(update_data[new_data].time));
         int hours = seconds / 3600;
         int minutes = seconds / 60 % 60;
         seconds = seconds % 60;
+
         QString hud_text = QString("Время от начала симуляции: %1 сек (%2 ч %3 м %4 c)\n")
                                .arg(update_data[new_data].time, 8, 'f', 1)
                                .arg(hours, 2)
                                .arg(minutes, 2)
                                .arg(seconds, 2);
+
+        hud_text += QString("Размер приемного буфера: %1\n").arg(size);
 
         int curr = update_data[new_data].current_vehicle;
         if (curr >= 0)

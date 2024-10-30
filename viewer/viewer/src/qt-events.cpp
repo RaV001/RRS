@@ -58,11 +58,12 @@ bool QtEventsHandler::handle(const osgGA::GUIEventAdapter &ea,
             {
                 viewer->getEventQueue()->userEvent(new TimerInfo(_time));
                 _count = 0;
+                QApplication::processEvents(QEventLoop::AllEvents);
             }
 
             _count += delta;
             _time += delta;
-            QApplication::processEvents(QEventLoop::AllEvents);
+
 
             break;
         }

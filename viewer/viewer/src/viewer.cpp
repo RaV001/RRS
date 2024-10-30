@@ -155,6 +155,9 @@ int RouteViewer::run()
     // Инициализация TCP-клиента
     initTCPclient(settings);
 
+    connect(train_ext_handler, &TrainExteriorHandler::getRecvBufferSize,
+            tcp_client, &TcpClient::slotGetRecvBufferSize);
+
     return viewer.run();
 }
 

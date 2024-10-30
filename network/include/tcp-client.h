@@ -40,6 +40,7 @@ public:
 
     bool isConnected() const;
 
+
 signals:
 
     void connected();
@@ -64,7 +65,7 @@ private:
 
     QTcpSocket *socket = Q_NULLPTR;
 
-    QTimer *connectionTimer = Q_NULLPTR;    
+    QTimer *connectionTimer = Q_NULLPTR;
 
     tcp_config_t tcp_config;
 
@@ -93,6 +94,8 @@ public slots:
     void slotReceive();
 
     void slotAcceptError(QAbstractSocket::SocketError error);
+
+    void slotGetRecvBufferSize(qsizetype &size) const;
 };
 
 #endif

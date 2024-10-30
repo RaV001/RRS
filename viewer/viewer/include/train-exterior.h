@@ -70,6 +70,8 @@ signals:
 
     void sendControlledState(bool state);
 
+    void getRecvBufferSize(qsizetype &size);
+
 private:
 
     settings_t  settings;
