@@ -155,7 +155,7 @@ void TcpClient::process_received_data(network_data_t &net_data)
         break;
 
     case STYPE_TRAJ_BUSY_STATE:
-        emit setTrajBusyState(net_data.data);
+        //emit setTrajBusyState(net_data.data);
         break;
 
     case STYPE_SIGNALS_LIST:
@@ -232,11 +232,14 @@ void TcpClient::slotReceive()
 
     if (recvBuff.size() > wait_data_size)
     {
-        // Десириализуем принятые данные в структуру сетевого пакета
-        received_data.deserialize(recvBuff);
+        while (recvBuff.size() > 0)
+        {
+            // Десириализуем принятые данные в структуру сетевого пакета
+            received_data.deserialize(recvBuff);
 
-        // Обработка принятого сетевого пакета
-        process_received_data(received_data);        
+            // Обработка принятого сетевого пакета
+            process_received_data(received_data);
+        }
 
         is_first_data = true;
     }
