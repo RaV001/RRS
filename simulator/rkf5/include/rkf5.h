@@ -7,9 +7,9 @@
  *  \class
  *  \brief 5-6 order Runge-Kutta's integration method
  */
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class  RKF5Solver : public Solver
 {
 public:
@@ -25,6 +25,8 @@ public:
               double &dt,
               double max_step,
               double local_err);
+
+    void setODEsize(size_t n);
 
 protected:
 
@@ -73,10 +75,10 @@ protected:
     state_vector_t eps_y;
 
     // First step flag
-    bool first_step;
+    bool first_step = true;
 
     // Maximal iteraion count
-    int MAX_ITER;
+    int MAX_ITER = 100;
 };
 
 
