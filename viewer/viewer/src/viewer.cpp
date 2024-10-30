@@ -582,6 +582,10 @@ void RouteViewer::initTCPclient(const settings_t &settings)
     connect(tcp_client, &TcpClient::updateSignal,
             traffic_lights_handler, &TrafficLightsHandler::slotUpdateSignal, Qt::DirectConnection);
 
+    connect(tcp_client, &TcpClient::setTrajBusyState,
+            traffic_lights_handler,
+            &TrafficLightsHandler::slotUpdateBusyData);
+
     tcp_client->init(tcp_config);
 
     OSG_FATAL << "Client is initilized...OK\n";

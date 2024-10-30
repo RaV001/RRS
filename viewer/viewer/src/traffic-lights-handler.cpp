@@ -233,6 +233,14 @@ void TrafficLightsHandler::slotUpdateSignal(QByteArray data)
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
+void TrafficLightsHandler::slotUpdateBusyData(QByteArray &data)
+{
+    data.clear();
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
 void TrafficLightsHandler::load_signal_models(const settings_t &settings)
 {
     for (auto it = traffic_lights_fwd.begin(); it != traffic_lights_fwd.end(); ++it)
