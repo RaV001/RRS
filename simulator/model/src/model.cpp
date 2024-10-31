@@ -279,6 +279,12 @@ void Model::findNearestTrains()
     size_t train_idx = 0;
     for (auto train : trains)
     {
+        if (train == nullptr)
+        {
+            ++train_idx;
+            continue;
+        }
+
         int train_dir = train->getDirection();
 
         // От каждого поезда ищем вперёд и назад по топологии
