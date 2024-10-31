@@ -306,6 +306,7 @@ void Model::findNearestTrains()
             // то проверяем что эта пара уже найдена в предыдущих поездах,
             if (nearest_trains.contains(idx_pair))
             {
+
                 // Найденную дважды пару ПЕ соединяем в один поезд
                 founded_distance fd = nearest_trains.value(idx_pair);
                 Journal::instance()->info(QString("t = %1s Founded vehicles #%2 and #%3 at distance %4 (%5) m")
@@ -320,9 +321,15 @@ void Model::findNearestTrains()
                                               .arg(fd.from_head ? "head" : "tail")
                                               .arg(train_idx)
                                               .arg((train_dir == dir_it) ? "head" : "tail"));
-
                 trains[fd.train_idx]->couple(current_distance, fd.from_head, (train_dir == dir_it), train);
+
+                // Поезд прицеплен и больше не нужен
+                delete train;
+                train = nullptr;
+
+                // Найденная пара ПЕ тоже не нужна
                 nearest_trains.remove(idx_pair);
+                break;
             }
             else
             {
@@ -344,7 +351,8 @@ void Model::findNearestTrains()
 void Model::preStep(double t)
 {
     for (auto train : trains)
-        train->preStep(t);
+        if (train)
+            train->preStep(t);
 }
 
 //------------------------------------------------------------------------------
@@ -354,7 +362,8 @@ bool Model::step(double t, double &dt)
 {
     bool step_correct = true;
     for (auto train : trains)
-        step_correct &= train->step(t, dt);
+        if (train)
+            step_correct &= train->step(t, dt);
     return step_correct;
 }
 
@@ -364,7 +373,8 @@ bool Model::step(double t, double &dt)
 void Model::postStep(double t)
 {
     for (auto train : trains)
-        train->postStep(t);
+        if (train)
+            train->postStep(t);
 }
 
 //------------------------------------------------------------------------------
