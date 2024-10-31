@@ -102,6 +102,10 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
     if (other_train == nullptr)
         return;
 
+    //Временно
+    return;
+    // TODO //
+
     // ПЕ поезда, с которым сцепляемся
     std::vector<Vehicle *> other_vehicles = *(other_train->getVehicles());
 
@@ -175,6 +179,10 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
             for (size_t i = other_joints_list.size(); i > 0; --i)
             {
                 new_joints_list.push_back(other_joints_list[i - 1]);
+                for (auto joint : other_joints_list[i - 1])
+                {
+                    joint->swapDevicesLinks();
+                }
             }
         }
         else

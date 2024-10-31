@@ -24,6 +24,9 @@ public:
     /// Set connector for linkage
     void setLink(Device *device, size_t idx = 0);
 
+    /// Get linkage to connector
+    void swapDevicesLinks(size_t idx1 = 0, size_t idx2 = 1);
+
     /// Simulation step
     virtual void step(double t, double dt);
 

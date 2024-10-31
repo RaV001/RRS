@@ -266,69 +266,75 @@ void Model::controlProcess()
 //------------------------------------------------------------------------------
 void Model::findNearestTrains()
 {
-    trains_distances.clear();
+    struct founded_distance
+    {
+        size_t train_idx;   ///< Индекс поезда в симуляции
+        bool from_head;     ///< Признак сближения с другим поездом головой или хвостом
+        double distance;    ///< Дистанция между поездами
+    };
+
+    // Массив для всех найденных пар близкорасположенных поездов
+    QMap<size_t, founded_distance> nearest_trains;
+
+    size_t train_idx = 0;
     for (auto train : trains)
     {
         int train_dir = train->getDirection();
 
-        int idx_fwd = (train_dir == -1) ?
-            train->getLastVehicle()->getModelIndex() :
-            train->getFirstVehicle()->getModelIndex();
-        int idx_bwd = (train_dir == -1) ?
-            train->getFirstVehicle()->getModelIndex() :
-            train->getLastVehicle()->getModelIndex();
-
-        double distance_fwd = 0.0;
-        double distance_bwd = 0.0;
-
-        int nearest_idx_fwd = topology->getVehicleController(idx_fwd)->getNearestVehicle(distance_fwd, 40.0, 1);
-        if (nearest_idx_fwd >= 0)
+        // От каждого поезда ищем вперёд и назад по топологии
+        for (int dir_it : {1, -1})
         {
-            /*size_t idx_pair = (idx_fwd < nearest_idx_fwd) ?
-                                  1000 * idx_fwd + nearest_idx_fwd :
-                                  1000 * nearest_idx_fwd + idx_fwd;*/
-            size_t idx_pair = 1000 * idx_fwd + nearest_idx_fwd;
-            trains_distances.insert(idx_pair, distance_fwd);
+            // Индекс крайней ПЕ в поезде, от которой начинаем поиск
+            int idx = (train_dir == dir_it) ?
+                              train->getFirstVehicle()->getModelIndex() :
+                              train->getLastVehicle()->getModelIndex();
+
+            // Ищем другую ПЕ в пределах 10 метров, и дистанцию до неё в данный момент
+            double current_distance = 0.0;
+            int nearest_idx = topology->getVehicleController(idx)->getNearestVehicle(current_distance, 10.0, dir_it);
+
+            // Если ничего не нашли - дальше делать нечего
+            if (nearest_idx == -1)
+                continue;
+
+            // Создаём число из индексов найденной пары ПЕ, в порядке возрастания
+            size_t idx_pair = (idx < nearest_idx) ?
+                                  MAX_NUM_VEHICLES * idx + nearest_idx :
+                                  MAX_NUM_VEHICLES * nearest_idx + idx;
+
+            // Поскольку предполагается, что поиск найдёт каждую пару ПЕ дважды,
+            // то проверяем что эта пара уже найдена в предыдущих поездах,
+            if (nearest_trains.contains(idx_pair))
+            {
+                // Найденную дважды пару ПЕ соединяем в один поезд
+                founded_distance fd = nearest_trains.value(idx_pair);
+                Journal::instance()->info(QString("t = %1s Founded vehicles #%2 and #%3 at distance %4 (%5) m")
+                                              .arg(t)
+                                              .arg(idx)
+                                              .arg(nearest_idx)
+                                              .arg(fd.distance, 7, 'f', 3)
+                                              .arg(current_distance, 7, 'f', 3));
+                Journal::instance()->info(QString("t = %1s Connect trains #%2 (from %3) and #%4 (from %5)")
+                                              .arg(t)
+                                              .arg(fd.train_idx)
+                                              .arg(fd.from_head ? "head" : "tail")
+                                              .arg(train_idx)
+                                              .arg((train_dir == dir_it) ? "head" : "tail"));
+
+                trains[fd.train_idx]->couple(current_distance, fd.from_head, (train_dir == dir_it), train);
+                nearest_trains.remove(idx_pair);
+            }
+            else
+            {
+                // Сохраняем найденную пару ПЕ
+                founded_distance fd;
+                fd.train_idx = train_idx;
+                fd.from_head = (train_dir == dir_it);
+                fd.distance = current_distance;
+                nearest_trains.insert(idx_pair, fd);
+            }
         }
-
-        int nearest_idx_bwd = topology->getVehicleController(idx_bwd)->getNearestVehicle(distance_bwd, 40.0, -1);
-        if (nearest_idx_bwd >= 0)
-        {
-            /*size_t idx_pair = (idx_bwd < nearest_idx_bwd) ?
-                                  1000 * idx_bwd + nearest_idx_bwd :
-                                  1000 * nearest_idx_bwd + idx_bwd;*/
-            size_t idx_pair = 1000 * idx_bwd + nearest_idx_bwd;
-            trains_distances.insert(idx_pair, distance_bwd);
-        }
-    }
-
-    // ОТЛАДКА
-    if (!trains_distances.empty())
-    {
-        Journal::instance()->info(QString("t = %1 Founded vehicles near to each other:").arg(t));
-        for (auto d_it = trains_distances.begin(); d_it != trains_distances.end(); ++d_it)
-        {
-            int idx_1 = d_it.key() / 1000;
-            double coord_1 = topology->getVehicleController(idx_1)->getTrajCoord();
-            double coord_11 = coord_1 - vehicles[idx_1]->getLength() / 2.0;
-            double coord_12 = coord_1 + vehicles[idx_1]->getLength() / 2.0;
-
-            int idx_2 = d_it.key() % 1000;
-            double coord_2 = topology->getVehicleController(idx_2)->getTrajCoord();
-            double coord_21 = coord_2 - vehicles[idx_2]->getLength() / 2.0;
-            double coord_22 = coord_2 + vehicles[idx_2]->getLength() / 2.0;
-
-            Journal::instance()->info(QString("#%1 at %2 (%3 - %4) and #%5 at %6 (%7 - %8) at distance %9 m")
-                                          .arg(idx_1)
-                                          .arg(coord_1, 6, 'f', 1)
-                                          .arg(coord_11, 6, 'f', 1)
-                                          .arg(coord_12, 6, 'f', 1)
-                                          .arg(idx_2)
-                                          .arg(coord_2, 6, 'f', 1)
-                                          .arg(coord_21, 6, 'f', 1)
-                                          .arg(coord_22, 6, 'f', 1)
-                                          .arg(d_it.value(), 5, 'f', 1));
-        }
+        ++train_idx;
     }
 }
 

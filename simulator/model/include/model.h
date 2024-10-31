@@ -127,9 +127,6 @@ private:
     /// Train model
     std::vector<Train *> trains;
 
-    /// Trains which are near to each other
-    QMap<size_t, double> trains_distances;
-
     /// TCP-server
     //Server      *server = nullptr;
 
