@@ -122,6 +122,7 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
         other_begin = other_coord;
     }
 
+    // ОТЛАДКА
     double train1_coord_begin = y[0];
     Journal::instance()->info(QString("Vehicle   0 (#%1) coordinate[  0]: %2 (  0.000)")
                                   .arg(vehicles.front()->getModelIndex(), 4)
@@ -138,6 +139,7 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
                                       .arg(coord, 7, 'f', 3));
     }
 
+    // ОТЛАДКА
     double train2_coord_begin = other_y[0];
     Journal::instance()->info(QString("Vehicle   0 (#%1) coordinate[  0]: %2 (  0.000)")
                                   .arg(other_vehicles.front()->getModelIndex(), 4)
@@ -181,6 +183,13 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
             other_cons = (other_veh->getOrientation() == -1) ?
                              other_veh->getBwdConnectors() :
                              other_veh->getFwdConnectors();
+
+            (veh->getOrientation() == -1) ?
+                veh->setNextVehicle(other_veh) :
+                veh->setPrevVehicle(other_veh);
+            (other_veh->getOrientation() == -1) ?
+                other_veh->setNextVehicle(veh) :
+                other_veh->setPrevVehicle(veh);
 
             double distance = current_distance + veh->getLength() / 2.0 + other_veh->getLength() / 2.0;
             other_veh_distances.insert(other_veh_distances.begin(), distance);
@@ -226,10 +235,15 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
             for (size_t i = other_joints_list.size(); i > 0; --i)
             {
                 new_joints_list.push_back(other_joints_list[i - 1]);
+
+                /* По идее после разворота порядка вагонов
+                 * надо развернуть и межвагонные связи,
+                 * но почему-то правильно работает как раз без всякого разворота
                 for (auto joint : other_joints_list[i - 1])
                 {
                     joint->swapDevicesLinks();
                 }
+                */
             }
         }
         else
@@ -393,7 +407,6 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
                                       .arg(y[state_idx], 7, 'f', 3)
                                       .arg(coord, 7, 'f', 3));
     }
-
 }
 
 //------------------------------------------------------------------------------
