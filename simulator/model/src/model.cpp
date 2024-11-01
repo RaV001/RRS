@@ -275,15 +275,13 @@ void Model::findNearestTrains()
 
     // Массив для всех найденных пар близкорасположенных поездов
     QMap<size_t, founded_distance> nearest_trains;
+    std::vector<size_t> trains_idx_to_delete;
 
-    size_t train_idx = 0;
-    for (auto train : trains)
+    for (size_t train_idx = 0; train_idx < trains.size(); ++train_idx)
     {
+        Train* train = trains[train_idx];
         if (train == nullptr)
-        {
-            ++train_idx;
             continue;
-        }
 
         int train_dir = train->getDirection();
 
@@ -309,12 +307,19 @@ void Model::findNearestTrains()
                                   MAX_NUM_VEHICLES * nearest_idx + idx;
 
             // Поскольку предполагается, что поиск найдёт каждую пару ПЕ дважды,
-            // то проверяем что эта пара уже найдена в предыдущих поездах,
+            // то проверяем что эта пара уже найдена в предыдущих поездах
             if (nearest_trains.contains(idx_pair))
             {
-
                 // Найденную дважды пару ПЕ соединяем в один поезд
                 founded_distance fd = nearest_trains.value(idx_pair);
+
+                // Но проверяем, если поезд замкнулся сам на себя - игнорируем
+                if (fd.train_idx == train_idx)
+                {
+                    nearest_trains.remove(idx_pair);
+                    break;
+                }
+
                 Journal::instance()->info(QString("t = %1s Founded vehicles #%2 and #%3 at distance %4 (%5) m")
                                               .arg(t)
                                               .arg(idx)
@@ -330,8 +335,7 @@ void Model::findNearestTrains()
                 trains[fd.train_idx]->couple(current_distance, fd.from_head, (train_dir == dir_it), train);
 
                 // Поезд прицеплен и больше не нужен
-                delete train;
-                train = nullptr;
+                trains_idx_to_delete.push_back(train_idx);
 
                 // Найденная пара ПЕ тоже не нужна
                 nearest_trains.remove(idx_pair);
@@ -347,7 +351,26 @@ void Model::findNearestTrains()
                 nearest_trains.insert(idx_pair, fd);
             }
         }
-        ++train_idx;
+    }
+
+    if (trains_idx_to_delete.empty())
+        return;
+
+    // Удаляем прицепленные поезда
+    size_t min_idx = trains.size();
+    for (auto train_idx : trains_idx_to_delete)
+    {
+        if (min_idx < train_idx)
+            min_idx = train_idx;
+
+        delete trains[train_idx];
+        trains.erase(trains.begin() + train_idx);
+    }
+
+    // Назначаем новые порядковые индексы поездам после уменьшения массива
+    for (size_t train_idx = min_idx; train_idx < trains.size(); ++train_idx)
+    {
+        trains[train_idx]->setTrainIndex(train_idx);
     }
 }
 
@@ -709,9 +732,9 @@ Train *Model::addTrain(const init_data_t &init_data)
     {
         Journal::instance()->info(QString("Train initialized successfully"));
 
+        train->setTrainIndex(trains.size());
         for (auto vehicle : *(train->getVehicles()))
         {
-            vehicle->setTrainIndex(trains.size());
             vehicle->setModelIndex(vehicles.size());
             vehicles.push_back(vehicle);
         }

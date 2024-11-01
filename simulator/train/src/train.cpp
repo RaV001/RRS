@@ -199,6 +199,7 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
 
                 vehicle->setDirection(dir);
                 vehicle->setOrientation(-vehicle->getOrientation());
+                vehicle->setTrainIndex(train_idx);
 
                 vehicle->setStateIndex(new_ode_order);
                 new_ode_order += 2 * s;
@@ -373,6 +374,10 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
         }
     }
 
+    Journal::instance()->info(QString("Trains coupled! New size of vehicles %1, joints %2, state_vector %3")
+                                  .arg(vehicles.size(), 4)
+                                  .arg(joints_list.size(), 4)
+                                  .arg(y.size(), 4));
     double train_coord_begin = y[0];
     Journal::instance()->info(QString("Vehicle   0 (#%1) coordinate[  0]: %2 (  0.000)")
                                   .arg(vehicles.front()->getModelIndex(), 4)
@@ -389,6 +394,26 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
                                       .arg(coord, 7, 'f', 3));
     }
 
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+void Train::setTrainIndex(size_t idx)
+{
+    train_idx = idx;
+    for (auto vehicle : vehicles)
+    {
+        vehicle->setTrainIndex(idx);
+    }
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+size_t Train::getTrainIndex() const
+{
+    return train_idx;
 }
 
 //------------------------------------------------------------------------------

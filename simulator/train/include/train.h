@@ -59,6 +59,12 @@ public:
     /// Train coupling
     void couple(double current_distance, bool is_coupling_to_head, bool is_other_coupled_by_head, Train *other_train = nullptr);
 
+    /// Set train index
+    void setTrainIndex(size_t idx);
+
+    /// Get train index
+    size_t getTrainIndex() const;
+
     /// Calculation of right part motion ODE's
     void calcDerivative(state_vector_t &Y, state_vector_t &dYdt, double t, double dt);
 
@@ -109,6 +115,9 @@ public:
     }
 
 private:
+
+    /// Train index
+    size_t          train_idx = 0;
 
     /// Train mass
     double          trainMass = 0.0;
