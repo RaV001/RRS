@@ -67,7 +67,7 @@ public:
 
     /// Set vehicle index
     void setModelIndex(size_t idx);
-    /// Set vehicle index
+    /// Set train index
     void setTrainIndex(size_t idx);
     /// Set vehicle state index
     void setStateIndex(size_t idx);

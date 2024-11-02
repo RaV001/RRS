@@ -1,15 +1,24 @@
 #include    "euler.h"
 
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
 EulerSolver::EulerSolver()
 {
-    first_step = true;
+
 }
 
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
 EulerSolver::~EulerSolver()
 {
 
 }
 
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
 bool EulerSolver::step(OdeSystem *ode_sys,
                      state_vector_t &Y,
                      state_vector_t &dYdt,
@@ -20,12 +29,6 @@ bool EulerSolver::step(OdeSystem *ode_sys,
 {
     Q_UNUSED(max_step)
     Q_UNUSED(local_err)
-
-    // Share required memory
-    if (first_step)
-    {
-        first_step = false;
-    }
 
     ode_sys->calcDerivative(Y, dYdt, t, dt);
 

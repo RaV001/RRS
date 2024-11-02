@@ -62,13 +62,13 @@ bool QtEventsHandler::handle(const osgGA::GUIEventAdapter &ea,
 
             _count += delta;
             _time += delta;
-            QApplication::processEvents(QEventLoop::AllEvents);
 
             break;
         }
 
     case osgGA::GUIEventAdapter::USER:
         {
+            QApplication::processEvents(QEventLoop::AllEvents, 10);
             break;
         }
 

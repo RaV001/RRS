@@ -71,6 +71,19 @@ void Joint::setLink(Device *device, size_t idx)
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
+void Joint::swapDevicesLinks(size_t idx1, size_t idx2)
+{
+    if (max(idx1, idx2) < devices.size())
+    {
+        Device *tmp = devices[idx1];
+        devices[idx1] = devices[idx2];
+        devices[idx2] = tmp;
+    }
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
 void Joint::step(double t, double dt)
 {
     (void) t;

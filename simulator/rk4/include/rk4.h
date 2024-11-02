@@ -3,9 +3,9 @@
 
 #include    "solver.h"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class  RK4Solver : public Solver
 {
 public:
@@ -22,6 +22,8 @@ public:
               double max_step,
               double local_err);
 
+    void setODEsize(size_t n);
+
 protected:
 
     state_vector_t k1;
@@ -31,7 +33,7 @@ protected:
 
     state_vector_t Y1;
 
-    bool first_step;
+    bool first_step = true;
 };
 
 #endif

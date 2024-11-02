@@ -1,15 +1,24 @@
 #include    "rk4.h"
 
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
 RK4Solver::RK4Solver()
 {
-    first_step = true;
+
 }
 
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
 RK4Solver::~RK4Solver()
 {
 
 }
 
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
 bool RK4Solver::step(OdeSystem *ode_sys,
                      state_vector_t &Y,
                      state_vector_t &dYdt,
@@ -24,12 +33,7 @@ bool RK4Solver::step(OdeSystem *ode_sys,
     // Share required memory
     if (first_step)
     {
-        size_t n = Y.size();
-        k1.resize(n);
-        k2.resize(n);
-        k3.resize(n);
-        //k4.resize(n);
-        Y1.resize(n);
+        setODEsize(Y.size());
 
         first_step = false;
     }
@@ -68,6 +72,18 @@ bool RK4Solver::step(OdeSystem *ode_sys,
     }
 
     return true;
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+void RK4Solver::setODEsize(size_t n)
+{
+    k1.resize(n);
+    k2.resize(n);
+    k3.resize(n);
+    //k4.resize(n);
+    Y1.resize(n);
 }
 
 GET_SOLVER(RK4Solver)
