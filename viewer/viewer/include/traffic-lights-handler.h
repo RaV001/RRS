@@ -49,6 +49,8 @@ public slots:
 
     void slotUpdateSignal(QByteArray data);
 
+    void slotUpdateBusyData(QByteArray &data);
+
 private:
 
     QMap<QString, TrafficLight *> traffic_lights_fwd;
