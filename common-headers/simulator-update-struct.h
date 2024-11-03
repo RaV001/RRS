@@ -140,8 +140,8 @@ struct simulator_update_t
     wchar_t currentDebugMsg[DEBUG_STRING_SIZE] = L"";
     int     controlled_vehicle = 0;
     wchar_t controlledDebugMsg[DEBUG_STRING_SIZE] = L"";
-    int     num_trains = 2;
-    std::array<simulator_train_update_t, 2>  trains;
+    int     num_trains = 0;
+    std::array<simulator_train_update_t, MAX_NUM_TRAINS>  trains;
     std::array<simulator_vehicle_update_t, MAX_NUM_VEHICLES>  vehicles;
 
     simulator_update_t()

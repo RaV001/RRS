@@ -366,11 +366,16 @@ void Model::findNearestVehicles()
 
         delete trains[train_idx];
         trains.erase(trains.begin() + train_idx);
+        Journal::instance()->info(QString("Delete train %1")
+                                      .arg(train_idx, 3));
     }
 
     // Назначаем новые порядковые индексы поездам после уменьшения массива
     for (size_t train_idx = min_idx; train_idx < trains.size(); ++train_idx)
     {
+        Journal::instance()->info(QString("Train %1 now %2")
+                                      .arg(trains[train_idx]->getTrainIndex(), 3)
+                                      .arg(train_idx, 3));
         trains[train_idx]->setTrainIndex(train_idx);
     }
 }
