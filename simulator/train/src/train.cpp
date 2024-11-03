@@ -106,11 +106,6 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
     std::vector<Vehicle *> other_vehicles = *(other_train->getVehicles());
 
     // Вектор состояния поезда, с которым сцепляемся
-    // TODO // Вектор состояния устроен не так просто, надо копировать по вайклам
-    // TODO // И пересчитать каждый y[idx] на новую систему координат данного поезда
-    // TODO // И дистанцию между поездами к моменту сцепления учесть
-    // TODO // И дуговую координату в контроллере топологии заново инициализировать
-    // TODO // И новый индекс в векторе состония вайклам задать
     state_vector_t other_y = other_train->getStateVector();
     double other_begin = other_y[0];
     std::vector<double> other_veh_distances;
@@ -164,6 +159,11 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
     Vehicle *other_veh;
     device_list_t *other_cons;
 
+    std::vector<Vehicle *> new_vehicles;
+    std::vector<std::vector<Joint *>> new_joints_list;
+    state_vector_t new_y;
+    size_t new_ode_order = 0;
+
     // Соединяем ПЕ в общий массив
     if (is_coupling_to_head)
     {
@@ -171,11 +171,6 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
         cons = (veh->getOrientation() == -1) ?
                                   veh->getBwdConnectors() :
                                   veh->getFwdConnectors();
-
-        std::vector<Vehicle *> new_vehicles;
-        std::vector<std::vector<Joint *>> new_joints_list;
-        state_vector_t new_y;
-        size_t new_ode_order = 0;
 
         if (is_other_coupled_by_head)
         {
@@ -191,9 +186,6 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
                 other_veh->setNextVehicle(veh) :
                 other_veh->setPrevVehicle(veh);
 
-            double distance = current_distance + veh->getLength() / 2.0 + other_veh->getLength() / 2.0;
-            other_veh_distances.insert(other_veh_distances.begin(), distance);
-
             for (size_t i = other_vehicles.size(); i > 0; --i)
             {
                 Vehicle *vehicle = other_vehicles[i - 1];
@@ -208,7 +200,6 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
 
                 vehicle->setDirection(dir);
                 vehicle->setOrientation(-vehicle->getOrientation());
-                vehicle->setTrainIndex(train_idx);
 
                 vehicle->setStateIndex(new_ode_order);
                 new_ode_order += 2 * s;
@@ -216,9 +207,13 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
 
             // Новые поездные координаты для прицепленных ПЕ
             double train_coord = y[0];
+            double distance = current_distance + veh->getLength() / 2.0 + other_veh->getLength() / 2.0;
+            other_veh_distances.insert(other_veh_distances.begin(), distance);
             for (size_t i = 0; i < other_vehicles.size(); ++i)
             {
                 Vehicle *vehicle = other_vehicles[i];
+                vehicle->setTrainIndex(train_idx);
+
                 size_t model_idx = vehicle->getModelIndex();
                 size_t idx = vehicle->getStateIndex();
 
@@ -260,15 +255,14 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
                 other_veh->setPrevVehicle(veh) :
                 other_veh->setNextVehicle(veh);
 
-            double distance = current_distance + veh->getLength() / 2.0 + other_veh->getLength() / 2.0;
-            other_veh_distances.push_back(distance);
-
             new_vehicles = other_vehicles;
             new_y = other_y;
             new_ode_order = other_y.size();
 
             // Новые поездные координаты для прицепленных ПЕ
             double train_coord = y[0];
+            double distance = current_distance + veh->getLength() / 2.0 + other_veh->getLength() / 2.0;
+            other_veh_distances.push_back(distance);
             for (size_t i = other_vehicles.size(); i > 0; --i)
             {
                 Vehicle *vehicle = other_vehicles[i - 1];
@@ -333,29 +327,55 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
         vehicles.insert(vehicles.begin(), new_vehicles.begin(), new_vehicles.end());
         joints_list.insert(joints_list.begin(), new_joints_list.begin(), new_joints_list.end());
         y.insert(y.begin(), new_y.begin(), new_y.end());
-
-        ode_order += new_ode_order;
-        train_motion_solver->setODEsize(ode_order);
-        dydt.resize(ode_order);
     }
     else
     {
-        //Временно
-        return;
-        // TODO //
-        Vehicle *veh = *(vehicles.end() - 1);
-        device_list_t *cons = (veh->getOrientation() == -1) ?
+        veh = *(vehicles.end() - 1);
+        cons = (veh->getOrientation() == -1) ?
                                   veh->getFwdConnectors() :
                                   veh->getBwdConnectors();
 
-        Vehicle *other_veh;
-        device_list_t *other_cons;
         if (is_other_coupled_by_head)
         {
             other_veh = *(other_vehicles.begin());
             other_cons = (other_veh->getOrientation() == -1) ?
                              other_veh->getBwdConnectors() :
                              other_veh->getFwdConnectors();
+
+            (veh->getOrientation() == -1) ?
+                veh->setPrevVehicle(other_veh) :
+                veh->setNextVehicle(other_veh);
+            (other_veh->getOrientation() == -1) ?
+                other_veh->setNextVehicle(veh) :
+                other_veh->setPrevVehicle(veh);
+
+            new_vehicles = other_vehicles;
+            new_y = other_y;
+
+            // Новые поездные координаты для прицепленных ПЕ
+            double train_coord = y[veh->getStateIndex()];
+            double distance = current_distance + veh->getLength() / 2.0 + other_veh->getLength() / 2.0;
+            other_veh_distances.insert(other_veh_distances.begin(), distance);
+            for (size_t i = 0; i < other_vehicles.size(); ++i)
+            {
+                Vehicle *vehicle = other_vehicles[i];
+                vehicle->setTrainIndex(train_idx);
+
+                size_t model_idx = vehicle->getModelIndex();
+                size_t idx = vehicle->getStateIndex();
+                vehicle->setStateIndex(idx + y.size());
+
+                // На всякий случай актуализируем положение ПЕ в топологии
+                // по старой дуговой координате
+                topology->getVehicleController(model_idx)->setCoord(new_y[idx]);
+
+                // Новая дуговая координата
+                new_y[idx] = train_coord - dir * other_veh_distances[i];
+                topology->getVehicleController(model_idx)->setInitCoord(new_y[idx]);
+                train_coord = new_y[idx];
+            }
+
+            new_joints_list = other_joints_list;
         }
         else
         {
@@ -363,6 +383,61 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
             other_cons = (other_veh->getOrientation() == -1) ?
                              other_veh->getFwdConnectors() :
                              other_veh->getBwdConnectors();
+
+            (veh->getOrientation() == -1) ?
+                veh->setPrevVehicle(other_veh) :
+                veh->setNextVehicle(other_veh);
+            (other_veh->getOrientation() == -1) ?
+                other_veh->setPrevVehicle(veh) :
+                other_veh->setNextVehicle(veh);
+
+            // Новые поездные координаты для прицепленных ПЕ
+            double train_coord = y[veh->getStateIndex()];
+            double distance = current_distance + veh->getLength() / 2.0 + other_veh->getLength() / 2.0;
+            other_veh_distances.push_back(distance);
+            for (size_t i = other_vehicles.size(); i > 0; --i)
+            {
+                Vehicle *vehicle = other_vehicles[i - 1];
+                new_vehicles.push_back(vehicle);
+
+                vehicle->setDirection(dir);
+                vehicle->setOrientation(-vehicle->getOrientation());
+                vehicle->setTrainIndex(train_idx);
+
+                size_t model_idx = vehicle->getModelIndex();
+                size_t idx = vehicle->getStateIndex();
+                size_t s = vehicle->getDegressOfFreedom();
+                for (size_t j = idx; j < idx + 2 * s; ++j)
+                {
+                    new_y.push_back(other_y[j]);
+                }
+
+                // На всякий случай актуализируем положение ПЕ в топологии
+                // по старой дуговой координате
+                topology->getVehicleController(model_idx)->setCoord(other_y[idx]);
+
+                // Новая дуговая координата
+                new_y[new_ode_order] = train_coord - dir * other_veh_distances[i - 1];
+                topology->getVehicleController(model_idx)->setInitCoord(new_y[new_ode_order]);
+                train_coord = new_y[new_ode_order];
+
+                vehicle->setStateIndex(new_ode_order + y.size());
+                new_ode_order += 2 * s;
+            }
+
+            for (size_t i = other_joints_list.size(); i > 0; --i)
+            {
+                new_joints_list.push_back(other_joints_list[i - 1]);
+
+                /* По идее после разворота порядка вагонов
+                 * надо развернуть и межвагонные связи,
+                 * но почему-то правильно работает как раз без всякого разворота
+                for (auto joint : other_joints_list[i - 1])
+                {
+                    joint->swapDevicesLinks();
+                }
+                */
+            }
         }
 
         // Создаём новый массив межвагонных связей между крайними ПЕ сцепляемых поездов
@@ -376,7 +451,9 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
         }
         else
         {
-            loadJoints(cons, other_cons, joints);
+            (dir == -1) ?
+                loadJoints(other_cons,cons,  joints) :
+                loadJoints(cons, other_cons, joints);
         }
 
         if (joints.empty())
@@ -394,25 +471,14 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
         }
         joints_list.push_back(joints);
 
-        if (is_other_coupled_by_head)
-        {
-            for (size_t i = other_vehicles.size(); i > 0; --i)
-                vehicles.push_back(other_vehicles[i - 1]);
-            for (size_t i = other_joints_list.size(); i > 0; --i)
-                joints_list.push_back(other_joints_list[i - 1]);
-            for (size_t i = other_y.size(); i > 0; --i)
-                y.push_back(other_y[i - 1]);
-        }
-        else
-        {
-            for (size_t i = 0; i < other_vehicles.size(); ++i)
-                vehicles.push_back(other_vehicles[i]);
-            for (size_t i = 0; i < other_joints_list.size(); ++i)
-                joints_list.push_back(other_joints_list[i]);
-            for (size_t i = 0; i < other_y.size(); ++i)
-                y.push_back(other_y[i]);
-        }
+        vehicles.insert(vehicles.end(), new_vehicles.begin(), new_vehicles.end());
+        joints_list.insert(joints_list.end(), new_joints_list.begin(), new_joints_list.end());
+        y.insert(y.end(), new_y.begin(), new_y.end());
     }
+
+    ode_order = y.size();
+    train_motion_solver->setODEsize(ode_order);
+    dydt.resize(ode_order);
 
     Journal::instance()->info(QString("Trains coupled! New size of vehicles %1, joints %2, state_vector %3")
                                   .arg(vehicles.size(), 4)
