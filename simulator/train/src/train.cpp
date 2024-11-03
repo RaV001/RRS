@@ -17,7 +17,7 @@ Train::Train(QObject *parent) : OdeSystem(parent)
 //------------------------------------------------------------------------------
 Train::~Train()
 {
-
+    delete train_motion_solver;
 }
 
 //------------------------------------------------------------------------------
@@ -37,9 +37,6 @@ bool Train::init(const init_data_t &init_data)
 
     train_motion_solver = loadSolver(solver_path);
 
-    Journal::instance()->info(QString("Created Solver object at address: 0x%1")
-                              .arg(reinterpret_cast<quint64>(train_motion_solver), 0, 16));
-
     if (train_motion_solver == Q_NULLPTR)
     {
         Journal::instance()->error("Solver " + solver_path + " is't found");
@@ -47,6 +44,8 @@ bool Train::init(const init_data_t &init_data)
     }
 
     Journal::instance()->info("Loaded solver: " + solver_path);
+    Journal::instance()->info(QString("Created Solver object at address: 0x%1")
+                                  .arg(reinterpret_cast<quint64>(train_motion_solver), 0, 16));
 
     QString full_config_path = QString(fs.getTrainsDir().c_str()) +
             fs.separator() +
@@ -91,6 +90,64 @@ bool Train::init(const init_data_t &init_data)
 
     initVehiclesBrakes();
 
+    return true;
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+bool Train::init(const solver_config_t &solver_config, int direction, std::vector<Vehicle *> &vehicles, state_vector_t &state_vector, std::vector<std::vector<Joint *>> &joints_list)
+{
+    this->solver_config = solver_config;
+
+    this->dir = direction;
+
+    // Solver loading
+    FileSystem &fs = FileSystem::getInstance();
+    QString solver_path = QString(fs.getLibraryDir().c_str()) + fs.separator() + solver_config.method;
+
+    train_motion_solver = loadSolver(solver_path);
+
+    if (train_motion_solver == Q_NULLPTR)
+    {
+        Journal::instance()->error("Solver " + solver_path + " is't found");
+        return false;
+    }
+
+    Journal::instance()->info("Loaded solver: " + solver_path);
+    Journal::instance()->info(QString("Created Solver object at address: 0x%1")
+                                  .arg(reinterpret_cast<quint64>(train_motion_solver), 0, 16));
+
+    this->vehicles = vehicles;
+    this->y = state_vector;
+    this->joints_list = joints_list;
+
+    for (auto vehicle : this->vehicles)
+    {
+        vehicle->setStateIndex(ode_order);
+        ode_order += 2 * vehicle->getDegressOfFreedom();
+    }
+    dydt.resize(ode_order);
+
+    Journal::instance()->info(QString("Train uncoupled! New size of vehicles %1, joints %2, state_vector %3")
+                                  .arg(this->vehicles.size(), 4)
+                                  .arg(this->joints_list.size(), 4)
+                                  .arg(y.size(), 4));
+    double train_coord_begin = y[0];
+    Journal::instance()->info(QString("Vehicle   0 (#%1) coordinate[  0]: %2 (  0.000)")
+                                  .arg(vehicles.front()->getModelIndex(), 4)
+                                  .arg(y[0], 7, 'f', 3));
+    for (size_t i = 1; i < vehicles.size(); ++i)
+    {
+        size_t state_idx = vehicles[i]->getStateIndex();
+        double coord = y[state_idx] - train_coord_begin;
+        Journal::instance()->info(QString("Vehicle %1 (#%2) coordinate[%3]: %4 (%5)")
+                                      .arg(i, 3)
+                                      .arg(vehicles[i]->getModelIndex(), 4)
+                                      .arg(vehicles[i]->getStateIndex(), 4)
+                                      .arg(y[state_idx], 7, 'f', 3)
+                                      .arg(coord, 7, 'f', 3));
+    }
     return true;
 }
 
@@ -499,6 +556,124 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
                                       .arg(y[state_idx], 7, 'f', 3)
                                       .arg(coord, 7, 'f', 3));
     }
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+Train *Train::uncouple(double uncoupling_distance)
+{
+    if (vehicles.size() < 2)
+        return nullptr;
+
+    double prev_coord = y[0];
+    double prev_length_half = vehicles[0]->getLength() / 2.0;
+    for (size_t i = 1; i < vehicles.size(); ++i)
+    {
+        size_t idx = vehicles[i]->getStateIndex();
+        double coord = y[idx];
+        double length_half = vehicles[i]->getLength() / 2.0;
+        double distance = abs(prev_coord - coord) - length_half - prev_length_half;
+        prev_coord = coord;
+        prev_length_half = length_half;
+
+        if (distance < uncoupling_distance)
+            continue;
+
+        Journal::instance()->info(QString("Train %1 will be uncoupled between its vehicles %2 (#%3) and %4 (#%5) at distance %6 m")
+                                      .arg(train_idx, 3)
+                                      .arg(i - 1, 3)
+                                      .arg(vehicles[i - 1]->getModelIndex(), 4)
+                                      .arg(i, 3)
+                                      .arg(vehicles[i]->getModelIndex(), 4)
+                                      .arg(distance, 7, 'f', 3));
+        double train_coord_begin = y[0];
+        Journal::instance()->info(QString("Vehicle   0 (#%1) coordinate[  0]: %2 (  0.000)")
+                                      .arg(vehicles.front()->getModelIndex(), 4)
+                                      .arg(y[0], 7, 'f', 3));
+        for (size_t i = 1; i < vehicles.size(); ++i)
+        {
+            size_t state_idx = vehicles[i]->getStateIndex();
+            double coord = y[state_idx] - train_coord_begin;
+            Journal::instance()->info(QString("Vehicle %1 (#%2) coordinate[%3]: %4 (%5)")
+                                          .arg(i, 3)
+                                          .arg(vehicles[i]->getModelIndex(), 4)
+                                          .arg(vehicles[i]->getStateIndex(), 4)
+                                          .arg(y[state_idx], 7, 'f', 3)
+                                          .arg(coord, 7, 'f', 3));
+        }
+
+        Train *new_train = new Train();
+        new_train->setTopology(topology);
+
+        (vehicles[i - 1]->getOrientation() == -1) ?
+            vehicles[i - 1]->setPrevVehicle(nullptr) :
+            vehicles[i - 1]->setNextVehicle(nullptr);
+        (vehicles[i]->getOrientation() == -1) ?
+            vehicles[i]->setNextVehicle(nullptr) :
+            vehicles[i]->setPrevVehicle(nullptr);
+
+        std::vector<Vehicle *> new_vehicles;
+        for (size_t j = i; j < vehicles.size(); ++j)
+        {
+            new_vehicles.push_back(vehicles[j]);
+        }
+
+        state_vector_t new_y;
+        for (size_t j = idx; j < y.size(); ++j)
+        {
+            new_y.push_back(y[j]);
+        }
+
+        std::vector<std::vector<Joint *>> new_joints_list;
+        if (i < vehicles.size() - 1)
+        {
+            for (size_t j = i; j < joints_list.size(); ++j)
+            {
+                new_joints_list.push_back(joints_list[j]);
+            }
+        }
+
+        vehicles.resize(i);
+
+        ode_order = idx;
+        y.resize(ode_order);
+        dydt.resize(ode_order);
+        train_motion_solver->setODEsize(ode_order);
+
+        for (auto joint : joints_list[i - 1])
+        {
+            delete joint;
+        }
+        joints_list.resize(i - 1);
+
+        Journal::instance()->info(QString("Train uncoupled! New size of vehicles %1, joints %2, state_vector %3")
+                                      .arg(vehicles.size(), 4)
+                                      .arg(joints_list.size(), 4)
+                                      .arg(y.size(), 4));
+        train_coord_begin = y[0];
+        Journal::instance()->info(QString("Vehicle   0 (#%1) coordinate[  0]: %2 (  0.000)")
+                                      .arg(vehicles.front()->getModelIndex(), 4)
+                                      .arg(y[0], 7, 'f', 3));
+        for (size_t i = 1; i < vehicles.size(); ++i)
+        {
+            size_t state_idx = vehicles[i]->getStateIndex();
+            double coord = y[state_idx] - train_coord_begin;
+            Journal::instance()->info(QString("Vehicle %1 (#%2) coordinate[%3]: %4 (%5)")
+                                          .arg(i, 3)
+                                          .arg(vehicles[i]->getModelIndex(), 4)
+                                          .arg(vehicles[i]->getStateIndex(), 4)
+                                          .arg(y[state_idx], 7, 'f', 3)
+                                          .arg(coord, 7, 'f', 3));
+        }
+
+        Journal::instance()->info(QString("Created Train object at address: 0x%1")
+                                      .arg(reinterpret_cast<quint64>(new_train), 0, 16));
+        if (new_train->init(solver_config, dir, new_vehicles, new_y, new_joints_list))
+            return new_train;
+        return nullptr;
+    }
+    return nullptr;
 }
 
 //------------------------------------------------------------------------------

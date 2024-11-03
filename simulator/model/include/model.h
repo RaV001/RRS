@@ -167,8 +167,11 @@ private:
 
     tcp_simulator_update_t tcp_simulator_update;
 
-    /// Find trains which are near to each other;
-    void findNearestTrains();
+    /// Find trains which are near to each other and couple them
+    void findNearestVehicles();
+
+    /// Find trains which have distances between its vehicles and uncouple them
+    void findFarthestVehicles();
 
     /// Actions, which prerare integration step and also update shared data
     void preStep(double t);

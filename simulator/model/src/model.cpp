@@ -264,7 +264,7 @@ void Model::controlProcess()
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-void Model::findNearestTrains()
+void Model::findNearestVehicles()
 {
     struct founded_distance
     {
@@ -295,7 +295,8 @@ void Model::findNearestTrains()
 
             // Ищем другую ПЕ в пределах 10 метров, и дистанцию до неё в данный момент
             double current_distance = 0.0;
-            int nearest_idx = topology->getVehicleController(idx)->getNearestVehicle(current_distance, 10.0, dir_it);
+            int nearest_idx = topology->getVehicleController(idx)->getNearestVehicle(
+                current_distance, DISTANCE_TO_COUPLE_TRAINS, dir_it);
 
             // Если ничего не нашли - дальше делать нечего
             if (nearest_idx == -1)
@@ -377,11 +378,28 @@ void Model::findNearestTrains()
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
+void Model::findFarthestVehicles()
+{
+    for (auto train : trains)
+    {
+        Train *uncoupled_train = train->uncouple(DISTANCE_TO_UNCOUPLE_TRAINS);
+        if (uncoupled_train != nullptr)
+        {
+            Journal::instance()->info(QString("Uncoupled new train %1 ")
+                                          .arg(trains.size(), 3));
+            uncoupled_train->setTrainIndex(trains.size());
+            trains.push_back(uncoupled_train);
+        }
+    }
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
 void Model::preStep(double t)
 {
     for (auto train : trains)
-        if (train)
-            train->preStep(t);
+        train->preStep(t);
 }
 
 //------------------------------------------------------------------------------
@@ -391,8 +409,7 @@ bool Model::step(double t, double &dt)
 {
     bool step_correct = true;
     for (auto train : trains)
-        if (train)
-            step_correct &= train->step(t, dt);
+        step_correct &= train->step(t, dt);
     return step_correct;
 }
 
@@ -402,8 +419,7 @@ bool Model::step(double t, double &dt)
 void Model::postStep(double t)
 {
     for (auto train : trains)
-        if (train)
-            train->postStep(t);
+        train->postStep(t);
 }
 
 //------------------------------------------------------------------------------
@@ -1109,7 +1125,9 @@ void Model::process()
 
     topology->step(t, integration_time);
 
-    findNearestTrains();
+    findNearestVehicles();
+
+    findFarthestVehicles();
 
     // Integrate all ODE in train motion model
     do

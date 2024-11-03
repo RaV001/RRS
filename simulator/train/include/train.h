@@ -56,8 +56,14 @@ public:
     /// Train initialization
     bool init(const init_data_t &init_data);
 
+    /// Train initialization
+    bool init(const solver_config_t &solver_config, int direction, std::vector<Vehicle *> &vehicles, state_vector_t &state_vector, std::vector<std::vector<Joint *>> &joints_list);
+
     /// Train coupling
     void couple(double current_distance, bool is_coupling_to_head, bool is_other_coupled_by_head, Train *other_train = nullptr);
+
+    /// Train uncoupling
+    Train *uncouple(double uncoupling_distance);
 
     /// Set train index
     void setTrainIndex(size_t idx);
