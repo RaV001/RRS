@@ -26,6 +26,9 @@
 
 #define     MAX_NUM_VEHICLES      180
 
+#define     DISTANCE_TO_COUPLE_TRAINS   double(10.0)
+#define     DISTANCE_TO_UNCOUPLE_TRAINS double(15.0)
+
 #define     DEBUG_STRING_SIZE           512
 #define     KEYS_DATA_BYTEARRAY_SIZE    2000
 

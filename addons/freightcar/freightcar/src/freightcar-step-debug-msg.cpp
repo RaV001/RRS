@@ -22,9 +22,22 @@ void FreightCar::stepDebugMsg(double t, double dt)
                         .arg(10.0 * automode->getAirDistBCpressure(), 6, 'f', 2)
                         .arg(100.0 * payload_coeff, 3, 'f', 0);
     }
-    DebugMsg += QString("BP:Anglecock F%1 B%2|Hose F%3 B%4|")
-                    .arg(anglecock_bp_fwd->isOpened())
-                    .arg(anglecock_bp_bwd->isOpened())
-                    .arg(hose_bp_fwd->isConnected())
-                    .arg(hose_bp_bwd->isConnected());
+    DebugMsg += QString("\n");
+    DebugMsg += QString("%1%2%3-%4-couplings-%5-%6%7%8")
+                    .arg(coupling_fwd->isLinked() ? "=" : " ")
+                    .arg(coupling_fwd->isCoupled() ? "=" : " ")
+                    .arg((coupling_fwd->getOutputSignal(COUPL_OUTPUT_REF_STATE) > -0.5) ? "=" : ">")
+                    .arg((oper_rod_fwd->getOperatingState() > -0.5) ? "|" : "/")
+                    .arg((oper_rod_bwd->getOperatingState() > -0.5) ? "|" : "\\")
+                    .arg((coupling_bwd->getOutputSignal(COUPL_OUTPUT_REF_STATE) > -0.5) ? "=" : "<")
+                    .arg(coupling_bwd->isCoupled() ? "=" : " ")
+                    .arg(coupling_bwd->isLinked() ? "=" : " ");
+    DebugMsg += QString("  |  ");
+    DebugMsg += QString("%1%2/=%3==BP==%4=\\%5%6")
+                    .arg(hose_bp_fwd->isLinked() ? "\\" : " ")
+                    .arg(hose_bp_fwd->isConnected() ? "_" : " ")
+                    .arg(anglecock_bp_fwd->isOpened() ? "/" : "|")
+                    .arg(anglecock_bp_bwd->isOpened() ? "\\" : "|")
+                    .arg(hose_bp_bwd->isConnected() ? "_" : " ")
+                    .arg(hose_bp_bwd->isLinked() ? "/" : " ");
 }

@@ -58,7 +58,7 @@ void CouplingSA3::step(double t, double dt)
     if (is_lockkeeper_working)
     {
         // Проверяем разведение сцепок
-        if (input_signals[COUPL_INPUT_DELTA] > Physics::ZERO)
+        if ((!is_linked) || (input_signals[COUPL_INPUT_DELTA] > Physics::ZERO))
         {
             // Сцепка снова готова к сцеплению
             output_signals[COUPL_OUTPUT_REF_STATE] = 0.0;
