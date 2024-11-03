@@ -29,11 +29,6 @@ void VL60k::debugPrint(double t, double dt)
     DebugMsg += QString("F%1|B%2|")
                     .arg(oper_rod_fwd->getOperatingState(), 5, 'f', 2)
                     .arg(oper_rod_bwd->getOperatingState(), 5, 'f', 2);
-    DebugMsg += QString("BP:Anglecock F%1 B%2|Hose F%3 B%4|")
-                    .arg(anglecock_bp_fwd->isOpened())
-                    .arg(anglecock_bp_bwd->isOpened())
-                    .arg(hose_bp_fwd->isConnected())
-                    .arg(hose_bp_bwd->isConnected());
 
     DebugMsg += QString("| Curvature: %1").arg(profile_point_data.curvature, 8, 'f', 6);
 
@@ -47,11 +42,46 @@ void VL60k::debugPrint(double t, double dt)
     }
 
     DebugMsg += QString("\n");
+    DebugMsg += QString("%1%2%3-%4-couplings-%5-%6%7%8")
+                    .arg(coupling_fwd->isLinked() ? "=" : " ")
+                    .arg(coupling_fwd->isCoupled() ? "=" : " ")
+                    .arg((coupling_fwd->getOutputSignal(COUPL_OUTPUT_REF_STATE) > -0.5) ? "=" : ">")
+                    .arg((oper_rod_fwd->getOperatingState() > -0.5) ? "|" : "/")
+                    .arg((oper_rod_bwd->getOperatingState() > -0.5) ? "|" : "\\")
+                    .arg((coupling_bwd->getOutputSignal(COUPL_OUTPUT_REF_STATE) > -0.5) ? "=" : "<")
+                    .arg(coupling_bwd->isCoupled() ? "=" : " ")
+                    .arg(coupling_bwd->isLinked() ? "=" : " ");
+    DebugMsg += QString("  |  ");
+    DebugMsg += QString("%1%2/=%3==BP==%4=\\%5%6")
+                    .arg(hose_bp_fwd->isLinked() ? "\\" : " ")
+                    .arg(hose_bp_fwd->isConnected() ? "_" : " ")
+                    .arg(anglecock_bp_fwd->isOpened() ? "/" : "|")
+                    .arg(anglecock_bp_bwd->isOpened() ? "\\" : "|")
+                    .arg(hose_bp_bwd->isConnected() ? "_" : " ")
+                    .arg(hose_bp_bwd->isLinked() ? "/" : " ");
+    DebugMsg += QString("  |  ");
+    DebugMsg += QString("%1%2/=%3==FL==%4=\\%5%6")
+                    .arg(hose_fl_fwd->isLinked() ? "\\" : " ")
+                    .arg(hose_fl_fwd->isConnected() ? "_" : " ")
+                    .arg(anglecock_fl_fwd->isOpened() ? "/" : "|")
+                    .arg(anglecock_fl_bwd->isOpened() ? "\\" : "|")
+                    .arg(hose_fl_bwd->isConnected() ? "_" : " ")
+                    .arg(hose_fl_bwd->isLinked() ? "/" : " ");
+    DebugMsg += QString("  |  ");
+    DebugMsg += QString("%1%2/=%3==BC==%4=\\%5%6")
+                    .arg(hose_bc_fwd->isLinked() ? "\\" : " ")
+                    .arg(hose_bc_fwd->isConnected() ? "_" : " ")
+                    .arg(anglecock_bc_fwd->isOpened() ? "/" : "|")
+                    .arg(anglecock_bc_bwd->isOpened() ? "\\" : "|")
+                    .arg(hose_bc_bwd->isConnected() ? "_" : " ")
+                    .arg(hose_bc_bwd->isLinked() ? "/" : " ");
+
+    DebugMsg += QString("\n");
     DebugMsg += QString("FWD Speed limit %1 km/h | Next %2 km/h (%3 m)")
                     .arg(speedmap_fwd->getCurrentLimit(), 3, 'f', 0)
                     .arg(speedmap_fwd->getNextLimit(), 3, 'f', 0)
                     .arg(speedmap_fwd->getNextLimitDistance(), 6, 'f', 1);
-    DebugMsg += QString(" | ");
+    DebugMsg += QString("  |  ");
     DebugMsg += QString("BWD Speed limit %1 km/h | Next %2 km/h (%3 m)")
                     .arg(speedmap_bwd->getCurrentLimit(), 3, 'f', 0)
                     .arg(speedmap_bwd->getNextLimit(), 3, 'f', 0)
@@ -63,7 +93,7 @@ void VL60k::debugPrint(double t, double dt)
                     .arg(coil_ALSN_fwd->getFrequency(), 3, 'f', 0)
                     .arg(coil_ALSN_fwd->getNextSignalLiter())
                     .arg(coil_ALSN_fwd->getNextSignalDistance(), 6, 'f', 1);
-    DebugMsg += QString(" | ");
+    DebugMsg += QString("  |  ");
     DebugMsg += QString("BWD Signal code %1 (%2 Hz) | Next %3 (%4 m)")
                     .arg(coil_ALSN_bwd->getCode(), 1)
                     .arg(coil_ALSN_bwd->getFrequency(), 3, 'f', 0)

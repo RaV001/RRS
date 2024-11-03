@@ -587,18 +587,19 @@ Train *Train::uncouple(double uncoupling_distance)
                                       .arg(i, 3)
                                       .arg(vehicles[i]->getModelIndex(), 4)
                                       .arg(distance, 7, 'f', 3));
+        // ОТЛАДКА
         double train_coord_begin = y[0];
         Journal::instance()->info(QString("Vehicle   0 (#%1) coordinate[  0]: %2 (  0.000)")
                                       .arg(vehicles.front()->getModelIndex(), 4)
                                       .arg(y[0], 7, 'f', 3));
-        for (size_t i = 1; i < vehicles.size(); ++i)
+        for (size_t j = 1; j < vehicles.size(); ++j)
         {
-            size_t state_idx = vehicles[i]->getStateIndex();
+            size_t state_idx = vehicles[j]->getStateIndex();
             double coord = y[state_idx] - train_coord_begin;
             Journal::instance()->info(QString("Vehicle %1 (#%2) coordinate[%3]: %4 (%5)")
-                                          .arg(i, 3)
-                                          .arg(vehicles[i]->getModelIndex(), 4)
-                                          .arg(vehicles[i]->getStateIndex(), 4)
+                                          .arg(j, 3)
+                                          .arg(vehicles[j]->getModelIndex(), 4)
+                                          .arg(vehicles[j]->getStateIndex(), 4)
                                           .arg(y[state_idx], 7, 'f', 3)
                                           .arg(coord, 7, 'f', 3));
         }
