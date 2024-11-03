@@ -248,17 +248,46 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
         }
         else
         {
-            //Временно
-            return;
-            // TODO //
             other_veh = *(other_vehicles.end() - 1);
             other_cons = (other_veh->getOrientation() == -1) ?
                              other_veh->getFwdConnectors() :
                              other_veh->getBwdConnectors();
 
+            (veh->getOrientation() == -1) ?
+                veh->setNextVehicle(other_veh) :
+                veh->setPrevVehicle(other_veh);
+            (other_veh->getOrientation() == -1) ?
+                other_veh->setPrevVehicle(veh) :
+                other_veh->setNextVehicle(veh);
+
+            double distance = current_distance + veh->getLength() / 2.0 + other_veh->getLength() / 2.0;
+            other_veh_distances.push_back(distance);
+
             new_vehicles = other_vehicles;
-            new_joints_list = other_joints_list;
             new_y = other_y;
+            new_ode_order = other_y.size();
+
+            // Новые поездные координаты для прицепленных ПЕ
+            double train_coord = y[0];
+            for (size_t i = other_vehicles.size(); i > 0; --i)
+            {
+                Vehicle *vehicle = other_vehicles[i - 1];
+                vehicle->setTrainIndex(train_idx);
+
+                size_t model_idx = vehicle->getModelIndex();
+                size_t idx = vehicle->getStateIndex();
+
+                // На всякий случай актуализируем положение ПЕ в топологии
+                // по старой дуговой координате
+                topology->getVehicleController(model_idx)->setCoord(new_y[idx]);
+
+                // Новая дуговая координата
+                new_y[idx] = train_coord + dir * other_veh_distances[i - 1];
+                topology->getVehicleController(model_idx)->setInitCoord(new_y[idx]);
+                train_coord = new_y[idx];
+            }
+
+            new_joints_list = other_joints_list;
         }
 
         // Создаём новый массив межвагонных связей между крайними ПЕ сцепляемых поездов
@@ -272,7 +301,9 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
         }
         else
         {
-            loadJoints(cons, other_cons, joints);
+            (dir == -1) ?
+                loadJoints(cons, other_cons, joints) :
+                loadJoints(other_cons, cons, joints);
         }
 
         if (joints.empty())
@@ -290,6 +321,7 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
         }
         new_joints_list.push_back(joints);
 
+        // Задаём для ПЕ данного поезда новые индексы в векторе состояния
         for (size_t i = 0; i < vehicles.size(); ++i)
         {
             Vehicle *vehicle = vehicles[i];
@@ -298,15 +330,9 @@ void Train::couple(double current_distance, bool is_coupling_to_head, bool is_ot
             vehicle->setStateIndex(new_idx);
         }
 
-        for (size_t i = 0; i < y.size(); ++i)
-        {
-            new_y.push_back(y[i]);
-        }
-
         vehicles.insert(vehicles.begin(), new_vehicles.begin(), new_vehicles.end());
         joints_list.insert(joints_list.begin(), new_joints_list.begin(), new_joints_list.end());
-        y = new_y;
-        //y.insert(y.begin(), new_y.begin(), new_y.end());
+        y.insert(y.begin(), new_y.begin(), new_y.end());
 
         ode_order += new_ode_order;
         train_motion_solver->setODEsize(ode_order);
