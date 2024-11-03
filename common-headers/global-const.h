@@ -25,6 +25,7 @@
 #define     SHARED_MEMORY_CONTROLLED    QString("controlled")
 
 #define     MAX_NUM_VEHICLES      180
+#define     MAX_NUM_TRAINS        50
 
 #define     DISTANCE_TO_COUPLE_TRAINS   double(10.0)
 #define     DISTANCE_TO_UNCOUPLE_TRAINS double(15.0)

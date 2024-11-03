@@ -73,7 +73,7 @@ void ImGuiWidgetsHandler::showDebugLog()
     ImGuiIO &io = ImGui::GetIO();
     ImVec2 content_size = io.DisplaySize;
 
-    float h = 1.2 * font_size * getLinesCount(debugMsg);
+    float h = font_size * (getLinesCount(debugMsg) + 1);
 
     ImGui::SetNextWindowSize(ImVec2(content_size.x, h));
     ImGui::SetNextWindowPos(ImVec2(0, content_size.y - h));
@@ -103,7 +103,7 @@ void ImGuiWidgetsHandler::showUncontrolledState()
     bool open_ptr = true;
 
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.8f));
-    ImGui::Begin(u8"Сосотояние управления", &open_ptr, window_flags);
+    ImGui::Begin(u8"Состояние управления", &open_ptr, window_flags);
     ImGui::PopStyleColor();
     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
     ImGui::Text(u8"%s", "Нажмите Enter для управления данной ПЕ");
