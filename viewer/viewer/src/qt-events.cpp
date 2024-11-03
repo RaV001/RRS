@@ -56,6 +56,7 @@ bool QtEventsHandler::handle(const osgGA::GUIEventAdapter &ea,
 
             if ( (_count >= _interval) || (_time == 0) )
             {
+
                 viewer->getEventQueue()->userEvent(new TimerInfo(_time));
                 _count = 0;
             }
