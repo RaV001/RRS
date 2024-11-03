@@ -341,7 +341,7 @@ private:
 
     bool is_H6_ON = false;
 
-    DecoderALSN *alsn_decoder = new DecoderALSN;
+    DecoderALSN *alsn_decoder = Q_NULLPTR;
 
     /// Общая инициализация локомотива
     void initialization();

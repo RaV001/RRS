@@ -306,7 +306,7 @@ private:
     size_t  start_count = 0;
 
     /// Устройство безопасности УКБМ
-    SafetyDevice *safety_device = new SafetyDevice;
+    SafetyDevice *safety_device = Q_NULLPTR;
 
     /// Электропневматический клапан автостопа
     AutoTrainStop *epk = Q_NULLPTR;

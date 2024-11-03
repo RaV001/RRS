@@ -7,6 +7,7 @@
 
 #include    "airdistributor.h"
 #include    "ALSN-coil.h"
+#include    "ALSN-decoder.h"
 #include    "automatic-train-stop.h"
 #include    "battery.h"
 #include    "brake-auto-mode.h"
