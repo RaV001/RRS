@@ -23,6 +23,6 @@
 		<MotionBlur>0.05</MotionBlur>
 		<NotifyLevel>INFO</NotifyLevel>
 		<ViewDistance>1000</ViewDistance>
-		<FrameDiv>1000</FrameDiv>
+		<FrameDiv>50</FrameDiv>
 	</Viewer>
 </Config>
