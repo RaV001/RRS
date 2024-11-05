@@ -9,7 +9,7 @@
 struct simulator_command_line_t
 {
     /// Train configuration file name
-    option_t<QString>   train_config;
+    option_t<std::vector<QString>>   train_config;
     /// Route directory
     option_t<QString>   route_dir;
     /// Clear simulator log file
@@ -17,11 +17,11 @@ struct simulator_command_line_t
     /// Debug print in simulation loop
     option_t<bool>      debug_print;
     /// Initial railway coordinate
-    option_t<double>    init_coord;
+    option_t<std::vector<double>>    init_coord;
     /// Initial direction
-    option_t<int>       direction;
+    option_t<std::vector<int>>       direction;
     /// Initial trajectory
-    option_t<QString>   trajectory_name;
+    option_t<std::vector<QString>>   trajectory_name;
 };
 
 #endif // SIMULATOR_COMMAND_LINE

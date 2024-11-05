@@ -18,10 +18,11 @@
 #include    <QMainWindow>
 #include    <QProcess>
 
-#include    "route-info.h"
-#include    "train-info.h"
-#include    "waypoint.h"
-#include    "CfgEditor.h"
+#include    <route-info.h>
+#include    <train-info.h>
+#include    <waypoint.h>
+#include    <active-train.h>
+#include    <CfgEditor.h>
 
 //------------------------------------------------------------------------------
 //
@@ -62,9 +63,7 @@ private:
     /// Info about installed routes
     std::vector<route_info_t>   routes_info;
     /// Info about installed trains
-    std::vector<train_info_t>   trains_info;
-
-    std::vector<waypoint_t>     waypoints;
+    std::vector<train_info_t>   trains_info;    
 
     /// Simulation process
     QProcess        simulatorProc;
@@ -94,6 +93,8 @@ private:
 
     train_position_t selected_train_position;
 
+    std::vector<active_train_t> active_trains;
+
     /// Launcer initialization
     void init();
 
@@ -110,10 +111,7 @@ private:
     void startSimulator();
 
     /// Start viewer
-    void startViewer();
-
-    /// Loading of stations list for selected route
-    void loadStations(QString &routeDir);
+    void startViewer();    
 
     /// Loading of trajectories for selected route
     void loadTrajectories(QString &routeDir);
@@ -165,6 +163,12 @@ private slots:
     void slotCancelGraphSettings();
 
     void slotApplyGraphSettings();
+
+    void slotAddActiveTrain();
+
+    void slotDeleteActiveTrain();
+
+    void slotActiveTrainCellChanged(int row, int column);
 };
 
 #endif // MAINWINDOW_H

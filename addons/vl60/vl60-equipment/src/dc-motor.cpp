@@ -146,7 +146,8 @@ void DCMotor::preStep(state_vector_t &Y, double t)
     double relative_pitch = abs(omega) / omega_nom;
     // Костыль - нелинейное преобразование частоты (0.5 x^2 + 0.5),
     // чтобы охватить низкие скорости с частотой хотя бы 0.5
-    relative_pitch = 0.5 * relative_pitch * relative_pitch + 0.5;
+    if (relative_pitch < 1.0)
+        relative_pitch = 0.5 * relative_pitch * relative_pitch + 0.5;
     sound_state.pitch = static_cast<float>(relative_pitch);
 }
 

@@ -167,6 +167,9 @@ private:
 
     tcp_simulator_update_t tcp_simulator_update;
 
+    /// Вектор данных о нескольких поездах
+    std::vector<init_data_t> init_datas;
+
     /// Find trains which are near to each other and couple them
     void findNearestVehicles();
 

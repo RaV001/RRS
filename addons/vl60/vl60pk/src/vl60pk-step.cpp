@@ -233,9 +233,6 @@ float VL60pk::isLineContactorsOff()
 //------------------------------------------------------------------------------
 void VL60pk::stepOtherEquipment(double t, double dt)
 {
-    speed_meter->setOmega(wheel_omega[TED1]);
-    speed_meter->step(t, dt);
-
     horn->setFLpressure(main_reservoir->getPressure());
     horn->setControl(keys);
     horn->step(t, dt);

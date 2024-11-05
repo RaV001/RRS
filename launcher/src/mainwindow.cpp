@@ -98,11 +98,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(ui->pbCancel, &QPushButton::released, this, &MainWindow::slotCancelGraphSettings);
     connect(ui->pbApply, &QPushButton::released, this, &MainWindow::slotApplyGraphSettings);
 
+    connect(ui->pbAddTrain, &QPushButton::released, this, &MainWindow::slotAddActiveTrain);
+    connect(ui->pbDeleteTrain, &QPushButton::released, this, &MainWindow::slotDeleteActiveTrain);
+
+    connect(ui->twActiveTrains, &QTableWidget::cellChanged, this, &MainWindow::slotActiveTrainCellChanged);
+
     setCentralWidget(ui->twMain);
 
     setFocusPolicy(Qt::ClickFocus);
 
     loadTheme();
+
+    ui->twActiveTrains->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->twActiveTrains->verticalHeader()->setDefaultSectionSize(18);
+    ui->twActiveTrains->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     QIcon icon(":/images/images/RRS_logo.png");
     setWindowIcon(icon);
@@ -198,7 +207,7 @@ void MainWindow::loadTrainsList(const std::string &trainsDir)
 //------------------------------------------------------------------------------
 void MainWindow::setRouteScreenShot(const QString &path)
 {
-    QFileInfo info(path);
+    /*QFileInfo info(path);
 
     if (!info.exists())
     {
@@ -208,7 +217,7 @@ void MainWindow::setRouteScreenShot(const QString &path)
 
     QImage image(ui->lRouteScreenShot->width(), ui->lRouteScreenShot->height(), QImage::Format_ARGB32);
     image.load(path);
-    ui->lRouteScreenShot->setPixmap(QPixmap::fromImage(image));
+    ui->lRouteScreenShot->setPixmap(QPixmap::fromImage(image));*/
 }
 
 //------------------------------------------------------------------------------
@@ -255,32 +264,6 @@ void MainWindow::startViewer()
 
     viewerProc.setWorkingDirectory(QString(fs.getBinaryDir().c_str()));
     viewerProc.start(viewerPath, args);
-}
-
-//------------------------------------------------------------------------------
-//
-//------------------------------------------------------------------------------
-void MainWindow::loadStations(QString &routeDir)
-{
-    waypoints.clear();
-
-    QFile file(routeDir + QDir::separator() + "waypoints.conf");
-
-    if (!file.open(QIODevice::ReadOnly))
-        return;
-
-    while (!file.atEnd())
-    {
-        QString line = file.readLine();
-
-        waypoint_t waypoint;
-
-        QTextStream ss(&line);
-
-        ss >> waypoint.name >> waypoint.forward_coord >> waypoint.backward_coord;
-
-        waypoints.push_back(waypoint);
-    }    
 }
 
 //------------------------------------------------------------------------------
@@ -349,7 +332,7 @@ void MainWindow::loadTheme()
         std::string theme_path = fs.combinePath(theme_dir, theme_name.toStdString() + ".qss");
         QString style_sheet = readStyleSheet(QString(theme_path.c_str()));
 
-        this->setStyleSheet(style_sheet);
+        this->setStyleSheet(style_sheet);        
     }
 }
 
@@ -362,15 +345,11 @@ void MainWindow::onRouteSelection()
 
     ui->ptRouteDescription->clear();
     selectedRouteDirName = routes_info[item_idx].route_dir_name;
-    ui->ptRouteDescription->appendPlainText(routes_info[item_idx].route_description);
-
-    loadStations(routes_info[item_idx].route_dir_full_path);
+    ui->ptRouteDescription->appendPlainText(routes_info[item_idx].route_description);    
 
     loadTrainPositions(routes_info[item_idx].route_dir_full_path);
 
-    onTrajectorySelection(0);
-
-    setRouteScreenShot(routes_info[item_idx].route_dir_full_path + QDir::separator() + "shotcut.png");
+    onTrajectorySelection(0);    
 }
 
 //------------------------------------------------------------------------------
@@ -473,8 +452,6 @@ void MainWindow::onStationSelected(int index)
 //------------------------------------------------------------------------------
 void MainWindow::onDirectionSelected(int index)
 {
-    Q_UNUSED(index)
-
     ui->cbTrajectories->clear();
 
     if (index == 0)
@@ -530,6 +507,80 @@ void MainWindow::slotApplyGraphSettings()
     saveGraphSettings(fd_list);
 
     ui->pbApply->setEnabled(false);
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+void MainWindow::slotAddActiveTrain()
+{
+    QTableWidget *tt = ui->twActiveTrains;
+
+    int train_idx = ui->lwTrains->currentRow();
+
+    active_train_t at;
+    at.train_info = trains_info[train_idx];
+
+    int rowIdx = tt->rowCount();
+    tt->insertRow(rowIdx);
+    tt->setItem(rowIdx, 0, new QTableWidgetItem(at.train_info.train_title));
+
+    QComboBox *dir = new QComboBox(this);
+    dir->addItem(tr("Forward"));
+    dir->addItem(tr("Backward"));
+    dir->setCurrentIndex(0);
+    tt->setCellWidget(rowIdx, 3, dir);
+
+    QComboBox *waypoints = new QComboBox(this);
+    tt->setCellWidget(rowIdx, 1, waypoints);
+
+    if (dir->currentIndex() == 0)
+    {
+        for (auto tp = fwd_train_positions.begin(); tp != fwd_train_positions.end(); ++tp)
+        {
+            waypoints->addItem((*tp).name);
+        }
+    }
+    else
+    {
+        for (auto tp = bwd_train_positions.begin(); tp != bwd_train_positions.end(); ++tp)
+        {
+            waypoints->addItem((*tp).name);
+        }
+    }
+
+    QDoubleSpinBox *dist = new QDoubleSpinBox(this);
+    dist->setMaximum(40000000.0);
+    dist->setDecimals(2);
+    dist->setAlignment(Qt::AlignRight);
+    tt->setCellWidget(rowIdx, 2, dist);
+
+    active_trains.push_back(at);
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+void MainWindow::slotDeleteActiveTrain()
+{
+    QTableWidget *tt = ui->twActiveTrains;
+
+    QModelIndexList selection = tt->selectionModel()->selectedRows();
+
+    for (int i = 0; i < selection.count(); ++i)
+    {
+        QModelIndex index = selection.at(i);
+        tt->removeRow(index.row());
+        active_trains.erase(active_trains.begin() + index.row());
+    }
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+void MainWindow::slotActiveTrainCellChanged(int row, int column)
+{
+    int r = row;
 }
 
 //------------------------------------------------------------------------------
