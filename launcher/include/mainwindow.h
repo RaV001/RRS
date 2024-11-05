@@ -136,6 +136,10 @@ private:
 
     void loadTrainPositions(const QString &routeDir);
 
+    int getSelectedActiveTrainIndex();
+
+    void updateActiveTrains();
+
 private slots:
 
     void onRouteSelection();
@@ -169,6 +173,11 @@ private slots:
     void slotDeleteActiveTrain();
 
     void slotActiveTrainCellChanged(int row, int column);
+
+    void slotActiveTrainDirectionChange(int idx);
+
+    void slotActiveTrainTrajectoryChange(int idx);
 };
+
 
 #endif // MAINWINDOW_H
