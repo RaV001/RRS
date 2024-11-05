@@ -101,6 +101,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(ui->pbAddTrain, &QPushButton::released, this, &MainWindow::slotAddActiveTrain);
     connect(ui->pbDeleteTrain, &QPushButton::released, this, &MainWindow::slotDeleteActiveTrain);
 
+    connect(ui->twActiveTrains, &QTableWidget::cellChanged, this, &MainWindow::slotActiveTrainCellChanged);
+
     setCentralWidget(ui->twMain);
 
     setFocusPolicy(Qt::ClickFocus);
@@ -109,6 +111,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     ui->twActiveTrains->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->twActiveTrains->verticalHeader()->setDefaultSectionSize(18);
+    ui->twActiveTrains->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     QIcon icon(":/images/images/RRS_logo.png");
     setWindowIcon(icon);
@@ -522,14 +525,35 @@ void MainWindow::slotAddActiveTrain()
     tt->insertRow(rowIdx);
     tt->setItem(rowIdx, 0, new QTableWidgetItem(at.train_info.train_title));
 
+    QComboBox *dir = new QComboBox(this);
+    dir->addItem(tr("Forward"));
+    dir->addItem(tr("Backward"));
+    dir->setCurrentIndex(0);
+    tt->setCellWidget(rowIdx, 3, dir);
+
     QComboBox *waypoints = new QComboBox(this);
     tt->setCellWidget(rowIdx, 1, waypoints);
 
-    QDoubleSpinBox *dist = new QDoubleSpinBox(this);
-    tt->setCellWidget(rowIdx, 2, dist);
+    if (dir->currentIndex() == 0)
+    {
+        for (auto tp = fwd_train_positions.begin(); tp != fwd_train_positions.end(); ++tp)
+        {
+            waypoints->addItem((*tp).name);
+        }
+    }
+    else
+    {
+        for (auto tp = bwd_train_positions.begin(); tp != bwd_train_positions.end(); ++tp)
+        {
+            waypoints->addItem((*tp).name);
+        }
+    }
 
-    QComboBox *dir = new QComboBox(this);
-    tt->setCellWidget(rowIdx, 3, dir);
+    QDoubleSpinBox *dist = new QDoubleSpinBox(this);
+    dist->setMaximum(40000000.0);
+    dist->setDecimals(2);
+    dist->setAlignment(Qt::AlignRight);
+    tt->setCellWidget(rowIdx, 2, dist);
 
     active_trains.push_back(at);
 }
@@ -549,6 +573,14 @@ void MainWindow::slotDeleteActiveTrain()
         tt->removeRow(index.row());
         active_trains.erase(active_trains.begin() + index.row());
     }
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+void MainWindow::slotActiveTrainCellChanged(int row, int column)
+{
+    int r = row;
 }
 
 //------------------------------------------------------------------------------

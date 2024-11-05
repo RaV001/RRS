@@ -167,6 +167,8 @@ private slots:
     void slotAddActiveTrain();
 
     void slotDeleteActiveTrain();
+
+    void slotActiveTrainCellChanged(int row, int column);
 };
 
 #endif // MAINWINDOW_H

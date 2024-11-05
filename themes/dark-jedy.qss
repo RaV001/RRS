@@ -13,6 +13,11 @@ QHeaderView::section:horizontal {
     color: #ffffff;
 }
 
+QHeaderView::section:vertical {
+    background-color: #606060;
+    color: #ffffff;
+}
+
 QPushButton {
 	background-color: #00aa00;
 }
