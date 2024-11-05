@@ -104,6 +104,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     loadTheme();
 
+    ui->twActiveTrains->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
     QIcon icon(":/images/images/RRS_logo.png");
     setWindowIcon(icon);
 }
@@ -198,7 +200,7 @@ void MainWindow::loadTrainsList(const std::string &trainsDir)
 //------------------------------------------------------------------------------
 void MainWindow::setRouteScreenShot(const QString &path)
 {
-    QFileInfo info(path);
+    /*QFileInfo info(path);
 
     if (!info.exists())
     {
@@ -208,7 +210,7 @@ void MainWindow::setRouteScreenShot(const QString &path)
 
     QImage image(ui->lRouteScreenShot->width(), ui->lRouteScreenShot->height(), QImage::Format_ARGB32);
     image.load(path);
-    ui->lRouteScreenShot->setPixmap(QPixmap::fromImage(image));
+    ui->lRouteScreenShot->setPixmap(QPixmap::fromImage(image));*/
 }
 
 //------------------------------------------------------------------------------
@@ -349,7 +351,7 @@ void MainWindow::loadTheme()
         std::string theme_path = fs.combinePath(theme_dir, theme_name.toStdString() + ".qss");
         QString style_sheet = readStyleSheet(QString(theme_path.c_str()));
 
-        this->setStyleSheet(style_sheet);
+        this->setStyleSheet(style_sheet);        
     }
 }
 
@@ -368,9 +370,7 @@ void MainWindow::onRouteSelection()
 
     loadTrainPositions(routes_info[item_idx].route_dir_full_path);
 
-    onTrajectorySelection(0);
-
-    setRouteScreenShot(routes_info[item_idx].route_dir_full_path + QDir::separator() + "shotcut.png");
+    onTrajectorySelection(0);    
 }
 
 //------------------------------------------------------------------------------

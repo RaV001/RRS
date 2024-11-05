@@ -3,6 +3,16 @@ QWidget {
     color: #ffffff;
 }
 
+QTableWidget {
+    background-color: #606060;
+    color: #ffffff;
+}
+
+QHeaderView::section:horizontal {
+    background-color: #606060;
+    color: #ffffff;
+}
+
 QPushButton {
 	background-color: #00aa00;
 }
