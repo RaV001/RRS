@@ -206,7 +206,18 @@ CommandLineParesrResult AppCore::parseCommandLine(QCommandLineParser &parser,
     if (parser.isSet(trainConfig))
     {
         command_line.train_config.is_present = true;
-        command_line.train_config.value = parser.value(trainConfig);
+
+        // Конфиги поездов передаем разделенными запятыми
+        QStringList tokens = parser.value(trainConfig).split(',');
+
+        // Перебираем все конфиги, помещаяя в параметры командной строки
+        for (QString token: tokens)
+        {
+            if (token.isEmpty())
+                continue;
+
+            command_line.train_config.value.push_back(token);
+        }
     }
 
     if (parser.isSet(routeDir))
@@ -228,21 +239,45 @@ CommandLineParesrResult AppCore::parseCommandLine(QCommandLineParser &parser,
     if (parser.isSet(initCoord))
     {
         command_line.init_coord.is_present = true;
-        QString tmp = parser.value(initCoord);                
-        command_line.init_coord.value = tmp.toDouble();
+        QStringList tokens = parser.value(initCoord).split(',');
+
+        for (auto token : tokens)
+        {
+            if (token.isEmpty())
+                continue;
+
+            double init_coord = token.toDouble();
+            command_line.init_coord.value.push_back(init_coord);
+        }
     }
 
     if (parser.isSet(direction))
     {
         command_line.direction.is_present = true;
-        QString tmp = parser.value(direction);
-        command_line.direction.value = tmp.toInt();
+        QStringList tokens = parser.value(direction).split(',');
+
+        for (auto token : tokens)
+        {
+            if (token.isEmpty())
+                continue;
+
+            int dir = token.toInt();
+            command_line.direction.value.push_back(dir);
+        }
     }
 
     if (parser.isSet(trajectory_name))
     {
         command_line.trajectory_name.is_present = true;
-        command_line.trajectory_name.value = parser.value(trajectory_name);
+        QStringList tokens = parser.value(trajectory_name).split(',');
+
+        for (auto token : tokens)
+        {
+            if (token.isEmpty())
+                continue;
+
+            command_line.trajectory_name.value.push_back(traj_name);
+        }
     }
 
     return CommandLineOk;
