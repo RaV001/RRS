@@ -44,9 +44,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(ui->lwRoutes, &QListWidget::itemSelectionChanged,
             this, &MainWindow::onRouteSelection);
 
-    connect(ui->cbTrajectories, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &MainWindow::onTrajectorySelection);
-
     connect(ui->lwTrains, &QListWidget::itemSelectionChanged,
             this, &MainWindow::onTrainSelection);
 
@@ -61,9 +58,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     connect(&viewerProc, &QProcess::finished,
             this, &MainWindow::onViewerFinished);
-
-    connect(ui->cbDirection, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &MainWindow::onDirectionSelected);
 
     connect(ui->spWidth, QOverload<int>::of(&QSpinBox::valueChanged),
             this, QOverload<int>::of(&MainWindow::slotChangedGraphSetting));
@@ -280,7 +274,7 @@ void MainWindow::startViewer()
 //------------------------------------------------------------------------------
 void MainWindow::loadTrajectories(QString &routeDir)
 {
-    QString path = routeDir + QDir::separator() +
+    /*QString path = routeDir + QDir::separator() +
                    "topology" + QDir::separator() +
                    + "trajectories";
 
@@ -297,8 +291,7 @@ void MainWindow::loadTrajectories(QString &routeDir)
 
         QFileInfo file_info(fullpath);
 
-        ui->cbTrajectories->addItem(file_info.baseName());
-    }
+    }*/
 }
 
 //------------------------------------------------------------------------------
@@ -306,12 +299,12 @@ void MainWindow::loadTrajectories(QString &routeDir)
 //------------------------------------------------------------------------------
 bool MainWindow::isBackward()
 {
-    switch (ui->cbDirection->currentIndex())
+    /*switch (ui->cbDirection->currentIndex())
     {
     case 0: return false;
 
     case 1: return true;
-    }
+    }*/
 
     return false;
 }
@@ -403,30 +396,6 @@ void MainWindow::onRouteSelection()
     loadTrainPositions(routes_info[item_idx].route_dir_full_path);
 
     updateActiveTrains();
-
-    onTrajectorySelection(0);    
-}
-
-//------------------------------------------------------------------------------
-//
-//------------------------------------------------------------------------------
-void MainWindow::onTrajectorySelection(int index)
-{
-    if (index < 0)
-    {
-        return;
-    }
-
-    if (isBackward())
-    {
-        selected_train_position = bwd_train_positions[index];
-    }
-    else
-    {
-        selected_train_position = fwd_train_positions[index];
-    }
-
-    ui->dsbOrdinate->setValue(selected_train_position.traj_coord);
 }
 
 //------------------------------------------------------------------------------
@@ -500,29 +469,6 @@ void MainWindow::onViewerFinished(int exitCode, QProcess::ExitStatus exitStatus)
 void MainWindow::onStationSelected(int index)
 {
     size_t idx = static_cast<size_t>(index);
-}
-
-//------------------------------------------------------------------------------
-//
-//------------------------------------------------------------------------------
-void MainWindow::onDirectionSelected(int index)
-{
-    ui->cbTrajectories->clear();
-
-    if (index == 0)
-    {
-        for (auto tp = fwd_train_positions.begin(); tp != fwd_train_positions.end(); ++tp)
-        {
-            ui->cbTrajectories->addItem((*tp).name);
-        }
-    }
-    else
-    {
-        for (auto tp = bwd_train_positions.begin(); tp != bwd_train_positions.end(); ++tp)
-        {
-            ui->cbTrajectories->addItem((*tp).name);
-        }
-    }
 }
 
 //------------------------------------------------------------------------------
@@ -891,7 +837,6 @@ void MainWindow::saveGraphSettings(FieldsDataList &fd_list)
 //------------------------------------------------------------------------------
 void MainWindow::loadTrainPositions(const QString &routeDir)
 {
-    ui->cbTrajectories->clear();
     fwd_train_positions.clear();
     bwd_train_positions.clear();
 
@@ -918,15 +863,11 @@ void MainWindow::loadTrainPositions(const QString &routeDir)
         tp.trajectory_name = tokens[1];
         tp.direction = tokens[2].toInt();
         tp.traj_coord = tokens[3].toDouble();
-        tp.railway_coord = tokens[4].toDouble();
-
-        //train_positions.insert(tp.name, tp);
+        tp.railway_coord = tokens[4].toDouble();        
 
         if (tp.direction > 0)
         {
-            fwd_train_positions.push_back(tp);
-            ui->cbTrajectories->addItem(tp.name);
-            ui->cbTrajectories->setCurrentIndex(0);
+            fwd_train_positions.push_back(tp);            
         }
         else
         {

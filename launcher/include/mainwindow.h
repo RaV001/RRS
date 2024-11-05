@@ -142,9 +142,7 @@ private:
 
 private slots:
 
-    void onRouteSelection();
-
-    void onTrajectorySelection(int index);
+    void onRouteSelection();    
 
     void onTrainSelection();
 
@@ -156,9 +154,7 @@ private slots:
 
     void onViewerFinished(int exitCode, QProcess::ExitStatus exitStatus);
 
-    void onStationSelected(int index);
-
-    void onDirectionSelected(int index);
+    void onStationSelected(int index);    
 
     void slotChangedGraphSetting(int);
 
