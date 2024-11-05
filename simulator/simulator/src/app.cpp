@@ -276,7 +276,7 @@ CommandLineParesrResult AppCore::parseCommandLine(QCommandLineParser &parser,
             if (token.isEmpty())
                 continue;
 
-            command_line.trajectory_name.value.push_back(traj_name);
+            command_line.trajectory_name.value.push_back(token);
         }
     }
 

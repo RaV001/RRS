@@ -125,48 +125,22 @@ bool Model::init(const simulator_command_line_t &command_line)
     // Load initial data configuration
     loadInitData(init_data);
 
-    // ТЕСТ: ЗАПОМИНАЕМ ПОЕЗД ИЗ init-data.cfg
-    QString cfg_train_config = init_data.train_config;
-    QString cfg_trajectory_name = init_data.trajectory_name;
-    int     cfg_direction = init_data.direction;
-    double  cfg_init_coord = init_data.init_coord;
+    init_datas.push_back(init_data);
 
     // Override init data by command line
     overrideByCommandLine(init_data, command_line);
 
     // Read solver configuration
-    configSolver(init_data.solver_config);
-
-    // ТЕСТ: КОНФИГ ДЛЯ ПОЕЗДА ИЗ init-data.cfg
-    init_data_t cfg_init_data = init_data;
-    cfg_init_data.train_config = cfg_train_config;
-    cfg_init_data.trajectory_name = cfg_trajectory_name;
-    cfg_init_data.direction = cfg_direction;
-    cfg_init_data.init_coord = cfg_init_coord;
+    configSolver(init_data.solver_config);    
 
     // Load route topology
     initTopology(init_data);
 
-    // Train creation and initialization
-    Train *train = addTrain(init_data);
-    if (train == nullptr)
+    // Create all trains
+    for (size_t i = 0; i < init_datas.size(); ++i)
     {
-        exit(0);
-    }
-    else
-    {
+        Train *train = addTrain(init_datas[i]);
         trains.push_back(train);
-    }
-
-    // ТЕСТ: ДОПОЛНИТЕЛЬНО ЗАГРУЖАЕМ  ПОЕЗД ИЗ init-data.cfg
-    Train *cfg_train = addTrain(cfg_init_data);
-    if (cfg_train == nullptr)
-    {
-        exit(0);
-    }
-    else
-    {
-        trains.push_back(cfg_train);
     }
 
     Journal::instance()->info("==== Info to shared memory ====");
@@ -531,34 +505,23 @@ void Model::overrideByCommandLine(init_data_t &init_data,
 {
     Journal::instance()->info("==== Command line processing ====");
 
-    if (command_line.train_config.is_present)
+    if (!command_line.train_config.is_present)
     {
-        init_data.train_config = command_line.train_config.value;
+        Journal::instance()->info("Command line is empty. Apply init_data.xml config");
+        return;
     }
 
-    if (command_line.route_dir.is_present)
-    {
-        init_data.route_dir_name = command_line.route_dir.value;
-    }
+    init_data_t id = init_data;
+    init_datas.clear();
 
-    if (command_line.debug_print.is_present)
+    for (size_t i = 0; i < command_line.train_config.value.size(); ++i)
     {
-        init_data.debug_print = command_line.debug_print.value;
-    }
+        id.train_config = command_line.train_config.value[i];
+        id.init_coord = command_line.init_coord.value[i];
+        id.direction = command_line.direction.value[i];
+        id.trajectory_name = command_line.trajectory_name.value[i];
 
-    if (command_line.init_coord.is_present)
-    {
-        init_data.init_coord = command_line.init_coord.value;
-    }
-
-    if (command_line.direction.is_present)
-    {
-        init_data.direction = command_line.direction.value;
-    }
-
-    if (command_line.trajectory_name.is_present)
-    {
-        init_data.trajectory_name = command_line.trajectory_name.value;
+        init_datas.push_back(id);
     }
 
     Journal::instance()->info("Apply command line settinds");
