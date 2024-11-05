@@ -230,24 +230,32 @@ void MainWindow::startSimulator()
     QString simPath = SIMULATOR_NAME + EXE_EXP;
 
     QStringList args;
-    args << "--train-config=" + selectedTrain;
+
+    QString selected_trains = "";
+    QString traj_names = "";
+    QString directions = "";
+    QString init_coords = "";
+    for (auto at = active_trains.begin(); at != active_trains.end(); ++at)
+    {
+        selected_trains += (*at).train_info.train_config_path;
+        traj_names += (*at).train_position.trajectory_name;
+        directions += QString("%1").arg((*at).train_position.direction);
+        init_coords += QString("%1").arg((*at).train_position.traj_coord, 0, 'f', 2);
+
+        if (at != active_trains.end() - 1)
+        {
+            selected_trains += ",";
+            traj_names += ",";
+            directions += ",";
+            init_coords += ",";
+        }
+    }
+
+    args << "--train-config=" + selected_trains;
     args << "--route=" + selectedRouteDirName;
-    args << "--traj-name=" + selected_train_position.trajectory_name;
-
-    if (isBackward())
-    {
-        args << "--direction=-1";
-    }
-    else
-    {
-        args << "--direction=1";
-    }
-
-    if (ui->cbTrajectories->count() != 0)
-    {
-        double init_coord = ui->dsbOrdinate->value();
-        args << "--init-coord=" + QString("%1").arg(init_coord, 0, 'f', 2);
-    }
+    args << "--traj-name=" + traj_names;
+    args << "--direction=" + directions;
+    args << "--init-coord=" + init_coords;
 
     simulatorProc.setWorkingDirectory(QString(fs.getBinaryDir().c_str()));
     simulatorProc.start(simPath, args);
@@ -599,6 +607,11 @@ void MainWindow::slotAddActiveTrain()
     tt->setCellWidget(rowIdx, 2, dist);
 
     active_trains.push_back(at);
+
+    if (ui->lwRoutes->currentIndex().row() >= 0)
+    {
+        updateActiveTrains();
+    }
 }
 
 //------------------------------------------------------------------------------
