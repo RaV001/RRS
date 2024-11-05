@@ -98,6 +98,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(ui->pbCancel, &QPushButton::released, this, &MainWindow::slotCancelGraphSettings);
     connect(ui->pbApply, &QPushButton::released, this, &MainWindow::slotApplyGraphSettings);
 
+    connect(ui->pbAddTrain, &QPushButton::released, this, &MainWindow::slotAddActiveTrain);
+    connect(ui->pbDeleteTrain, &QPushButton::released, this, &MainWindow::slotDeleteActiveTrain);
+
     setCentralWidget(ui->twMain);
 
     setFocusPolicy(Qt::ClickFocus);
@@ -105,6 +108,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     loadTheme();
 
     ui->twActiveTrains->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->twActiveTrains->verticalHeader()->setDefaultSectionSize(18);
 
     QIcon icon(":/images/images/RRS_logo.png");
     setWindowIcon(icon);
@@ -262,32 +266,6 @@ void MainWindow::startViewer()
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-void MainWindow::loadStations(QString &routeDir)
-{
-    waypoints.clear();
-
-    QFile file(routeDir + QDir::separator() + "waypoints.conf");
-
-    if (!file.open(QIODevice::ReadOnly))
-        return;
-
-    while (!file.atEnd())
-    {
-        QString line = file.readLine();
-
-        waypoint_t waypoint;
-
-        QTextStream ss(&line);
-
-        ss >> waypoint.name >> waypoint.forward_coord >> waypoint.backward_coord;
-
-        waypoints.push_back(waypoint);
-    }    
-}
-
-//------------------------------------------------------------------------------
-//
-//------------------------------------------------------------------------------
 void MainWindow::loadTrajectories(QString &routeDir)
 {
     QString path = routeDir + QDir::separator() +
@@ -364,9 +342,7 @@ void MainWindow::onRouteSelection()
 
     ui->ptRouteDescription->clear();
     selectedRouteDirName = routes_info[item_idx].route_dir_name;
-    ui->ptRouteDescription->appendPlainText(routes_info[item_idx].route_description);
-
-    loadStations(routes_info[item_idx].route_dir_full_path);
+    ui->ptRouteDescription->appendPlainText(routes_info[item_idx].route_description);    
 
     loadTrainPositions(routes_info[item_idx].route_dir_full_path);
 
@@ -473,8 +449,6 @@ void MainWindow::onStationSelected(int index)
 //------------------------------------------------------------------------------
 void MainWindow::onDirectionSelected(int index)
 {
-    Q_UNUSED(index)
-
     ui->cbTrajectories->clear();
 
     if (index == 0)
@@ -530,6 +504,51 @@ void MainWindow::slotApplyGraphSettings()
     saveGraphSettings(fd_list);
 
     ui->pbApply->setEnabled(false);
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+void MainWindow::slotAddActiveTrain()
+{
+    QTableWidget *tt = ui->twActiveTrains;
+
+    int train_idx = ui->lwTrains->currentRow();
+
+    active_train_t at;
+    at.train_info = trains_info[train_idx];
+
+    int rowIdx = tt->rowCount();
+    tt->insertRow(rowIdx);
+    tt->setItem(rowIdx, 0, new QTableWidgetItem(at.train_info.train_title));
+
+    QComboBox *waypoints = new QComboBox(this);
+    tt->setCellWidget(rowIdx, 1, waypoints);
+
+    QDoubleSpinBox *dist = new QDoubleSpinBox(this);
+    tt->setCellWidget(rowIdx, 2, dist);
+
+    QComboBox *dir = new QComboBox(this);
+    tt->setCellWidget(rowIdx, 3, dir);
+
+    active_trains.push_back(at);
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+void MainWindow::slotDeleteActiveTrain()
+{
+    QTableWidget *tt = ui->twActiveTrains;
+
+    QModelIndexList selection = tt->selectionModel()->selectedRows();
+
+    for (int i = 0; i < selection.count(); ++i)
+    {
+        QModelIndex index = selection.at(i);
+        tt->removeRow(index.row());
+        active_trains.erase(active_trains.begin() + index.row());
+    }
 }
 
 //------------------------------------------------------------------------------
