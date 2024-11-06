@@ -229,6 +229,12 @@ void MainWindow::startSimulator()
     QString traj_names = "";
     QString directions = "";
     QString init_coords = "";
+
+    if (active_trains.empty())
+    {
+        return;
+    }
+
     for (auto at = active_trains.begin(); at != active_trains.end(); ++at)
     {
         selected_trains += (*at).train_info.train_config_path;
@@ -261,12 +267,11 @@ void MainWindow::startSimulator()
 void MainWindow::startViewer()
 {
     FileSystem &fs = FileSystem::getInstance();
-    QString viewerPath = VIEWER_NAME + EXE_EXP;
-
-    QStringList args;
+    QString viewerPath = VIEWER_NAME + EXE_EXP;    
 
     viewerProc.setWorkingDirectory(QString(fs.getBinaryDir().c_str()));
-    viewerProc.start(viewerPath, args);
+    viewerProc.setStandardOutputFile("../logs/viewer-start.log");
+    viewerProc.start(viewerPath);
 }
 
 //------------------------------------------------------------------------------

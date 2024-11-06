@@ -168,6 +168,8 @@ bool RouteViewer::init(int argc, char *argv[])
     // Read settings from config file
     settings = loadSettings(fs.getConfigDir() + fs.separator() + "settings.xml");
 
+    std::cout << "Loaded settings from settings.xml" << std::endl;
+
     // Notify settings
     osg::NotifySeverity level = osg::INFO;
 
@@ -192,7 +194,9 @@ bool RouteViewer::init(int argc, char *argv[])
 
     OSG_FATAL << "Override settings from simulator shared memory" << std::endl;
     // Parse info from shared memory
+    std::cout << "Try override settings from shared memory" << std::endl;
     overrideSettingsBySharedMemory(settings);
+    std::cout << "Overrided settings from shared memory" << std::endl;
 
     try
     {
@@ -208,6 +212,7 @@ bool RouteViewer::init(int argc, char *argv[])
     if (!loadRoute())
     {
         OSG_FATAL << "Route from " << settings.route_dir_name << " is't loaded" << std::endl;
+        std::cout << "Route from " << settings.route_dir_name << " is't loaded" << std::endl;
         return false;
     }
 
@@ -358,28 +363,34 @@ void RouteViewer::overrideSettingsByCommandLine(const cmd_line_t &cmd_line,
 //------------------------------------------------------------------------------
 void RouteViewer::overrideSettingsBySharedMemory(settings_t &settings)
 {
+    simulator_info_t *tmp = static_cast<simulator_info_t *>(memory_sim_info.data());
+
+    if (tmp == nullptr)
+    {
+        memory_sim_info.unlock();
+        OSG_FATAL << "ERROR: shared memory is null" << std::endl;
+        std::cout << "ERROR: shared memory is null" << std::endl;
+        return;
+    }
+
     if (memory_sim_info.lock())
     {
-        simulator_info_t *tmp = static_cast<simulator_info_t *>(memory_sim_info.data());
-        if (tmp == nullptr)
-        {
-            memory_sim_info.unlock();
-            OSG_FATAL << "ERROR: shared memory is null" << std::endl;
-            return;
-        }
         if (tmp->num_updates <= 0)
         {
             memory_sim_info.unlock();
             OSG_FATAL << "ERROR: shared memory isn't updated with sim info." << std::endl;
+            std::cout << "ERROR: shared memory isn't updated with sim info." << std::endl;
             OSG_FATAL << "Try to wait for 10 seconds." << std::endl;
-            for (int i = 0; i < 10; ++i)
+            std::cout << "Try to wait for update shared memory..." << std::endl;
+            while (tmp->num_updates <= 0)
             {
-                QThread::sleep(1000);
+                QThread::sleep(1);
                 if (memory_sim_info.lock())
                 {
                     if (tmp->num_updates <= 0)
                     {
-                        OSG_FATAL << "ERROR: shared memory isn't updated with sim info (after " << i + 1 << "seconds)." << std::endl;
+                        //OSG_FATAL << "ERROR: shared memory isn't updated with sim info (after " << i + 1 << "seconds)." << std::endl;
+                        //std::cout << "ERROR: shared memory isn't updated with sim info (after " << i + 1 << "seconds)." << std::endl;
                         memory_sim_info.unlock();
                         continue;
                     }
@@ -390,9 +401,11 @@ void RouteViewer::overrideSettingsBySharedMemory(settings_t &settings)
                 }
             }
         }
+
         if (tmp->num_updates <= 0)
         {
             OSG_FATAL << "ERROR: shared memory isn't updated with sim info." << std::endl;
+            std::cout << "ERROR: shared memory isn't updated with sim info." << std::endl;
             memory_sim_info.unlock();
             return;
         }
@@ -400,15 +413,18 @@ void RouteViewer::overrideSettingsBySharedMemory(settings_t &settings)
         memcpy(&info_data, tmp, sizeof (simulator_info_t));
         memory_sim_info.unlock();
         OSG_FATAL << "Got simulator info from shared memory" << std::endl;
+        std::cout << "Got simulator info from shared memory" << std::endl;
 
         QString route_dir_tmp = QString::fromStdWString(info_data.route_info.route_dir_name);
         route_dir_tmp.resize(info_data.route_info.route_dir_name_length);
         settings.route_dir_name = route_dir_tmp.toStdString();
         OSG_FATAL << "Route directory name from shared memory: " << route_dir_tmp.toStdString() << std::endl;
+        std::cout << "Route directory name from shared memory: " << route_dir_tmp.toStdString() << std::endl;
     }
     else
     {
         OSG_FATAL << "ERROR: Can't lock shared memory" << std::endl;
+        std::cout << "ERROR: Can't lock shared memory" << std::endl;
     }
 }
 
@@ -420,6 +436,7 @@ bool RouteViewer::loadRoute()
     if (settings.route_dir_name.empty())
     {
         OSG_FATAL << "ERROR: Route directory name is empty" << std::endl;
+        std::cout << "ERROR: Route directory name is empty" << std::endl;
         return false;
     }
 
@@ -431,6 +448,7 @@ bool RouteViewer::loadRoute()
     if (routeType.empty())
     {
         OSG_FATAL << "ERROR: File route-type is not found in route directory" << std::endl;
+        std::cout << "ERROR: File route-type is not found in route directory" << std::endl;
         return false;
     }
 
@@ -439,6 +457,7 @@ bool RouteViewer::loadRoute()
     if (!stream.is_open())
     {
         OSG_FATAL << "ERROR: Stream for route-type file is't open" << std::endl;
+        std::cout << "ERROR: Stream for route-type file is't open" << std::endl;
         return false;
     }
 
@@ -448,6 +467,7 @@ bool RouteViewer::loadRoute()
     if (routeExt.empty())
     {
         OSG_FATAL << "ERROR: Unknown route type" << std::endl;
+        std::cout << "ERROR: Unknown route type" << std::endl;
         return false;
     }
 
@@ -458,10 +478,13 @@ bool RouteViewer::loadRoute()
     if (!loader.valid())
     {
         OSG_FATAL << "ERROR: Not found route loader for this route" << std::endl;
+        std::cout << "ERROR: Not found route loader for this route" << std::endl;
         return false;
     }
 
+    std::cout << "Try loading route from " + route_dir_path << std::endl;
     loader->load(route_dir_path, settings.view_distance);
+    std::cout << "Loaded route from " + route_dir_path << std::endl;
 
     //MotionPath *motionPath = loader->getMotionPath(settings.direction);
 
