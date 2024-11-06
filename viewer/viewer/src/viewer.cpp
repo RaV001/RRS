@@ -363,7 +363,24 @@ void RouteViewer::overrideSettingsByCommandLine(const cmd_line_t &cmd_line,
 //------------------------------------------------------------------------------
 void RouteViewer::overrideSettingsBySharedMemory(settings_t &settings)
 {
-    simulator_info_t *tmp = static_cast<simulator_info_t *>(memory_sim_info.data());
+    unsigned int delta = 10;
+    unsigned int timeout = 10000;
+    unsigned int time = 0;
+
+    simulator_info_t *tmp = nullptr;
+
+    while (time <= timeout)
+    {
+        tmp = static_cast<simulator_info_t *>(memory_sim_info.data());
+
+        if (tmp != nullptr)
+        {
+            break;
+        }
+
+        QThread::sleep(delta);
+        time += delta;
+    }
 
     if (tmp == nullptr)
     {
@@ -382,9 +399,11 @@ void RouteViewer::overrideSettingsBySharedMemory(settings_t &settings)
             std::cout << "ERROR: shared memory isn't updated with sim info." << std::endl;
             OSG_FATAL << "Try to wait for 10 seconds." << std::endl;
             std::cout << "Try to wait for update shared memory..." << std::endl;
-            while (tmp->num_updates <= 0)
+
+            time = 0;
+
+            while (time <= timeout)
             {
-                QThread::sleep(1);
                 if (memory_sim_info.lock())
                 {
                     if (tmp->num_updates <= 0)
@@ -399,6 +418,9 @@ void RouteViewer::overrideSettingsBySharedMemory(settings_t &settings)
                         break;
                     }
                 }
+
+                QThread::sleep(delta);
+                time += delta;
             }
         }
 
