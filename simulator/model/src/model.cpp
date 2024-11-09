@@ -505,21 +505,37 @@ void Model::overrideByCommandLine(init_data_t &init_data,
 {
     Journal::instance()->info("==== Command line processing ====");
 
-    if (!command_line.train_config.is_present)
-    {
-        Journal::instance()->info("Command line is empty. Apply init_data.xml config");
-        return;
-    }
-
     init_data_t id = init_data;
     init_datas.clear();
+
+    if (command_line.route_dir.is_present)
+    {
+        init_data.route_dir_name = command_line.route_dir.value;
+    }
+
+    if (command_line.debug_print.is_present)
+    {
+        init_data.debug_print = command_line.debug_print.value;
+    }
+
+    if (!command_line.train_config.is_present)
+    {
+        Journal::instance()->info("Command line is empty. Apply init_data.xml config");        
+        return;
+    }
 
     for (size_t i = 0; i < command_line.train_config.value.size(); ++i)
     {
         id.train_config = command_line.train_config.value[i];
-        id.init_coord = command_line.init_coord.value[i];
-        id.direction = command_line.direction.value[i];
-        id.trajectory_name = command_line.trajectory_name.value[i];
+
+        if (command_line.init_coord.is_present)
+            id.init_coord = command_line.init_coord.value[i];
+
+        if (command_line.direction.is_present)
+            id.direction = command_line.direction.value[i];
+
+        if (command_line.trajectory_name.is_present)
+            id.trajectory_name = command_line.trajectory_name.value[i];
 
         init_datas.push_back(id);
     }
