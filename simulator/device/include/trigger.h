@@ -37,13 +37,13 @@ public:
 private:
 
     /// Состояние триггера
-    bool state;
+    bool state = false;
 
     /// Не создаём звук выключения при инициализации
-    bool was_first_reset;
+    bool was_first_reset = false;
 
     /// Звук переключения (со счётчиком включений звука)
-    sound_state_t sound_change_state;
+    sound_state_t sound_change_state = sound_state_t();
 };
 
 #endif // TRIGGER_H

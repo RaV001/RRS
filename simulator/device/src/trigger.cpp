@@ -4,9 +4,6 @@
 //
 //------------------------------------------------------------------------------
 Trigger::Trigger(QObject *parent) : QObject(parent)
-    , state(false)
-    , was_first_reset(false)
-    , sound_change_state(sound_state_t())
 {
 
 }
