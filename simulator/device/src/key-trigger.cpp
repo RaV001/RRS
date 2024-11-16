@@ -89,6 +89,14 @@ bool KeyTrigger::getState() const
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
+bool KeyTrigger::getRefState() const
+{
+    return (timer_on->isStarted() || (!timer_off->isStarted() && trigger.getState()));
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
 sound_state_t KeyTrigger::getSoundState(size_t idx) const
 {
     return trigger.getSoundState(idx);
@@ -137,6 +145,12 @@ void KeyTrigger::stepKeysControl(double t, double dt)
     if (getKeyState(keyCode) && !isAlt())
     {
         isShift() ? set() : reset();
+    }
+    else
+    {
+        // Если клавиша была кратковременно нажата и отпущена,
+        // обновляем текущее состояние для сброса таймеров срабатывания
+        trigger.getState() ? set() : reset();
     }
 }
 

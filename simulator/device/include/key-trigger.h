@@ -29,6 +29,9 @@ public:
 
     bool getState() const;
 
+    /// Целевое состояние (полезно для анимаций кнопок)
+    bool getRefState() const;
+
     void step(double t, double dt) override;
 
     /// Sound state
