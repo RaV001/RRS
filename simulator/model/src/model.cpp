@@ -149,6 +149,7 @@ bool Model::init(const simulator_command_line_t &command_line)
     info_data.route_info.route_dir_name_length = init_data.route_dir_name.size();
     init_data.route_dir_name.toWCharArray(info_data.route_info.route_dir_name);
     Journal::instance()->info("Ready route info for shared memory");
+    Journal::instance()->info("Route dir name: " + QString::fromWCharArray(info_data.route_info.route_dir_name));
 
     info_data.num_vehicles = vehicles.size();
     size_t i = 0;
@@ -505,7 +506,23 @@ void Model::overrideByCommandLine(init_data_t &init_data,
 {
     Journal::instance()->info("==== Command line processing ====");
 
-    init_data_t id = init_data;
+    if (command_line.route_dir.is_present)
+    {
+        init_data.route_dir_name = command_line.route_dir.value;
+    }
+
+    if (command_line.debug_print.is_present)
+    {
+        init_data.debug_print = command_line.debug_print.value;
+    }
+
+    if (!command_line.train_config.is_present)
+    {
+        Journal::instance()->info("Command line is empty. Apply init_data.xml config");
+        return;
+    }
+
+    init_data_t id;
     init_datas.clear();
 
     if (command_line.route_dir.is_present)
@@ -526,6 +543,7 @@ void Model::overrideByCommandLine(init_data_t &init_data,
 
     for (size_t i = 0; i < command_line.train_config.value.size(); ++i)
     {
+        id.route_dir_name = init_data.route_dir_name;
         id.train_config = command_line.train_config.value[i];
 
         if (command_line.init_coord.is_present)

@@ -34,20 +34,6 @@ void TrajectoryALSN::step(double t, double dt)
         return;
     }
 
-    if (frequency == 0.0)
-    {
-        for (auto device : vehicles_devices)
-        {
-            // Сигнал отсутствует
-            device.device->setInputSignal(CoilALSN::INPUT_FREQUENCY, 0.0);
-            device.device->setInputSignal(CoilALSN::INPUT_CODE, 0.0);
-            device.device->setInputSignal(CoilALSN::INPUT_NEXT_DISTANCE, 0.0);
-            device.device->setInputSignal(CoilALSN::INPUT_LITER_SIZE, 0.0);
-        }
-        clear_code();
-        return;
-    }
-
     // Координаты занятого участка траектории
     // (от начала первой ПЕ до конца последней ПЕ);
     // между ними сигнала АЛСН нет,
@@ -56,108 +42,89 @@ void TrajectoryALSN::step(double t, double dt)
     double busy_end_coord;
     trajectory->getBusyCoords(busy_end_coord, busy_begin_coord);
 
-    // Ищем приёмные катушки АЛСН возле начала и конца занятого участка
-    Device *first_device = nullptr;
-    double first_coord;
-    Device *last_device = nullptr;
-    double last_coord;
+    // Задаём приёмным катушкам информацию о следующем светофоре,
+    // а возле начала и конца занятого участка - и код АЛСН
     for (auto device : vehicles_devices)
     {
         if (device.device->getOutputSignal(CoilALSN::OUTPUT_DIRECTION) == 1.0)
         {
+            // Литер следующего светофора
+            size_t liter_size = min(static_cast<size_t>(next_liter_fwd.size()),
+                                    static_cast<size_t>(CoilALSN::INPUT_LITER_MAX_SIZE));
+            device.device->setInputSignal(CoilALSN::INPUT_LITER_SIZE,
+                                          static_cast<double>(liter_size));
+            if (liter_size > 0)
+            {
+                for (size_t i = 0; i < liter_size; ++i)
+                {
+                    device.device->setInputSignal(CoilALSN::INPUT_LITER_BEGIN + i,
+                                                  static_cast<double>(next_liter_fwd.at(i).unicode()));
+                }
+
+                // Расстояние до следующего светофора, м
+                device.device->setInputSignal(CoilALSN::INPUT_NEXT_DISTANCE,
+                                             distance_fwd + (trajectory->getLength() - device.coord));
+            }
+            else
+            {
+                // Если следующий светофор неизвестен, неизвестно и расстояние
+                device.device->setInputSignal(CoilALSN::INPUT_NEXT_DISTANCE, 0.0);
+            }
+
             // Проверяем координату с запасом в 1 метр
             if ((busy_begin_coord - device.coord) < 1.0)
             {
-                first_coord = device.coord;
-                first_device = device.device;
+                // Несущая частота сигнала, Гц
+                device.device->setInputSignal(CoilALSN::INPUT_FREQUENCY, frequency);
+                // Кодовый сигнал
+                device.device->setInputSignal(CoilALSN::INPUT_CODE, static_cast<double>(code_from_fwd));
             }
             else
             {
                 // Сигнал отсутствует
                 device.device->setInputSignal(CoilALSN::INPUT_FREQUENCY, 0.0);
                 device.device->setInputSignal(CoilALSN::INPUT_CODE, 0.0);
-                device.device->setInputSignal(CoilALSN::INPUT_NEXT_DISTANCE, 0.0);
-                device.device->setInputSignal(CoilALSN::INPUT_LITER_SIZE, 0.0);
             }
         }
         if (device.device->getOutputSignal(CoilALSN::OUTPUT_DIRECTION) == -1.0)
         {
+            // Литер следующего светофора
+            size_t liter_size = min(static_cast<size_t>(next_liter_bwd.size()),
+                                    static_cast<size_t>(CoilALSN::INPUT_LITER_MAX_SIZE));
+            device.device->setInputSignal(CoilALSN::INPUT_LITER_SIZE,
+                                        static_cast<double>(liter_size));
+            if (liter_size > 0)
+            {
+                for (size_t i = 0; i < liter_size; ++i)
+                {
+                    device.device->setInputSignal(CoilALSN::INPUT_LITER_BEGIN + i,
+                                                static_cast<double>(next_liter_bwd.at(i).unicode()));
+                }
+
+                // Расстояние до следующего светофора, м
+                device.device->setInputSignal(CoilALSN::INPUT_NEXT_DISTANCE,
+                                            distance_bwd + device.coord);
+            }
+            else
+            {
+                // Если следующий светофор неизвестен, неизвестно и расстояние
+                device.device->setInputSignal(CoilALSN::INPUT_NEXT_DISTANCE, 0.0);
+            }
+
             // Проверяем координату с запасом в 1 метр
             if ((busy_end_coord - device.coord) > -1.0)
             {
-                last_coord = device.coord;
-                last_device = device.device;
+                // Несущая частота сигнала, Гц
+                device.device->setInputSignal(CoilALSN::INPUT_FREQUENCY, frequency);
+                // Кодовый сигнал
+                device.device->setInputSignal(CoilALSN::INPUT_CODE, static_cast<double>(code_from_bwd));
             }
             else
             {
                 // Сигнал отсутствует
                 device.device->setInputSignal(CoilALSN::INPUT_FREQUENCY, 0.0);
                 device.device->setInputSignal(CoilALSN::INPUT_CODE, 0.0);
-                device.device->setInputSignal(CoilALSN::INPUT_NEXT_DISTANCE, 0.0);
-                device.device->setInputSignal(CoilALSN::INPUT_LITER_SIZE, 0.0);
             }
-        }
-    }
-
-    if (first_device != nullptr)
-    {
-        // Несущая частота сигнала, Гц
-        first_device->setInputSignal(CoilALSN::INPUT_FREQUENCY, frequency);
-        // Кодовый сигнал
-        first_device->setInputSignal(CoilALSN::INPUT_CODE, static_cast<double>(code_from_fwd));
-
-        // Литер следующего светофора
-        size_t liter_size = min(static_cast<size_t>(next_liter_fwd.size()),
-                                static_cast<size_t>(CoilALSN::INPUT_LITER_MAX_SIZE));
-        first_device->setInputSignal(CoilALSN::INPUT_LITER_SIZE,
-                                     static_cast<double>(liter_size));
-        if (liter_size > 0)
-        {
-            for (size_t i = 0; i < liter_size; ++i)
-            {
-                first_device->setInputSignal(CoilALSN::INPUT_LITER_BEGIN + i,
-                                             static_cast<double>(next_liter_fwd.at(i).unicode()));
-            }
-
-            // Расстояние до следующего светофора, м
-            first_device->setInputSignal(CoilALSN::INPUT_NEXT_DISTANCE,
-                                         distance_fwd + (trajectory->getLength() - first_coord));
-        }
-        else
-        {
-            // Если следующий светофор неизвестен, неизвестно и расстояние
-            first_device->setInputSignal(CoilALSN::INPUT_NEXT_DISTANCE, 0.0);
-        }
-    }
-
-    if (last_device != nullptr)
-    {
-        // Несущая частота сигнала, Гц
-        last_device->setInputSignal(CoilALSN::INPUT_FREQUENCY, frequency);
-        // Кодовый сигнал
-        last_device->setInputSignal(CoilALSN::INPUT_CODE, static_cast<double>(code_from_bwd));
-
-        // Литер следующего светофора
-        size_t liter_size = min(static_cast<size_t>(next_liter_bwd.size()),
-                                static_cast<size_t>(CoilALSN::INPUT_LITER_MAX_SIZE));
-        last_device->setInputSignal(CoilALSN::INPUT_LITER_SIZE,
-                                     static_cast<double>(liter_size));
-        if (liter_size > 0)
-        {
-            for (size_t i = 0; i < liter_size; ++i)
-            {
-                last_device->setInputSignal(CoilALSN::INPUT_LITER_BEGIN + i,
-                                             static_cast<double>(next_liter_bwd.at(i).unicode()));
-            }
-
-            // Расстояние до следующего светофора, м
-            last_device->setInputSignal(CoilALSN::INPUT_NEXT_DISTANCE,
-                                        distance_bwd + last_coord);
-        }
-        else
-        {
-            // Если следующий светофор неизвестен, неизвестно и расстояние
-            last_device->setInputSignal(CoilALSN::INPUT_NEXT_DISTANCE, 0.0);
         }
     }
 
@@ -172,14 +139,17 @@ void TrajectoryALSN::setSignalInfoFwd(ALSN code, double distance, QString liter)
 {
     if (frequency == 0.0)
     {
-        return;
+        code_from_fwd = ALSN::NO_CODE;
+    }
+    else
+    {
+        code_from_fwd = code;
     }
 
-    code_from_fwd = code;
     distance_fwd = distance;
     next_liter_fwd = liter;
 
-    ALSN code_to_next = code;
+    ALSN code_to_next = code_from_fwd;
 
     // Если траектория занята, дальше код не проходит
     if (trajectory->isBusy())
@@ -213,14 +183,17 @@ void TrajectoryALSN::setSignalInfoBwd(ALSN code, double distance, QString liter)
 {
     if (frequency == 0.0)
     {
-        return;
+        code_from_bwd = ALSN::NO_CODE;
+    }
+    else
+    {
+        code_from_bwd = code;
     }
 
-    code_from_bwd = code;
     distance_bwd = distance;
     next_liter_bwd = liter;
 
-    ALSN code_to_next = code;
+    ALSN code_to_next = code_from_bwd;
 
     // Если траектория занята, дальше код не проходит
     if (trajectory->isBusy())

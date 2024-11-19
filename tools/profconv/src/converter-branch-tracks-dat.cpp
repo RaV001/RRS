@@ -1096,6 +1096,9 @@ void ZDSimConverter::splitAndNameBranch(zds_branch_track_t* branch_track, const 
             {
                 trajectory.name = name_next;
 
+                // Последняя траектория - съезд по стрелкам без АЛСН
+                trajectory.ALSN_frequency = 0;
+
                 // Добавляем название траектории в коннектор на главном пути
                 // Если траектория закончилась на соседнем главном
                 // или траектория обратно закончилась на однопутке,
@@ -1153,6 +1156,11 @@ void ZDSimConverter::splitAndNameBranch(zds_branch_track_t* branch_track, const 
                         trajectory.ALSN_frequency = 25;
                     else
                         trajectory.ALSN_frequency = 50;
+                }
+                else
+                {
+                    // Первая траектория - съезд по стрелкам без АЛСН
+                    trajectory.ALSN_frequency = 0;
                 }
                 no_first_traj = true;
 

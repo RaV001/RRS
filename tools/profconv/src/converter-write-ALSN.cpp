@@ -11,10 +11,7 @@
 //------------------------------------------------------------------------------
 void ZDSimConverter::writeALSN()
 {
-    FieldsDataList flist_25hz;
-    FieldsDataList flist_50hz;
-
-
+    QStringList traj_list_no_signal;
     QStringList traj_list_25hz;
     QStringList traj_list_50hz;
     for (auto traj = trajectories1.begin(); traj != trajectories1.end(); ++traj)
@@ -35,6 +32,8 @@ void ZDSimConverter::writeALSN()
     {
         for (auto traj = (*it)->trajectories.begin(); traj != (*it)->trajectories.end(); ++traj)
         {
+            if ((*traj)->ALSN_frequency == 0)
+                traj_list_no_signal.push_back((*traj)->name.c_str());
             if ((*traj)->ALSN_frequency == 25)
                 traj_list_25hz.push_back((*traj)->name.c_str());
             if ((*traj)->ALSN_frequency == 50)
@@ -45,11 +44,50 @@ void ZDSimConverter::writeALSN()
     {
         for (auto traj = (*it)->trajectories.begin(); traj != (*it)->trajectories.end(); ++traj)
         {
+            if ((*traj)->ALSN_frequency == 0)
+                traj_list_no_signal.push_back((*traj)->name.c_str());
             if ((*traj)->ALSN_frequency == 25)
                 traj_list_25hz.push_back((*traj)->name.c_str());
             if ((*traj)->ALSN_frequency == 50)
                 traj_list_50hz.push_back((*traj)->name.c_str());
         }
+    }
+
+    for (auto it = branch_2minus2_data.begin(); it != branch_2minus2_data.end(); ++it)
+    {
+        traj_list_no_signal.push_back((*it)->trajectory.name.c_str());
+    }
+
+    for (auto it = branch_2plus2_data.begin(); it != branch_2plus2_data.end(); ++it)
+    {
+        traj_list_no_signal.push_back((*it)->trajectory.name.c_str());
+    }
+
+    if (!traj_list_no_signal.empty())
+    {
+        std::string path_no_signal = compinePath(ALSN_Dir, FILE_NO_ALSN);
+        CfgEditor editor_no_signal;
+        editor_no_signal.openFileForWrite(QString(path_no_signal.c_str()));
+        editor_no_signal.setIndentationFormat(-1);
+
+        QString node = CONFIGNODE_TRAJ_3LVL.c_str();
+        QString node2 = CONFIGNODE_TRAJ_2LVL.c_str();
+        QString node_ALSN = "Frequency";
+        QString node2_ALSN = "ALSN";
+
+        // Список траекторий
+        for (auto tn : traj_list_no_signal)
+        {
+            FieldsDataList fdl = { QPair<QString, QString>(node, tn) };
+
+            editor_no_signal.writeFile(node2, fdl);
+        }
+
+        // Конфиг несущей частоты сигнала АЛСН
+        FieldsDataList fdl = { QPair<QString, QString>(node_ALSN, QString("0")) };
+        editor_no_signal.writeFile(node2_ALSN, fdl);
+
+        editor_no_signal.closeFileAfterWrite();
     }
 
     if (!traj_list_25hz.empty())
