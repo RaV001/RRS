@@ -105,7 +105,10 @@ void ZDSimConverter::findSignalsAtMap()
         // Игнорируем модели с пустой дополнительной информацией
         // поскольку нас интересуют светофоры с литерой
         if (zds_obj->obj_info.empty())
+        {
+            map_data_objects_no_info.push_back(zds_obj);
             continue;
+        }
 
         QString obj_info = QString(zds_obj->obj_name.c_str());
         // Проходной, предвходной
@@ -113,6 +116,7 @@ void ZDSimConverter::findSignalsAtMap()
             obj_info.contains("signal_pred"))
         {
             zds_signal_position_t *signal = new zds_signal_position_t();
+            signal->zds_object_pos = zds_obj;
             signal->obj_name = zds_obj->obj_name;
             signal->position = zds_obj->position;
             signal->attitude = zds_obj->attitude;
@@ -120,12 +124,14 @@ void ZDSimConverter::findSignalsAtMap()
             signal->type = "ab_line";
             signal->liter = zds_obj->obj_info;
             signals_line_data.push_back(signal);
+            continue;
         }
 
         // Входной
         if (obj_info.contains("signal_enter"))
         {
             zds_signal_position_t *signal = new zds_signal_position_t();
+            signal->zds_object_pos = zds_obj;
             signal->obj_name = zds_obj->obj_name;
             signal->position = zds_obj->position;
             signal->attitude = zds_obj->attitude;
@@ -133,6 +139,7 @@ void ZDSimConverter::findSignalsAtMap()
             signal->type = "ab_entr";
             signal->liter = zds_obj->obj_info;
             signals_enter_data.push_back(signal);
+            continue;
         }
 
         // Маршрутный/выходной, карликовый 5 линз, карликовый 4 линзы, карликовый 3 линзы
@@ -142,6 +149,7 @@ void ZDSimConverter::findSignalsAtMap()
             obj_info.contains("sig_k3p"))
         {
             zds_signal_position_t *signal = new zds_signal_position_t();
+            signal->zds_object_pos = zds_obj;
             signal->obj_name = zds_obj->obj_name;
             signal->position = zds_obj->position;
             signal->attitude = zds_obj->attitude;
@@ -149,6 +157,7 @@ void ZDSimConverter::findSignalsAtMap()
             signal->type = "ab_exit";
             signal->liter = zds_obj->obj_info;
             signals_exit_data.push_back(signal);
+            continue;
         }
 
         // Повторительный, карликовый повторительный
@@ -156,12 +165,14 @@ void ZDSimConverter::findSignalsAtMap()
             obj_info.contains("sig_povt_k"))
         {
             zds_signal_position_t *signal = new zds_signal_position_t();
+            signal->zds_object_pos = zds_obj;
             signal->obj_name = zds_obj->obj_name;
             signal->position = zds_obj->position;
             signal->attitude = zds_obj->attitude;
 
             signal->liter = zds_obj->obj_info;
             signals_povt_data.push_back(signal);
+            continue;
         }
 
         // Маневровый мачтовый, маневровый карликовый
@@ -169,13 +180,18 @@ void ZDSimConverter::findSignalsAtMap()
             obj_info.contains("sig_k2m"))
         {
             zds_signal_position_t *signal = new zds_signal_position_t();
+            signal->zds_object_pos = zds_obj;
             signal->obj_name = zds_obj->obj_name;
             signal->position = zds_obj->position;
             signal->attitude = zds_obj->attitude;
 
             signal->liter = zds_obj->obj_info;
             signals_maneurous_data.push_back(signal);
+            continue;
         }
+
+        // Прочие модели с дополнительной информацией
+        map_data_objects_with_info.push_back(zds_obj);
     }
 
     // Привязка к главным путям
@@ -192,6 +208,8 @@ void ZDSimConverter::findSignalsAtMap()
 
             if (findTrackNearToSignal(sig, -1))
                 continue;
+
+            map_data_objects_with_info.push_back(sig->zds_object_pos);
         }
     }
 }

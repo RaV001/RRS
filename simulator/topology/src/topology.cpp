@@ -687,30 +687,24 @@ void Topology::load_signals(CfgReader &cfg, QDomNode secNode, Connector *conn)
         signal_dir_bwd = -1;
     }
 
-    QString tmp = "";
-    cfg.getString(secNode, "RelPosVector", tmp);
-
-    if (tmp.isEmpty())
-    {
-        return;
-    }
-
-    dvec3 rel_pos;
-    strignToVector(tmp, rel_pos);
-
-    cfg.getString(secNode, "RelRotVector", tmp);
-
-    if (tmp.isEmpty())
-    {
-        return;
-    }
-
-    dvec3 rel_rot;
-    strignToVector(tmp, rel_rot);
-
-
     if (signal_dir_fwd == 1)
     {
+        QString tmp;
+        dvec3 rel_pos = {0.0, 0.0, 0.0};
+        dvec3 rel_rot = {0.0, 0.0, 0.0};
+
+        tmp = "";
+        cfg.getString(secNode, "RelPosVectorFwd", tmp);
+
+        if (!tmp.isEmpty())
+            strignToVector(tmp, rel_pos);
+
+        tmp = "";
+        cfg.getString(secNode, "RelRotVectorFwd", tmp);
+
+        if (!tmp.isEmpty())
+            strignToVector(tmp, rel_rot);
+
         QString signal_letter = "";
         cfg.getString(secNode, "SignalLiterFwd", signal_letter);
 
@@ -771,6 +765,22 @@ void Topology::load_signals(CfgReader &cfg, QDomNode secNode, Connector *conn)
 
     if (signal_dir_bwd == -1)
     {
+        QString tmp;
+        dvec3 rel_pos = {0.0, 0.0, 0.0};
+        dvec3 rel_rot = {0.0, 0.0, 0.0};
+
+        tmp = "";
+        cfg.getString(secNode, "RelPosVectorBwd", tmp);
+
+        if (!tmp.isEmpty())
+            strignToVector(tmp, rel_pos);
+
+        tmp = "";
+        cfg.getString(secNode, "RelRotVectorBwd", tmp);
+
+        if (!tmp.isEmpty())
+            strignToVector(tmp, rel_rot);
+
         QString signal_letter = "";
         cfg.getString(secNode, "SignalLiterBwd", signal_letter);
 

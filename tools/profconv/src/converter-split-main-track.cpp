@@ -345,12 +345,16 @@ void ZDSimConverter::findSplitsMainTrajectory1()
                     split.split_type.push_back(split_zds_trajectory_t::SPLIT_SIGNAL_FWD);
                     split.signal_fwd_type = sig->type;
                     split.signal_fwd_liter = sig->liter;
+                    if (sig->is_left)
+                        split.is_signal_fwd_left = true;
                 }
                 if (sig->direction == -1)
                 {
                     split.split_type.push_back(split_zds_trajectory_t::SPLIT_SIGNAL_BWD);
                     split.signal_bwd_type = sig->type;
                     split.signal_bwd_liter = sig->liter;
+                    if (sig->is_left)
+                        split.is_signal_bwd_left = true;
                 }
             }
         }

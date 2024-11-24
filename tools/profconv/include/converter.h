@@ -35,11 +35,13 @@
 
 #define     DIR_TOPOLOGY     std::string("topology")
 #define     DIR_TRAJECTORIES std::string("trajectories")
+#define     DIR_ROUTE1MAP    std::string("map")
 #define     DIR_ALSN_MAP     std::string("trajectory-ALSN")
 #define     DIR_SPEEDMAP     std::string("trajectory-speedmap")
 #define     FILE_TOPOLOGY    std::string("topology.xml")
 #define     FILE_START_POINT std::string("waypoints.conf")
 #define     FILE_STATIONS    std::string("stations.conf")
+#define     FILE_ROUTE1MAP   std::string("route1.map")
 #define     FILE_NO_ALSN     std::string("ALSN_no_signal.xml")
 #define     FILE_ALSN_25HZ   std::string("ALSN_25Hz.xml")
 #define     FILE_ALSN_50HZ   std::string("ALSN_50Hz.xml")
@@ -76,11 +78,17 @@ private:
 
     std::string         trajectoriesDir;
 
+    std::string         route1mapDir;
+
     std::string         ALSN_Dir;
 
     std::string         speedmapDir;
 
     zds_route_map_data_t    route_map_data;
+
+    zds_route_map_data_t    map_data_objects_no_info;
+
+    zds_route_map_data_t    map_data_objects_with_info;
 
     zds_signals_at_map_data_t   signals_line_data;
 
@@ -227,6 +235,8 @@ private:
     void writeStartPoints(const start_point_data_t &start_points);
 
     void writeStations(const zds_start_km_data_t &waypoints);
+
+    void writeMap();
 
     void writeSpeedmap();
 

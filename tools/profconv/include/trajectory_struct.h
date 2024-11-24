@@ -99,6 +99,10 @@ struct split_zds_trajectory_t
 
     std::string signal_bwd_liter = "";
 
+    bool is_signal_fwd_left = false;
+
+    bool is_signal_bwd_left = false;
+
     double length_bwd_traj = 0.0;
 
     int state_bwd = 1;
