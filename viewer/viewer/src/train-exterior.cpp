@@ -375,7 +375,7 @@ void TrainExteriorHandler::load(const simulator_info_t &info_data)
 
         anim_managers.push_back(new AnimationManager(vehicle_ext.anims));
 
-        loadDisplays(cfg_dir, cabine.get(), *vehicle_ext.displays);
+        loadDisplays(cfg_dir, vehicle_model.get(), *vehicle_ext.displays);
 
         vehicles_ext.push_back(vehicle_ext);
         trainExterior->addChild(vehicle_ext.transform.get());
@@ -782,7 +782,11 @@ void TrainExteriorHandler::loadDisplays(const std::string &configDir,
 
     ConfigReader displays_cfg(cfg_path);
 
-    if (!displays_cfg.isOpenned())
+    if (displays_cfg.isOpenned())
+    {
+        OSG_INFO << "Loaded file " << cfg_path << std::endl;
+    }
+    else
     {
         OSG_FATAL << "File " << cfg_path << " is't found" << std::endl;
         return;
@@ -832,7 +836,14 @@ void TrainExteriorHandler::loadDisplays(const std::string &configDir,
             loadDisplayModule(display_config, dc, model);
 
             if (dc->display == nullptr)
+            {
+                OSG_FATAL << "Fail to load display module " << module_path << std::endl;
                 continue;
+            }
+            else
+            {
+                OSG_INFO << "Loaded display module " << module_path << std::endl;
+            }
 
             dc->display->setConfigDir(QString(vehicle_config_dir.c_str()));
             dc->display->setRouteDir(QString(settings.route_dir_full_path.c_str()));
