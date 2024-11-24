@@ -98,6 +98,9 @@ private:
     /// Time between current frame and previous data receiving
     double ref_time;
 
+    /// Time stamp of previous display update
+    double prev_time_display_upd;
+
     ///
     bool is_displays_locked;
 
@@ -153,7 +156,7 @@ private:
 
     void loadDisplays(const std::string &configDir, osg::Node *model, displays_t &displays);
 
-    void timerEvent(QTimerEvent *);
+    void updateDisplays();
 
 public slots:
 

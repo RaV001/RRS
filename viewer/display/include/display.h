@@ -27,6 +27,9 @@ public:
     /// Инициализация дисплея
     virtual void init();
 
+    /// Обновление дисплея
+    virtual void update(double t, double dt);
+
     /// Задать входной сигнал
     void setInputSignal(size_t index, float value);
 

@@ -119,6 +119,8 @@ bool TrainExteriorHandler::handle(const osgGA::GUIEventAdapter &ea,
 
             moveCamera(viewer, delta_time);
 
+            updateDisplays();
+
             break;
         }
 
@@ -381,7 +383,6 @@ void TrainExteriorHandler::load(const simulator_info_t &info_data)
         trainExterior->addChild(vehicle_ext.transform.get());
         OSG_FATAL << "Vehicle " << i + 1 << " / " << count << " loaded" << std::endl;
     }
-    this->startTimer(100);
 }
 
 //------------------------------------------------------------------------------
@@ -857,7 +858,7 @@ void TrainExteriorHandler::loadDisplays(const std::string &configDir,
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-void TrainExteriorHandler::timerEvent(QTimerEvent *)
+void TrainExteriorHandler::updateDisplays()
 {
     if ((old_data == -1) || (new_data == -1))
         return;
@@ -865,12 +866,20 @@ void TrainExteriorHandler::timerEvent(QTimerEvent *)
     if (is_displays_locked)
         return;
 
+    double dt = update_data[new_data].time - prev_time_display_upd;
+    if (dt < 0.2)
+        return;
+
+    double t = update_data[new_data].time;
+    prev_time_display_upd = t;
+
     for (size_t i = 0; i < vehicles_ext.size(); ++i)
     {
         for (auto it = vehicles_ext[i].displays->begin(); it != vehicles_ext[i].displays->end(); ++it)
         {
             display_container_t *dc = *it;
             dc->display->setInputSignals(update_data[new_data].vehicles[i].analogSignal);
+            dc->display->update(t, dt);
         }
     }
 }
