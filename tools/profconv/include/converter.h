@@ -39,6 +39,7 @@
 #define     DIR_ALSN_MAP     std::string("trajectory-ALSN")
 #define     DIR_SPEEDMAP     std::string("trajectory-speedmap")
 #define     FILE_TOPOLOGY    std::string("topology.xml")
+#define     FILE_DEFAULT_OBJ std::string("models-config.xml")
 #define     FILE_START_POINT std::string("waypoints.conf")
 #define     FILE_STATIONS    std::string("stations.conf")
 #define     FILE_ROUTE1MAP   std::string("route1.map")
@@ -237,6 +238,8 @@ private:
     void writeStations(const zds_start_km_data_t &waypoints);
 
     void writeMap();
+
+    void writeModelsConfig();
 
     void writeSpeedmap();
 

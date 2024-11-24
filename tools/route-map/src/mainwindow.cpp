@@ -338,8 +338,7 @@ void MainWindow::slotGetSignalsData(QByteArray &sig_data)
     }
     else
     {
-        ui->ptLog->appendPlainText(QString(tr("Failed to load line signals data")));
-        return;
+        ui->ptLog->appendPlainText(QString(tr("Warning: no line signals data")));
     }
 
     if (signals_data->enter_signals.size() != 0)
@@ -348,8 +347,7 @@ void MainWindow::slotGetSignalsData(QByteArray &sig_data)
     }
     else
     {
-        ui->ptLog->appendPlainText(QString(tr("Failed to load enter signals data")));
-        return;
+        ui->ptLog->appendPlainText(QString(tr("Warning: no enter signals data")));
     }
 
     if (signals_data->exit_signals.size() != 0)
@@ -358,8 +356,7 @@ void MainWindow::slotGetSignalsData(QByteArray &sig_data)
     }
     else
     {
-        ui->ptLog->appendPlainText(QString(tr("Failed to load exit signals data")));
-        return;
+        ui->ptLog->appendPlainText(QString(tr("Warning: no exit signals data")));
     }
 
     for (auto signal : signals_data->line_signals)

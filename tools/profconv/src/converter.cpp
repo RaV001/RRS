@@ -412,6 +412,8 @@ bool ZDSimConverter::conversion(const std::string &routeDir)
 
     writeMap();
 
+    writeModelsConfig();
+
     writeALSN();
 
     if (createSpeedMap())
