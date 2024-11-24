@@ -466,12 +466,12 @@ bool ZDSimConverter::findTrackNearToSignal(zds_signal_position_t *signal, int di
             // Допускаем слева только входной светофор, или в качестве входного
             // дополнительного любую модель светофора с "Д", но без "М" в литере
             if ((distance_right > -3.1) &&
-                ( (signal->type == "ab3entr") ||
+                ( (QString(signal->type.c_str()).right(4) == "entr") ||
                    ( QString(signal->liter.c_str()).contains("Д") &&
                     (!QString(signal->liter.c_str()).contains("М")) ) ))
             {
                 signal->is_left = true;
-                signal->type = "ab3entr";
+                signal->type = "ab_entr";
 
                 signal->route_num = (dir > 0) ? 1 : 2;
                 signal->track_id = near_end ? nearest_track.prev_uid + 1 : nearest_track.prev_uid;
@@ -517,12 +517,12 @@ bool ZDSimConverter::findTrackNearToSignal(zds_signal_position_t *signal, int di
             // Допускаем слева только входной светофор, или в качестве входного
             // дополнительного любую модель светофора с "Д", но без "М" в литере
             if ((distance_right < 3.1) &&
-                ( (signal->type == "ab3entr") ||
+                ( (QString(signal->type.c_str()).right(4) == "entr") ||
                  ( QString(signal->liter.c_str()).contains("Д") &&
                   (!QString(signal->liter.c_str()).contains("М")) ) ))
             {
                 signal->is_left = true;
-                signal->type = "ab3entr";
+                signal->type = "ab_entr";
 
                 signal->route_num = (dir > 0) ? 1 : 2;
                 signal->track_id = near_end ? nearest_track.prev_uid + 1 : nearest_track.prev_uid;

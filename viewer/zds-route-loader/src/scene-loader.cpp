@@ -45,7 +45,22 @@ void SceneLoader::load(std::string routeDir, float view_dist)
     view_distance = view_dist;
 
     loadDataFile(this->routeDir + fs.separator() + "objects.ref");
-    loadDataFile(this->routeDir + fs.separator() + "route1.map");
+
+    std::string map_path = this->routeDir;
+    map_path = map_path + fs.separator() + "topology";
+    map_path = map_path + fs.separator() + "map";
+    map_path = map_path + fs.separator() + "route1.map";
+
+    if (loadDataFile(map_path) == FILE_READ_SUCCESS)
+    {
+        OSG_INFO << "Loaded converted map: " << map_path << std::endl;
+    }
+    else
+    {
+        map_path = this->routeDir + fs.separator() + "route1.map";
+        loadDataFile(map_path);
+        OSG_WARN << "Fail to load converted map. Loaded default map: " << map_path << std::endl;
+    }
 
     osg::ref_ptr<Skybox> skybox = new Skybox;
     skybox->load(this->routeDir, root.get());
