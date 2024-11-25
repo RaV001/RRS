@@ -813,6 +813,9 @@ void TrainExteriorHandler::loadDisplays(const std::string &configDir,
             osgDB::XmlNode *surface_name_node = displays_cfg.findSection(display_node, "SurfaceName");
             display_config.surface_name = QString(surface_name_node->contents.c_str());
 
+            osgDB::XmlNode *upd_interval_node = displays_cfg.findSection(display_node, "UpdateInterval");
+            display_config.update_interval = QString(upd_interval_node->contents.c_str()).toDouble();
+
             display_config.texcoord = new osg::Vec2Array;
             size_t i = 0;
 
@@ -848,6 +851,7 @@ void TrainExteriorHandler::loadDisplays(const std::string &configDir,
 
             dc->display->setConfigDir(QString(vehicle_config_dir.c_str()));
             dc->display->setRouteDir(QString(settings.route_dir_full_path.c_str()));
+            dc->display->setUpdateInterval(display_config.update_interval);
             dc->display->init();
 
             displays.push_back(dc);

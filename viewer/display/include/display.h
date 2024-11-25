@@ -51,6 +51,8 @@ public:
     /// Задать путь к каталогу с маршрутом
     void setRouteDir(QString route_dir) { this->route_dir = route_dir; }
 
+    void setUpdateInterval(double upd_interval) { this->upd_interval = upd_interval; }
+
 protected:
 
     /// Входные сигналы, отображаемые на интерфейсе дисплея и управляющие его поведением
@@ -64,6 +66,9 @@ protected:
 
     /// Путь к каталогу с текущим маршрутом
     QString             route_dir;
+
+    /// Интервал обновления
+    double upd_interval = 0.5;
 };
 
 //------------------------------------------------------------------------------

@@ -12,7 +12,8 @@ AbstractDisplay::AbstractDisplay(QWidget *parent, Qt::WindowFlags f)
     , config_dir("")
     , route_dir("")
 {
-
+    std::fill(input_signals.begin(), input_signals.end(), 0.0);
+    std::fill(output_signals.begin(), output_signals.end(), 0.0);
 }
 
 //------------------------------------------------------------------------------
