@@ -518,9 +518,17 @@ void Switch::deserialize(QByteArray &data, traj_list_t &traj_list)
 
     // Восстанавливаем связанные с этим коннектором траектории
     fwdMinusTraj = deserialize_connected_trajectory(stream, traj_list);
+    if (fwdMinusTraj)
+        fwdMinusTraj->setBwdConnector(this);
     fwdPlusTraj = deserialize_connected_trajectory(stream, traj_list);
+    if (fwdPlusTraj)
+        fwdPlusTraj->setBwdConnector(this);
     bwdMinusTraj = deserialize_connected_trajectory(stream, traj_list);
+    if (bwdMinusTraj)
+        bwdMinusTraj->setFwdConnector(this);
     bwdPlusTraj = deserialize_connected_trajectory(stream, traj_list);
+    if (bwdPlusTraj)
+        bwdPlusTraj->setFwdConnector(this);
 
     // Восстанавливаем статусы стрелки
     stream >> state_fwd;
@@ -535,21 +543,15 @@ void Switch::deserialize(QByteArray &data, traj_list_t &traj_list)
 //------------------------------------------------------------------------------
 void Switch::serialize_connected_trajectory(QDataStream &stream, Trajectory *traj)
 {
-    // Анализирум наличие на каждом из ответвлений траектории,
-    // и если она присутствуем, пишем признак присутствия,
-    // а далее помещаем сериализованные данные этой траекторри
-    // в буфер
+    // Анализирум наличие траектории на каждом из ответвлений,
+    // пишем в буфер признак присутствия, и если она присутствует,
+    // далее пишем имя этой траектории
     bool has_traj = traj != Q_NULLPTR;
+    stream << has_traj;
 
     if (has_traj)
     {
-        stream << has_traj;
         stream << traj->getName();
-    }
-    else
-    {
-        // Если ответвление свободно - момещаем просто признак
-        stream << has_traj;
     }
 }
 
@@ -557,38 +559,26 @@ void Switch::serialize_connected_trajectory(QDataStream &stream, Trajectory *tra
 //
 //------------------------------------------------------------------------------
 Trajectory *Switch::deserialize_connected_trajectory(QDataStream &stream,
-                                              traj_list_t &traj_list)
+                                                     traj_list_t &traj_list)
 {
-    // Извлекаем признак наличия траектории
+    // Извлекаем признак наличия траектории в этом направлении
     bool has_traj = false;
     stream >> has_traj;
 
-    Trajectory *traj = Q_NULLPTR;
-
-    //и если она есть
     if (has_traj)
     {
-        // И восстанавливаем её данные
+        // Если она должна быть, восстанавливаем её имя
         QString traj_name;
         stream >> traj_name;
 
-        // Если в списке есть траектории с таким именем
+        // Если в списке траекторий есть такая, возвращаем указатель на нее
         if (traj_list.contains(traj_name))
         {
-            // Просто возвращаем указатель на нее
-            traj = traj_list[traj_name];
-            return traj;
-        }
-        else // в противном случае
-        {
-            // Содаем траекторию
-            traj = new Trajectory;
-            traj_list.insert(traj_name, traj);
-            return traj;
+            return traj_list[traj_name];
         }
     }
 
-    return traj;
+    return Q_NULLPTR;
 }
 
 //------------------------------------------------------------------------------

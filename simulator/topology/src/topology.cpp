@@ -420,22 +420,22 @@ QByteArray Topology::serialize()
         stream << sdata;
     }
 
-    // Указываем число коннекторов
-    stream << switches.size();
-
-    // Складываем в буффер сериализованную информацию о коннекторах
-    for (auto sw = switches.begin(); sw != switches.end(); ++sw)
-    {
-        stream << sw.value()->serialize();
-    }
-
+    // Указываем число траекторий
     stream << traj_list.size();
 
+    // Складываем в буфер сериализованную информацию о траекториях
     for (auto traj = traj_list.begin(); traj != traj_list.end(); ++traj)
     {
         stream << traj.value()->serialize();
-        serialize_connector_name(stream, traj.value()->getFwdConnector());
-        serialize_connector_name(stream, traj.value()->getBwdConnector());
+    }
+
+    // Указываем число коннекторов
+    stream << switches.size();
+
+    // Складываем в буфер сериализованную информацию о коннекторах
+    for (auto sw = switches.begin(); sw != switches.end(); ++sw)
+    {
+        stream << sw.value()->serialize();
     }
 
     return data.data();
@@ -469,32 +469,37 @@ void Topology::deserialize(QByteArray &data)
     traj_list.clear();
     switches.clear();
 
+    // Число траекторий
+    qsizetype traj_count = 0;
+    stream >> traj_count;
+
+    // Создаём все траектории
+    for (qsizetype i = 0; i < traj_count; ++i)
+    {
+        Trajectory *traj = new Trajectory;;
+
+        QByteArray traj_data;
+        stream >> traj_data;
+        traj->deserialize(traj_data);
+
+        traj_list.insert(traj->getName(), traj);
+    }
+
+    // Число коннекторов
     qsizetype conn_count = 0;
     stream >> conn_count;
 
+    // Создаём все коннекторы
     for (qsizetype i = 0; i < conn_count; ++i)
     {
         Switch *sw = new Switch;
 
         QByteArray conn_data;
         stream >> conn_data;
-
         sw->deserialize(conn_data, traj_list);
 
         switches.insert(sw->getName(), sw);
     }
-
-    qsizetype traj_count = 0;
-    stream >> traj_count;
-
-    for (auto traj : traj_list)
-    {
-        QByteArray traj_data;
-        stream >> traj_data;
-        traj->deserialize(traj_data);
-        traj->setFwdConnector(deserialize_traj_connectors(stream, switches));
-        traj->setBwdConnector(deserialize_traj_connectors(stream, switches));
-    }    
 }
 
 //------------------------------------------------------------------------------
