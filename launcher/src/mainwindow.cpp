@@ -520,6 +520,16 @@ void MainWindow::slotApplyGraphSettings()
 //------------------------------------------------------------------------------
 void MainWindow::slotAddActiveTrain()
 {
+    if (ui->lwRoutes->currentRow() < 0)
+    {
+        return;
+    }
+
+    if (ui->lwTrains->currentRow() < 0)
+    {
+        return;
+    }
+
     QTableWidget *tt = ui->twActiveTrains;
 
     int train_idx = ui->lwTrains->currentRow();
