@@ -328,6 +328,12 @@ void MainWindow::onStartPressed()
         return;
     }
 
+    // Check selected ctive trains
+    if (active_trains.size() == 0)
+    {
+        return;
+    }
+
     startSimulator();    
 }
 
