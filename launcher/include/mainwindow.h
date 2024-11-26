@@ -102,22 +102,13 @@ private:
     void loadRoutesList(const std::string &routesDir);
 
     /// Loading of trains list
-    void loadTrainsList(const std::string &trainsDir);
-
-    /// Set route shotcut
-    void setRouteScreenShot(const QString &path);
+    void loadTrainsList(const std::string &trainsDir);    
 
     /// Start simulation
     void startSimulator();
 
     /// Start viewer
-    void startViewer();    
-
-    /// Loading of trajectories for selected route
-    void loadTrajectories(QString &routeDir);
-
-    /// Check backward direction
-    bool isBackward();
+    void startViewer();        
 
     /// Load theme
     void loadTheme();
@@ -136,9 +127,7 @@ private:
 
     void loadTrainPositions(const QString &routeDir);
 
-    int getSelectedActiveTrainIndex();
-
-    void updateActiveTrains();
+    int getSelectedActiveTrainIndex();    
 
 private slots:
 
