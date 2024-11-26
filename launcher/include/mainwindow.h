@@ -173,6 +173,8 @@ private slots:
     void slotActiveTrainDirectionChange(int idx);
 
     void slotActiveTrainTrajectoryChange(int idx);
+
+    void slotTrainCoordValueChanged(double value);
 };
 
 

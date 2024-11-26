@@ -580,6 +580,8 @@ void MainWindow::slotAddActiveTrain()
 
     connect(waypoints, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &MainWindow::slotActiveTrainTrajectoryChange);
+
+    connect(dist, &QDoubleSpinBox::valueChanged, this, &MainWindow::slotTrainCoordValueChanged);
 }
 
 //------------------------------------------------------------------------------
@@ -678,6 +680,21 @@ void MainWindow::slotActiveTrainTrajectoryChange(int idx)
 
     active_trains[train_idx].train_position = tp;
     dist->setValue(tp.traj_coord);
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+void MainWindow::slotTrainCoordValueChanged(double value)
+{
+    int rowIdx = ui->twActiveTrains->currentRow();
+
+    if (rowIdx < 0)
+    {
+        return;
+    }
+
+    active_trains[rowIdx].train_position.traj_coord = value;
 }
 
 //------------------------------------------------------------------------------
