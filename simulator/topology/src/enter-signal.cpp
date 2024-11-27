@@ -360,6 +360,12 @@ void EnterSignal::blink_control(Signal *next_signal)
 //------------------------------------------------------------------------------
 void EnterSignal::alsn_control()
 {
+    if (!is_asln_transmit)
+    {
+        alsn_reset();
+        return;
+    }
+
     bool is_ALSN_RY_ON = lens_state[RED_LENS];
 
     alsn_RY_relay->setVoltage(U_bat * static_cast<double>(is_ALSN_RY_ON));

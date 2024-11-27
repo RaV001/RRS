@@ -1,6 +1,7 @@
 #ifndef     EXIT_SIGNAL_H
 #define     EXIT_SIGNAL_H
 
+#include    <trigger-counter.h>
 #include    <rail-signal.h>
 #include    <combine-releay.h>
 #include    <timer.h>
@@ -85,9 +86,10 @@ private:
 
     enum
     {
-        NUM_YR_CONTACTS = 2,
+        NUM_YR_CONTACTS = 3,
         YR_SR_CTRL = 0,
-        YR_SRS_PLUS = 1
+        YR_SRS_PLUS = 1,
+        YR_ALSN_CTRL = 2
     };
 
     /// Реле контроля первого участка удаления
@@ -163,6 +165,12 @@ private:
                                                 NUM_LINE_MINUS_CONTACTS);
 
     Signal *next_signal = Q_NULLPTR;
+
+    /// Триггер включения трансмитера на следующем светофоре
+    Trigger set_alsn;
+
+    /// Счетный триггер сброса трансмитера по освобождению участка удаления
+    TriggerCounter reset_alsn;
 
     void preStep(state_vector_t &Y, double t) override;
 
