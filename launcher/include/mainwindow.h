@@ -127,7 +127,9 @@ private:
 
     void loadTrainPositions(const QString &routeDir);
 
-    int getSelectedActiveTrainIndex();    
+    int getSelectedActiveTrainIndex();
+
+    void updateActiveTrains();
 
 private slots:
 

@@ -300,7 +300,9 @@ void MainWindow::onRouteSelection()
     selectedRouteDirName = routes_info[item_idx].route_dir_name;
     ui->ptRouteDescription->appendPlainText(routes_info[item_idx].route_description);    
 
-    loadTrainPositions(routes_info[item_idx].route_dir_full_path);    
+    loadTrainPositions(routes_info[item_idx].route_dir_full_path);
+
+    updateActiveTrains();
 }
 
 //------------------------------------------------------------------------------
@@ -868,4 +870,47 @@ int MainWindow::getSelectedActiveTrainIndex()
     QModelIndex index = *(selection.end() - 1);
 
     return index.row();
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+void MainWindow::updateActiveTrains()
+{
+    for (int i = 0; i < ui->twActiveTrains->rowCount(); ++i)
+    {
+        QComboBox *waypoint = dynamic_cast<QComboBox *>(ui->twActiveTrains->cellWidget(i, 1));
+        QComboBox *dir = dynamic_cast<QComboBox *>(ui->twActiveTrains->cellWidget(i, 3));
+        QDoubleSpinBox *dist = dynamic_cast<QDoubleSpinBox *>(ui->twActiveTrains->cellWidget(i, 2));
+
+        waypoint->clear();
+        if (dir->currentIndex() == 0)
+        {
+            for (auto tp = fwd_train_positions.begin(); tp != fwd_train_positions.end(); ++tp)
+            {
+                waypoint->addItem((*tp).name);
+                dist->setValue((*tp).traj_coord);
+            }
+
+            if (waypoint->count() != 0)
+            {
+                waypoint->setCurrentIndex(0);
+                active_trains[i].train_position = fwd_train_positions[waypoint->currentIndex()];
+            }
+        }
+        else
+        {
+            for (auto tp = bwd_train_positions.begin(); tp != bwd_train_positions.end(); ++tp)
+            {
+                waypoint->addItem((*tp).name);
+                dist->setValue((*tp).traj_coord);
+            }
+
+            if (waypoint->count() != 0)
+            {
+                waypoint->setCurrentIndex(0);
+                active_trains[i].train_position = bwd_train_positions[waypoint->currentIndex()];
+            }
+        }
+    }
 }
