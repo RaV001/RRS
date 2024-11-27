@@ -104,9 +104,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     loadTheme();
 
     ui->twActiveTrains->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->twActiveTrains->horizontalHeader()->setSelectionMode(QAbstractItemView::NoSelection);
+    ui->twActiveTrains->horizontalHeader()->setSectionsClickable(false);
     ui->twActiveTrains->verticalHeader()->setDefaultSectionSize(18);
     ui->twActiveTrains->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->twActiveTrains->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->twActiveTrains->setCornerButtonEnabled(false);
+    ui->twActiveTrains->verticalHeader()->setVisible(false);
 
     QIcon icon(":/images/images/RRS_logo.png");
     setWindowIcon(icon);

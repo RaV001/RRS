@@ -53,3 +53,13 @@ QTabBar::tab:!selected {
 QTabWidget::pane { 
 	border: 0; 
 }
+
+QTableView::item::selected
+{
+    background-color: #ffb140;
+}
+
+QComboBox::item::selected
+{
+    background-color: #ffb140;
+}
