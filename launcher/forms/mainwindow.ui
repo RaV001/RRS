@@ -271,17 +271,17 @@
               </column>
               <column>
                <property name="text">
+                <string>Direction</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
                 <string>Waypoint</string>
                </property>
               </column>
               <column>
                <property name="text">
                 <string>Distance</string>
-               </property>
-              </column>
-              <column>
-               <property name="text">
-                <string>Direction</string>
                </property>
               </column>
              </widget>

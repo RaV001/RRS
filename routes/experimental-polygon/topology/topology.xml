@@ -6,8 +6,8 @@
 		<fwdPlusTraj>route1_0002_9</fwdPlusTraj>
 		<SignalLiterFwd>Ч</SignalLiterFwd>
 		<SignalModelFwd>ab_entr</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00002</Name>
@@ -31,8 +31,8 @@
 		<fwdPlusTraj>route1_0005_13</fwdPlusTraj>
 		<SignalLiterBwd>Н1</SignalLiterBwd>
 		<SignalModelBwd>ab_exit</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00005</Name>
@@ -40,8 +40,8 @@
 		<fwdPlusTraj>route1_0006_21</fwdPlusTraj>
 		<SignalLiterFwd>Ч1</SignalLiterFwd>
 		<SignalModelFwd>ab_exit</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00006</Name>
@@ -65,8 +65,8 @@
 		<fwdPlusTraj>route1_0009_26</fwdPlusTraj>
 		<SignalLiterBwd>НД</SignalLiterBwd>
 		<SignalModelBwd>ab_entr</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00009</Name>
@@ -74,8 +74,8 @@
 		<fwdPlusTraj>route1_0010_42</fwdPlusTraj>
 		<SignalLiterFwd>22</SignalLiterFwd>
 		<SignalModelFwd>ab_line</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00010</Name>
@@ -83,8 +83,8 @@
 		<fwdPlusTraj>route1_0011_60</fwdPlusTraj>
 		<SignalLiterFwd>20</SignalLiterFwd>
 		<SignalModelFwd>ab_line</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00011</Name>
@@ -92,8 +92,8 @@
 		<fwdPlusTraj>route1_0012_79</fwdPlusTraj>
 		<SignalLiterFwd>18</SignalLiterFwd>
 		<SignalModelFwd>ab_line</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00012</Name>
@@ -101,8 +101,8 @@
 		<fwdPlusTraj>route1_0013_97</fwdPlusTraj>
 		<SignalLiterFwd>16</SignalLiterFwd>
 		<SignalModelFwd>ab_line</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00013</Name>
@@ -110,8 +110,8 @@
 		<fwdPlusTraj>route1_0014_116</fwdPlusTraj>
 		<SignalLiterFwd>14</SignalLiterFwd>
 		<SignalModelFwd>ab_line</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00014</Name>
@@ -119,8 +119,8 @@
 		<fwdPlusTraj>route1_0015_134</fwdPlusTraj>
 		<SignalLiterFwd>12</SignalLiterFwd>
 		<SignalModelFwd>ab_line</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00015</Name>
@@ -128,8 +128,8 @@
 		<fwdPlusTraj>route1_0016_153</fwdPlusTraj>
 		<SignalLiterFwd>10</SignalLiterFwd>
 		<SignalModelFwd>ab_line</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00016</Name>
@@ -137,8 +137,8 @@
 		<fwdPlusTraj>route1_0017_171</fwdPlusTraj>
 		<SignalLiterFwd>8</SignalLiterFwd>
 		<SignalModelFwd>ab_line</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00017</Name>
@@ -146,8 +146,8 @@
 		<fwdPlusTraj>route1_0018_189</fwdPlusTraj>
 		<SignalLiterFwd>6</SignalLiterFwd>
 		<SignalModelFwd>ab_line</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00018</Name>
@@ -155,8 +155,8 @@
 		<fwdPlusTraj>route1_0019_208</fwdPlusTraj>
 		<SignalLiterFwd>4</SignalLiterFwd>
 		<SignalModelFwd>ab_line</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00019</Name>
@@ -164,8 +164,8 @@
 		<fwdPlusTraj>route1_0020_226</fwdPlusTraj>
 		<SignalLiterFwd>2</SignalLiterFwd>
 		<SignalModelFwd>ab_line</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00020</Name>
@@ -173,8 +173,8 @@
 		<fwdPlusTraj>route1_0021_242</fwdPlusTraj>
 		<SignalLiterFwd>Ч</SignalLiterFwd>
 		<SignalModelFwd>ab_entr</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00021</Name>
@@ -198,8 +198,8 @@
 		<fwdPlusTraj>route1_0024_247</fwdPlusTraj>
 		<SignalLiterBwd>Н1</SignalLiterBwd>
 		<SignalModelBwd>ab_exit</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00024</Name>
@@ -207,8 +207,8 @@
 		<fwdPlusTraj>route1_0025_258</fwdPlusTraj>
 		<SignalLiterFwd>Ч1</SignalLiterFwd>
 		<SignalModelFwd>ab_exit</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00025</Name>
@@ -232,8 +232,8 @@
 		<fwdPlusTraj>route1_0028_263</fwdPlusTraj>
 		<SignalLiterBwd>НД</SignalLiterBwd>
 		<SignalModelBwd>ab_entr</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00028</Name>
@@ -241,8 +241,8 @@
 		<fwdPlusTraj>route1_0029_277</fwdPlusTraj>
 		<SignalLiterFwd>22</SignalLiterFwd>
 		<SignalModelFwd>ab_line</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00029</Name>
@@ -250,8 +250,8 @@
 		<fwdPlusTraj>route1_0030_295</fwdPlusTraj>
 		<SignalLiterFwd>20</SignalLiterFwd>
 		<SignalModelFwd>ab_line</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00030</Name>
@@ -259,8 +259,8 @@
 		<fwdPlusTraj>route1_0031_314</fwdPlusTraj>
 		<SignalLiterFwd>18</SignalLiterFwd>
 		<SignalModelFwd>ab_line</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00031</Name>
@@ -268,8 +268,8 @@
 		<fwdPlusTraj>route1_0032_332</fwdPlusTraj>
 		<SignalLiterFwd>16</SignalLiterFwd>
 		<SignalModelFwd>ab_line</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00032</Name>
@@ -277,8 +277,8 @@
 		<fwdPlusTraj>route1_0033_351</fwdPlusTraj>
 		<SignalLiterFwd>14</SignalLiterFwd>
 		<SignalModelFwd>ab_line</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00033</Name>
@@ -286,8 +286,8 @@
 		<fwdPlusTraj>route1_0034_369</fwdPlusTraj>
 		<SignalLiterFwd>12</SignalLiterFwd>
 		<SignalModelFwd>ab_line</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00034</Name>
@@ -295,8 +295,8 @@
 		<fwdPlusTraj>route1_0035_388</fwdPlusTraj>
 		<SignalLiterFwd>10</SignalLiterFwd>
 		<SignalModelFwd>ab_line</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00035</Name>
@@ -304,8 +304,8 @@
 		<fwdPlusTraj>route1_0036_406</fwdPlusTraj>
 		<SignalLiterFwd>8</SignalLiterFwd>
 		<SignalModelFwd>ab_line</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00036</Name>
@@ -313,8 +313,8 @@
 		<fwdPlusTraj>route1_0037_424</fwdPlusTraj>
 		<SignalLiterFwd>6</SignalLiterFwd>
 		<SignalModelFwd>ab_line</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00037</Name>
@@ -322,8 +322,8 @@
 		<fwdPlusTraj>route1_0038_443</fwdPlusTraj>
 		<SignalLiterFwd>4</SignalLiterFwd>
 		<SignalModelFwd>ab_line</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00038</Name>
@@ -331,8 +331,8 @@
 		<fwdPlusTraj>route1_0039_461</fwdPlusTraj>
 		<SignalLiterFwd>2</SignalLiterFwd>
 		<SignalModelFwd>ab_line</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00039</Name>
@@ -340,8 +340,8 @@
 		<fwdPlusTraj>route1_0040_477</fwdPlusTraj>
 		<SignalLiterFwd>Ч</SignalLiterFwd>
 		<SignalModelFwd>ab_entr</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00040</Name>
@@ -365,8 +365,8 @@
 		<fwdPlusTraj>route1_0043_482</fwdPlusTraj>
 		<SignalLiterBwd>Н1</SignalLiterBwd>
 		<SignalModelBwd>ab_exit</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00043</Name>
@@ -374,8 +374,8 @@
 		<fwdPlusTraj>route1_0044_492</fwdPlusTraj>
 		<SignalLiterFwd>Ч1</SignalLiterFwd>
 		<SignalModelFwd>ab_exit</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00044</Name>
@@ -399,8 +399,8 @@
 		<fwdPlusTraj>route1_0047_497</fwdPlusTraj>
 		<SignalLiterBwd>НД</SignalLiterBwd>
 		<SignalModelBwd>ab_entr</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00047</Name>
@@ -408,8 +408,8 @@
 		<fwdPlusTraj>route2_0002_9</fwdPlusTraj>
 		<SignalLiterFwd>ЧД</SignalLiterFwd>
 		<SignalModelFwd>ab_entr</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00048</Name>
@@ -433,8 +433,8 @@
 		<fwdPlusTraj>route2_0005_13</fwdPlusTraj>
 		<SignalLiterBwd>Н2</SignalLiterBwd>
 		<SignalModelBwd>ab_exit</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00051</Name>
@@ -442,8 +442,8 @@
 		<fwdPlusTraj>route2_0006_21</fwdPlusTraj>
 		<SignalLiterFwd>Ч2</SignalLiterFwd>
 		<SignalModelFwd>ab_exit</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00052</Name>
@@ -467,8 +467,8 @@
 		<fwdPlusTraj>route2_0009_26</fwdPlusTraj>
 		<SignalLiterBwd>Н</SignalLiterBwd>
 		<SignalModelBwd>ab_entr</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00055</Name>
@@ -476,8 +476,8 @@
 		<fwdPlusTraj>route2_0010_42</fwdPlusTraj>
 		<SignalLiterBwd>1</SignalLiterBwd>
 		<SignalModelBwd>ab_line</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00056</Name>
@@ -485,8 +485,8 @@
 		<fwdPlusTraj>route2_0011_60</fwdPlusTraj>
 		<SignalLiterBwd>3</SignalLiterBwd>
 		<SignalModelBwd>ab_line</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00057</Name>
@@ -494,8 +494,8 @@
 		<fwdPlusTraj>route2_0012_79</fwdPlusTraj>
 		<SignalLiterBwd>5</SignalLiterBwd>
 		<SignalModelBwd>ab_line</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00058</Name>
@@ -503,8 +503,8 @@
 		<fwdPlusTraj>route2_0013_97</fwdPlusTraj>
 		<SignalLiterBwd>7</SignalLiterBwd>
 		<SignalModelBwd>ab_line</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00059</Name>
@@ -512,8 +512,8 @@
 		<fwdPlusTraj>route2_0014_116</fwdPlusTraj>
 		<SignalLiterBwd>9</SignalLiterBwd>
 		<SignalModelBwd>ab_line</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00060</Name>
@@ -521,8 +521,8 @@
 		<fwdPlusTraj>route2_0015_134</fwdPlusTraj>
 		<SignalLiterBwd>11</SignalLiterBwd>
 		<SignalModelBwd>ab_line</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00061</Name>
@@ -530,8 +530,8 @@
 		<fwdPlusTraj>route2_0016_153</fwdPlusTraj>
 		<SignalLiterBwd>13</SignalLiterBwd>
 		<SignalModelBwd>ab_line</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00062</Name>
@@ -539,8 +539,8 @@
 		<fwdPlusTraj>route2_0017_171</fwdPlusTraj>
 		<SignalLiterBwd>15</SignalLiterBwd>
 		<SignalModelBwd>ab_line</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00063</Name>
@@ -548,8 +548,8 @@
 		<fwdPlusTraj>route2_0018_189</fwdPlusTraj>
 		<SignalLiterBwd>17</SignalLiterBwd>
 		<SignalModelBwd>ab_line</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00064</Name>
@@ -557,8 +557,8 @@
 		<fwdPlusTraj>route2_0019_208</fwdPlusTraj>
 		<SignalLiterBwd>19</SignalLiterBwd>
 		<SignalModelBwd>ab_line</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00065</Name>
@@ -566,8 +566,8 @@
 		<fwdPlusTraj>route2_0020_226</fwdPlusTraj>
 		<SignalLiterBwd>21</SignalLiterBwd>
 		<SignalModelBwd>ab_line</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00066</Name>
@@ -575,8 +575,8 @@
 		<fwdPlusTraj>route2_0021_242</fwdPlusTraj>
 		<SignalLiterFwd>ЧД</SignalLiterFwd>
 		<SignalModelFwd>ab_entr</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00067</Name>
@@ -600,8 +600,8 @@
 		<fwdPlusTraj>route2_0024_247</fwdPlusTraj>
 		<SignalLiterBwd>Н2</SignalLiterBwd>
 		<SignalModelBwd>ab_exit</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00070</Name>
@@ -609,8 +609,8 @@
 		<fwdPlusTraj>route2_0025_258</fwdPlusTraj>
 		<SignalLiterFwd>Ч2</SignalLiterFwd>
 		<SignalModelFwd>ab_exit</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00071</Name>
@@ -634,8 +634,8 @@
 		<fwdPlusTraj>route2_0028_263</fwdPlusTraj>
 		<SignalLiterBwd>Н</SignalLiterBwd>
 		<SignalModelBwd>ab_entr</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00074</Name>
@@ -643,8 +643,8 @@
 		<fwdPlusTraj>route2_0029_279</fwdPlusTraj>
 		<SignalLiterBwd>1</SignalLiterBwd>
 		<SignalModelBwd>ab_line</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00075</Name>
@@ -652,8 +652,8 @@
 		<fwdPlusTraj>route2_0030_297</fwdPlusTraj>
 		<SignalLiterBwd>3</SignalLiterBwd>
 		<SignalModelBwd>ab_line</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00076</Name>
@@ -661,8 +661,8 @@
 		<fwdPlusTraj>route2_0031_314</fwdPlusTraj>
 		<SignalLiterBwd>5</SignalLiterBwd>
 		<SignalModelBwd>ab_line</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00077</Name>
@@ -670,8 +670,8 @@
 		<fwdPlusTraj>route2_0032_332</fwdPlusTraj>
 		<SignalLiterBwd>7</SignalLiterBwd>
 		<SignalModelBwd>ab_line</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00078</Name>
@@ -679,8 +679,8 @@
 		<fwdPlusTraj>route2_0033_351</fwdPlusTraj>
 		<SignalLiterBwd>9</SignalLiterBwd>
 		<SignalModelBwd>ab_line</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00079</Name>
@@ -688,8 +688,8 @@
 		<fwdPlusTraj>route2_0034_369</fwdPlusTraj>
 		<SignalLiterBwd>11</SignalLiterBwd>
 		<SignalModelBwd>ab_line</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00080</Name>
@@ -697,8 +697,8 @@
 		<fwdPlusTraj>route2_0035_388</fwdPlusTraj>
 		<SignalLiterBwd>13</SignalLiterBwd>
 		<SignalModelBwd>ab_line</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00081</Name>
@@ -706,8 +706,8 @@
 		<fwdPlusTraj>route2_0036_406</fwdPlusTraj>
 		<SignalLiterBwd>15</SignalLiterBwd>
 		<SignalModelBwd>ab_line</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00082</Name>
@@ -715,8 +715,8 @@
 		<fwdPlusTraj>route2_0037_424</fwdPlusTraj>
 		<SignalLiterBwd>17</SignalLiterBwd>
 		<SignalModelBwd>ab_line</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00083</Name>
@@ -724,8 +724,8 @@
 		<fwdPlusTraj>route2_0038_443</fwdPlusTraj>
 		<SignalLiterBwd>19</SignalLiterBwd>
 		<SignalModelBwd>ab_line</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00084</Name>
@@ -733,8 +733,8 @@
 		<fwdPlusTraj>route2_0039_461</fwdPlusTraj>
 		<SignalLiterBwd>21</SignalLiterBwd>
 		<SignalModelBwd>ab_line</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00085</Name>
@@ -742,8 +742,8 @@
 		<fwdPlusTraj>route2_0040_477</fwdPlusTraj>
 		<SignalLiterFwd>ЧД</SignalLiterFwd>
 		<SignalModelFwd>ab_entr</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00086</Name>
@@ -767,8 +767,8 @@
 		<fwdPlusTraj>route2_0043_482</fwdPlusTraj>
 		<SignalLiterBwd>Н2</SignalLiterBwd>
 		<SignalModelBwd>ab_exit</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00089</Name>
@@ -776,8 +776,8 @@
 		<fwdPlusTraj>route2_0044_492</fwdPlusTraj>
 		<SignalLiterFwd>Ч2</SignalLiterFwd>
 		<SignalModelFwd>ab_exit</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00090</Name>
@@ -801,8 +801,8 @@
 		<fwdPlusTraj>route2_0047_497</fwdPlusTraj>
 		<SignalLiterBwd>Н</SignalLiterBwd>
 		<SignalModelBwd>ab_entr</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00093</Name>
@@ -810,8 +810,8 @@
 		<fwdPlusTraj>branch1_0001_2_x12_x22</fwdPlusTraj>
 		<SignalLiterBwd>Н4</SignalLiterBwd>
 		<SignalModelBwd>ab_exit</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00094</Name>
@@ -819,8 +819,8 @@
 		<fwdPlusTraj>branch1_0001_3_x12_x22</fwdPlusTraj>
 		<SignalLiterFwd>Ч4</SignalLiterFwd>
 		<SignalModelFwd>ab_exit</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00095</Name>
@@ -828,8 +828,8 @@
 		<fwdPlusTraj>branch1_0002_2_12_22</fwdPlusTraj>
 		<SignalLiterBwd>Н3</SignalLiterBwd>
 		<SignalModelBwd>ab_exit</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00096</Name>
@@ -837,8 +837,8 @@
 		<fwdPlusTraj>branch1_0002_3_12_22</fwdPlusTraj>
 		<SignalLiterFwd>Ч3</SignalLiterFwd>
 		<SignalModelFwd>ab_exit</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00097</Name>
@@ -846,8 +846,8 @@
 		<fwdPlusTraj>branch1_0003_2_x246_x259</fwdPlusTraj>
 		<SignalLiterBwd>Н4</SignalLiterBwd>
 		<SignalModelBwd>ab_exit</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00098</Name>
@@ -855,8 +855,8 @@
 		<fwdPlusTraj>branch1_0003_3_x246_x259</fwdPlusTraj>
 		<SignalLiterFwd>Ч4</SignalLiterFwd>
 		<SignalModelFwd>ab_exit</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00099</Name>
@@ -864,8 +864,8 @@
 		<fwdPlusTraj>branch1_0004_2_246_259</fwdPlusTraj>
 		<SignalLiterBwd>Н3</SignalLiterBwd>
 		<SignalModelBwd>ab_exit</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00100</Name>
@@ -873,8 +873,8 @@
 		<fwdPlusTraj>branch1_0004_3_246_259</fwdPlusTraj>
 		<SignalLiterFwd>Ч3</SignalLiterFwd>
 		<SignalModelFwd>ab_exit</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00101</Name>
@@ -882,8 +882,8 @@
 		<fwdPlusTraj>branch1_0005_2_x481_x493</fwdPlusTraj>
 		<SignalLiterBwd>Н4</SignalLiterBwd>
 		<SignalModelBwd>ab_exit</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00102</Name>
@@ -891,8 +891,8 @@
 		<fwdPlusTraj>branch1_0005_3_x481_x493</fwdPlusTraj>
 		<SignalLiterFwd>Ч4</SignalLiterFwd>
 		<SignalModelFwd>ab_exit</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 	<Switch>
 		<Name>00103</Name>
@@ -900,8 +900,8 @@
 		<fwdPlusTraj>branch1_0006_2_481_493</fwdPlusTraj>
 		<SignalLiterBwd>Н3</SignalLiterBwd>
 		<SignalModelBwd>ab_exit</SignalModelBwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorBwd>2.5 -2.75 0.0</RelPosVectorBwd>
+		<RelRotVectorBwd>0.0 0.0 0.0</RelRotVectorBwd>
 	</Switch>
 	<Switch>
 		<Name>00104</Name>
@@ -909,7 +909,7 @@
 		<fwdPlusTraj>branch1_0006_3_481_493</fwdPlusTraj>
 		<SignalLiterFwd>Ч3</SignalLiterFwd>
 		<SignalModelFwd>ab_exit</SignalModelFwd>
-		<RelPosVector>2.5 0.0 0.0</RelPosVector>
-		<RelRotVector>0.0 0.0 0.0</RelRotVector>
+		<RelPosVectorFwd>2.5 -2.75 0.0</RelPosVectorFwd>
+		<RelRotVectorFwd>0.0 0.0 0.0</RelRotVectorFwd>
 	</Switch>
 </Config>
