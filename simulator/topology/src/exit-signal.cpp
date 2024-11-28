@@ -469,7 +469,7 @@ void ExitSignal::route_control(Signal **next_signal)
 
         // Стрелка не по маршруту? Ловить нечего - выходим из поиска
         if (!is_switches_correct)
-        {
+        {            
             break;
         }
 
@@ -586,6 +586,18 @@ void ExitSignal::relay_control()
 
     U_dsr = U_bat * static_cast<double>(allow_relay->getContactState(AR_OPEN));
 
+    if (conn->getName() == "00393")
+    {
+        Journal::instance()->info("Hey!");
+    }
+
+    // Линейное напряжение для следующего сигнала
+    double is_line_ON = static_cast<double>(fwd_way_relay->getContactState(FWD_BUSY));
+    double is_line_plus = static_cast<double>(semaphore_signal_relay->getContactState(SRS_PLUS_YELLOW));
+    double is_line_minus = static_cast<double>(semaphore_signal_relay->getContactState(SRS_MINUS_GREEN));
+
+    U_line_prev = U_bat * (is_line_plus - is_line_minus) * is_line_ON;
+
     if (qAbs(U_line_prev - U_line_old))
     {
         emit sendLineVoltage(U_line_prev);
@@ -599,7 +611,7 @@ void ExitSignal::relay_control()
     else
     {
         blink_timer->stop();
-    }
+    }    
 
     // Динамическая передача линейного напряжения, так как заранее не ясно
     // какой сигнал будет следующим
