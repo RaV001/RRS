@@ -484,7 +484,7 @@ bool QGraphicsViewAdapter::handleKeyEvent(int key, bool keyDown)
 
 void QGraphicsViewAdapter::setFrameLastRendered(const osg::FrameStamp* frameStamp)
 {
-    OSG_INFO<<"setFrameLastRendered("<<frameStamp->getFrameNumber()<<")"<<std::endl;
+    //OSG_INFO<<"setFrameLastRendered("<<frameStamp->getFrameNumber()<<")"<<std::endl;
 
     if (_newImageAvailable && _previousFrameNumber!=frameStamp->getFrameNumber())
     {
@@ -590,7 +590,7 @@ void QGraphicsViewAdapter::assignImage(unsigned int i)
     QImage& image = _qimages[i];
     unsigned char* data = image.bits();
 
-    OSG_INFO<<"assignImage("<<i<<") image = "<<&image<<" size = ("<<image.width()<<","<<image.height()<<") data = "<<(void*)data<<std::endl;
+    //OSG_INFO<<"assignImage("<<i<<") image = "<<&image<<" size = ("<<image.width()<<","<<image.height()<<") data = "<<(void*)data<<std::endl;
 
     _image->setImage(image.width(), image.height(), 1,
                      4, GL_RGBA, GL_UNSIGNED_BYTE,

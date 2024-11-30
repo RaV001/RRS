@@ -866,12 +866,12 @@ void TrainExteriorHandler::updateDisplays()
 {
     if ((old_data == -1) || (new_data == -1))
         return;
-
+/*
     if (is_displays_locked)
         return;
-
+*/
     double dt = update_data[new_data].time - prev_time_display_upd;
-    if (dt < 0.2)
+    if (dt < 0.1)
         return;
 
     double t = update_data[new_data].time;
