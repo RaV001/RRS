@@ -544,6 +544,13 @@ void QGraphicsViewAdapter::render()
     }
 
 #if 1
+    // Clear the image otherwise there are artifacts for some widgets that overpaint.
+    image.fill(_backgroundColor);
+
+    // Render image from widget
+    QRect sourceRect(0, 0, image.width(), image.height());
+    _widget->render(&image, {0,0}, sourceRect);
+#elif 1
     // paint the image with the graphics view
     QPainter painter(&image);
 
