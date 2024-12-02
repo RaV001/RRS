@@ -350,11 +350,6 @@ void ExitSignal::removal_area_control()
         }
     }
 
-    if (conn->getName() == "00398")
-    {
-        Journal::instance()->info("Hey!");
-    }
-
     // Отпитываем реле контроля участков приближения
     yellow_relay->setVoltage(U_bat * static_cast<double>(is_YR_ON && line_relay->getContactState(LINE_N_YELLOW)));
     green_relay->setVoltage(U_bat * static_cast<double>(is_GR_ON && line_relay->getPlusContactState(LINE_PLUS_GREEN)));
@@ -589,16 +584,11 @@ void ExitSignal::relay_control()
     // Напряжение, даваемое в линию входному
     double U_line_old = U_line_prev;
 
-    U_dsr = U_bat * static_cast<double>(allow_relay->getContactState(AR_OPEN));
-
-    if (conn->getName() == "00393")
-    {
-        Journal::instance()->info("Hey!");
-    }
+    U_dsr = U_bat * static_cast<double>(allow_relay->getContactState(AR_OPEN));    
 
     // Линейное напряжение для следующего сигнала
     double is_line_ON = static_cast<double>(fwd_way_relay->getContactState(FWD_BUSY));
-    double is_line_plus = static_cast<double>(lens_state[YELLOW_LENS]);
+    double is_line_plus = static_cast<double>(!lens_state[RED_LENS]);
     double is_line_minus = static_cast<double>(lens_state[RED_LENS]);
 
     U_line_prev = U_bat * (is_line_plus - is_line_minus) * is_line_ON;
