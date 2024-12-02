@@ -1,6 +1,7 @@
 #ifndef     ENTER_SIGNAL_H
 #define     ENTER_SIGNAL_H
 
+#include    <trigger-counter.h>
 #include    <rail-signal.h>
 #include    <combine-releay.h>
 #include    <timer.h>
@@ -179,6 +180,10 @@ protected:
     Relay *blink_relay = new Relay(NUM_BLINK_CONTACTS);
 
     bool is_yellow_wire_ON = false;
+
+    TriggerCounter reset_alsn;
+
+    Trigger set_alsn;
 
     void preStep(state_vector_t &Y, double t) override;
 

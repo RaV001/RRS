@@ -69,6 +69,9 @@ EnterSignal::EnterSignal(QObject *parent) : Signal(parent)
     blink_relay->read_config("combine-relay");
     blink_relay->setInitContactState(BLINK_GREEN, true);
     blink_relay->setInitContactState(BLINK_YELLOW, false);
+
+    reset_alsn.reset();
+    set_alsn.reset();
 }
 
 //------------------------------------------------------------------------------
@@ -188,6 +191,10 @@ Signal * EnterSignal::route_control()
     Signal *next_signal = Q_NULLPTR;
 
     is_RCR_ON = is_route_free(conn, &next_signal);
+
+    // Взводим тригер запрета АЛСН, если занятость маршрута меняется со
+    // свободной на занятую (занимаем мы, либо предыдущий поезд осаживается)
+    reset_alsn.set(!is_RCR_ON);
 
     if (is_RCR_ON != is_RCR_ON_old)
     {
@@ -414,6 +421,29 @@ void EnterSignal::relay_control()
 
     // Контроль мигания
     blink_control(next_signal);
+
+    // Если маршрут занят
+    if (!is_RCR_ON)
+    {
+        if (reset_alsn.getState())
+        {
+            set_alsn.reset();
+        }
+        else
+        {
+            set_alsn.set();
+        }
+    }
+    else
+    {
+        reset_alsn.reset();
+    }
+
+    if (next_signal != Q_NULLPTR)
+    {
+        next_signal->allowTransmitALSN(set_alsn.getState());
+    }
+
 
     alsn_control();
 }
