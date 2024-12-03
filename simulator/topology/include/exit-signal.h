@@ -190,6 +190,10 @@ private:
 
     void alsn_control();
 
+    /// Проверка занятости сигнала на участке от данного коннектора
+    /// до следующего попутного сигнала
+    Connector *check_path_free(Connector *cur_conn, bool &is_free);
+
 private slots:
 
     void slotOpenTimer();

@@ -231,124 +231,15 @@ void ExitSignal::removal_area_control()
         return;
     }
 
-    Connector *cur_conn = conn;
 
-    bool is_GR_ON = false;
-    bool is_YR_ON = false;
+    bool is_GR_ON = true;
+    bool is_YR_ON = true;
 
-    // Ищем первый попутный светофор за горловиной
-    while (true)
-    {
-        Trajectory *traj = Q_NULLPTR;
+    // Проверяем занятость 1 участка удаления
+    Connector *cur_conn = check_path_free(conn, is_YR_ON);
 
-        // Берем следующую траекторию
-        if (this->getDirection() == 1)
-        {
-            traj = cur_conn->getFwdTraj();
-
-        }
-        else
-        {
-            traj = cur_conn->getBwdTraj();
-        }
-
-        // Если её нет - ехать некуда
-        if (traj == Q_NULLPTR)
-        {
-            return;
-        }
-
-        // Берем следующий коннектор
-        if (this->getDirection() == 1)
-        {
-            cur_conn = traj->getFwdConnector();
-        }
-        else
-        {
-            cur_conn = traj->getBwdConnector();
-        }
-
-        // Если его нет - не будет никаких сигналов дальше, выходим
-        if (cur_conn == Q_NULLPTR)
-        {
-            return;
-        }
-
-        // Проверяем, есть ли у коннектора сигнал
-        Signal *signal = Q_NULLPTR;
-
-        if (this->getDirection() == 1)
-        {
-            signal = cur_conn->getSignalFwd();
-        }
-
-        if (this->getDirection() == -1)
-        {
-            signal = cur_conn->getSignalBwd();
-        }
-
-        // если нет - это стык или стрелка, продолжаем поиск
-        if (signal == Q_NULLPTR)
-        {
-            continue;
-        }
-
-        // Если сигнал попутный - мы у цели
-        if (signal->getDirection() == this->getDirection())
-        {
-            // Берем коннектор сигнала
-            Connector *sig_conn = signal->getConnector();
-
-            // Страхуемся от бяки
-            if (sig_conn == Q_NULLPTR)
-            {
-                break;
-            }
-
-            // Берем траекторию перед сигналом
-            Trajectory *traj = Q_NULLPTR;
-
-            if (this->getDirection() == 1)
-            {
-                traj = sig_conn->getBwdTraj();
-            }
-            else
-            {
-                traj = sig_conn->getFwdTraj();
-            }
-
-            // Если дошли сюда, траектория точно не пустая
-
-            // Определяем занятость первого участка удаления
-            is_YR_ON = !traj->isBusy();
-
-            // Пытаемся найти второй участок удаления, беря траекторию
-            // спереди от коннектора
-            if (this->getDirection() == 1)
-            {
-                traj = sig_conn->getFwdTraj();
-            }
-            else
-            {
-                traj = sig_conn->getBwdTraj();
-            }
-
-            // Нет такой траектории, нет второго участка удаления
-            if (traj == Q_NULLPTR)
-            {
-                break;
-            }
-
-            // Если же есть, проверяем её занятость
-            is_GR_ON = !traj->isBusy();
-
-            break;
-        }
-        else
-        {
-            break;
-        }
-    }
+    // Проверяем занятость 2 участка удаления
+    cur_conn = check_path_free(cur_conn, is_GR_ON);
 
     // Отпитываем реле контроля участков приближения
     yellow_relay->setVoltage(U_bat * static_cast<double>(is_YR_ON && line_relay->getContactState(LINE_N_YELLOW)));
@@ -375,6 +266,79 @@ void ExitSignal::removal_area_control()
             Journal::instance()->info("Disallowed ASLN for " + next_signal->getLetter());
         }
     }
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+Connector *ExitSignal::check_path_free(Connector *cur_conn, bool &is_free)
+{
+    if (cur_conn == Q_NULLPTR)
+    {
+        is_free = false;
+        return cur_conn;
+    }
+
+    is_free = true;
+
+    while (true)
+    {
+        Trajectory *traj = Q_NULLPTR;
+
+        if (this->getDirection() == 1)
+        {
+            traj = cur_conn->getFwdTraj();
+        }
+
+        if (this->getDirection() == -1)
+        {
+            traj = cur_conn->getBwdTraj();
+        }
+
+        if (traj == Q_NULLPTR)
+        {
+            is_free = false;
+            return Q_NULLPTR;
+        }
+
+        is_free = is_free && (!traj->isBusy());
+
+        if (this->getDirection() == 1)
+        {
+            cur_conn = traj->getFwdConnector();
+        }
+
+        if (this->getDirection() == -1)
+        {
+            cur_conn = traj->getBwdConnector();
+        }
+
+        if (cur_conn == Q_NULLPTR)
+        {
+            return Q_NULLPTR;
+        }
+
+        Signal *signal = Q_NULLPTR;
+
+        if (this->getDirection() == 1)
+        {
+            signal = cur_conn->getSignalFwd();
+        }
+
+        if (this->getDirection() == -1)
+        {
+            signal = cur_conn->getSignalBwd();
+        }
+
+        if (signal == Q_NULLPTR)
+        {
+            continue;
+        }
+
+        break;
+    }
+
+    return cur_conn;
 }
 
 //------------------------------------------------------------------------------
