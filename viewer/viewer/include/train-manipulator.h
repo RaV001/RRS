@@ -35,7 +35,7 @@ private:
 
     settings_t      settings;
 
-    osg::Vec3       rel_pos;
+    osg::Vec3d      rel_pos;
     double          angle_H;
     double          angle_V;
 };

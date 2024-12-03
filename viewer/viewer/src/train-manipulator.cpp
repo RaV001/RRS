@@ -6,7 +6,7 @@
 TrainManipulator::TrainManipulator(settings_t settings, QObject *parent)
     : AbstractManipulator(parent)
     , settings(settings)
-    , rel_pos(osg::Vec3f(settings.ext_cam_init_shift,
+    , rel_pos(osg::Vec3d(settings.ext_cam_init_shift,
                          settings.ext_cam_init_height,
                          settings.ext_cam_init_dist))
     , angle_H(static_cast<double>(osg::DegreesToRadians(settings.ext_cam_init_angle_H)))
@@ -20,11 +20,11 @@ TrainManipulator::TrainManipulator(settings_t settings, QObject *parent)
 //------------------------------------------------------------------------------
 osg::Matrixd TrainManipulator::getMatrix() const
 {
-    osg::Matrix matrix;
+    osg::Matrixd matrix;
 
-    matrix *= osg::Matrixf::rotate(-cp.attitude.x(), osg::Vec3(1.0f, 0.0f, 0.0f));
-    matrix *= osg::Matrixf::rotate(-cp.attitude.z() + cp.is_orient_bwd * osg::PIf, osg::Vec3(0.0f, 0.0f, 1.0f));
-    matrix *= osg::Matrixf::translate(cp.position);
+    matrix *= osg::Matrixd::rotate(-cp.attitude.x(), osg::Vec3d(1.0, 0.0, 0.0));
+    matrix *= osg::Matrixd::rotate(-cp.attitude.z() + cp.is_orient_bwd * osg::PI, osg::Vec3d(0.0, 0.0, 1.0));
+    matrix *= osg::Matrixd::translate(cp.position);
 
     return matrix;
 }
@@ -34,11 +34,11 @@ osg::Matrixd TrainManipulator::getMatrix() const
 //------------------------------------------------------------------------------
 osg::Matrixd TrainManipulator::getInverseMatrix() const
 {
-    osg::Matrix invMatrix = osg::Matrix::inverse(getMatrix());
+    osg::Matrixd invMatrix = osg::Matrixd::inverse(getMatrix());
 
-    invMatrix *= osg::Matrix::rotate(osg::PI_2 + angle_H, osg::Vec3(0, 1, 0));
-    invMatrix *= osg::Matrix::rotate(angle_V, osg::Vec3(1, 0, 0));
-    invMatrix *= osg::Matrix::translate(-rel_pos);
+    invMatrix *= osg::Matrixd::rotate(osg::PI_2 + angle_H, osg::Vec3d(0, 1, 0));
+    invMatrix *= osg::Matrixd::rotate(angle_V, osg::Vec3d(1, 0, 0));
+    invMatrix *= osg::Matrixd::translate(-rel_pos);
 
     return invMatrix;
 }

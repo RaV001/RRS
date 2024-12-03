@@ -15,11 +15,6 @@ FreeManipulator::FreeManipulator(settings_t settings, QObject *parent)
     , rel_pos(settings.free_cam_init_pos)
     , angle_H(0.0f)
     , angle_V(0.0f)
-    , pos_X0(0.0f)
-    , pos_Y0(0.0f)
-    , fixed(false)
-    , forward(osg::Vec3())
-    , traverse(osg::Vec3())
     , camera(nullptr)
 {
 
@@ -30,15 +25,13 @@ FreeManipulator::FreeManipulator(settings_t settings, QObject *parent)
 //------------------------------------------------------------------------------
 osg::Matrixd FreeManipulator::getMatrix() const
 {
-    osg::Matrix matrix = osg::Matrix::translate(osg::Vec3f( rel_pos.x(),
-                                                            rel_pos.z(),
-                                                           -rel_pos.y()));
-    float a_x = -init_pos.attitude.x();
-    float a_z = -init_pos.attitude.z();
+    osg::Matrixd matrix = osg::Matrixd::translate(osg::Vec3d( rel_pos.x(),
+                                                              rel_pos.z(),
+                                                              -rel_pos.y() ));
 
-    matrix *= osg::Matrix::rotate(static_cast<double>(a_x), osg::Vec3(1.0f, 0.0f, 0.0f));
-    matrix *= osg::Matrix::rotate(static_cast<double>(a_z), osg::Vec3(0.0f, 0.0f, 1.0f));
-    matrix *= osg::Matrix::translate(init_pos.position);
+    matrix *= osg::Matrixd::rotate(-init_pos.attitude.x(), osg::Vec3d(1.0f, 0.0f, 0.0f));
+    matrix *= osg::Matrixd::rotate(-init_pos.attitude.z(), osg::Vec3d(0.0f, 0.0f, 1.0f));
+    matrix *= osg::Matrixd::translate(init_pos.position);
 
     return matrix;
 }
@@ -48,10 +41,10 @@ osg::Matrixd FreeManipulator::getMatrix() const
 //------------------------------------------------------------------------------
 osg::Matrixd FreeManipulator::getInverseMatrix() const
 {
-    osg::Matrix invMatrix = osg::Matrix::inverse(getMatrix());
+    osg::Matrixd invMatrix = osg::Matrixd::inverse(getMatrix());
 
-    invMatrix *= osg::Matrixf::rotate(angle_H, osg::Y_AXIS);
-    invMatrix *= osg::Matrixf::rotate(angle_V, osg::X_AXIS);
+    invMatrix *= osg::Matrixd::rotate(angle_H, osg::Y_AXIS);
+    invMatrix *= osg::Matrixd::rotate(angle_V, osg::X_AXIS);
 
     return invMatrix;
 }
@@ -96,17 +89,17 @@ bool FreeManipulator::handleKeyDown(const osgGA::GUIEventAdapter &ea,
 {
     Q_UNUSED(aa)
 
-    osg::Vec3 eye, center, up;
+    osg::Vec3d eye, center, up;
     camera->getViewMatrixAsLookAt(eye, center, up, 100.0);
 
-    osg::Vec3 front = center - eye;
+    osg::Vec3d front = center - eye;
     front.z() = 0;
     front.normalize();
 
-    osg::Vec3 traverse = front ^ up;
+    osg::Vec3d traverse = front ^ up;
     traverse.normalize();
 
-    float V = settings.free_cam_speed;
+    double V = settings.free_cam_speed;
 
     if ( (ea.getModKeyMask() == osgGA::GUIEventAdapter::MODKEY_LEFT_SHIFT) ||
          (ea.getModKeyMask() == osgGA::GUIEventAdapter::MODKEY_RIGHT_SHIFT) )
@@ -229,7 +222,7 @@ bool FreeManipulator::handleMousePush(const osgGA::GUIEventAdapter &ea,
                                                  settings.zNear,
                                                  settings.zFar);
 
-        rel_pos = osg::Vec3(settings.free_cam_init_pos);
+        rel_pos = osg::Vec3d(settings.free_cam_init_pos);
         angle_H = angle_V = 0;
     }
 
