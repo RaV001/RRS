@@ -64,7 +64,6 @@ void createTexture(const std::string &texture_path, osg::Texture2D *texture)
     texture->setImage(image.get());    
     texture->setWrap(osg::Texture2D::WRAP_T, osg::Texture::REPEAT);
     texture->setWrap(osg::Texture2D::WRAP_S, osg::Texture::REPEAT);
-    texture->setInternalFormatMode(osg::Texture2D::USE_S3TC_DXT1_COMPRESSION);
     texture->setUnRefImageDataAfterApply(true);    
 }
 
