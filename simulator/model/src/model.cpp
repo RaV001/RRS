@@ -643,6 +643,15 @@ void Model::initControlPanel(QString cfg_path)
         QString secName = "ControlPanel";
         QString module_name = "";
 
+        bool is_allow = true;
+
+        cfg.getBool(secName, "Allow", is_allow);
+
+        if (!is_allow)
+        {
+            return;
+        }
+
         if (!cfg.getString(secName, "Plugin", module_name))
             return;
 
