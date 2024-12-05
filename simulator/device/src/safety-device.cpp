@@ -43,11 +43,6 @@ int SafetyDevice::getStationIndex() const
     return 0;
 }
 
-void SafetyDevice::load_config(CfgReader &cfg)
-{
-    Q_UNUSED(cfg)
-}
-
 SafetyDevice *loadSafetyDevice(QString lib_path)
 {
     SafetyDevice *safety_device = nullptr;

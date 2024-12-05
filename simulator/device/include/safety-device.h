@@ -3,7 +3,8 @@
 
 #include    "device.h"
 #include    "vec3.h"
-#include    "speedmap.h"
+
+class SpeedMap;
 
 class DEVICE_EXPORT SafetyDevice : public Device
 {
@@ -65,10 +66,7 @@ public:
     virtual void setVoltage(double U_pow) = 0;
 
     /// Задать конструкционную скорость
-    virtual setMaxVelocity(double v_max) = 0;
-
-    /// Вернуть скорость поезда в м/с
-    virtual double getVelocityMs() const = 0;
+    virtual void setMaxVelocity(double v_max) = 0;
 
     /// Вернуть скорость поезда в км/ч
     virtual double getVelocityKmh() const = 0;
@@ -91,9 +89,6 @@ public:
     /// Задать длину поезда
     virtual void setTrainLength(double train_length) = 0;
 
-    /// Задать путь к файлам ЭК
-    virtual void setPathMaps(const QString &path) = 0;
-
     /// Задать направление движения поезда(чётное/нечётное)
     virtual void setTrainDirection(int train_dir) = 0;
 
@@ -114,6 +109,9 @@ public:
     /// Вернуть время по графику
     virtual QString getScheduleTime() const = 0;
 
+    /// Задать диаметр колеса
+    virtual void setWheelDiameter(double wheel_diameter) = 0;
+
     /// Задать угловую скороcть колесной пары поезда
     virtual void setOmega(double omega) = 0;
 
@@ -124,9 +122,7 @@ public:
     virtual int getCodeInfoMsg() const = 0;
 
     /// Загрузка станций из ЭК
-    virtual loadStationsMap(const QString &path) = 0;
-
-    void load_config(CfgReader &cfg) override;
+    virtual bool loadStationsMap(const QString &path) = 0;
 };
 
 typedef SafetyDevice* (*GetSafetyDevice)();
