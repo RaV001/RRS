@@ -22,6 +22,7 @@
 #include    <osgViewer/ViewerEventHandlers>
 #include    <osg/LightModel>
 #include    <osgViewer/View>
+#include    <osg/Texture>
 
 #include    <filesystem.h>
 #include    <config-reader.h>
