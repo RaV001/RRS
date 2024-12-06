@@ -49,6 +49,8 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 
     load_config("../cfg/route-map-tcp.xml");
 
+    load_config("../cfg/route-map.xml");
+
     tcp_client->init(tcp_config);
 }
 
@@ -84,6 +86,20 @@ void MainWindow::load_config(const QString &cfg_name)
 
     cfg.getInt(secName, "ReconnectInteval", tcp_config.reconnect_interval);
     cfg.getInt(secName, "RequestInterval", tcp_config.request_interval);
+
+
+    secName = "RouteMap";
+    double tmp_value = 0;
+    cfg.getDouble(secName, "SwitchLength", tmp_value);
+    map->setSwitchLength(tmp_value);
+
+    tmp_value = 0;
+    cfg.getDouble(secName, "SignalRadius", tmp_value);
+    map->setSignalRadius(tmp_value);
+
+    tmp_value = 0;
+    cfg.getDouble(secName, "SignalOffset", tmp_value);
+    map->SetSignalOffset(tmp_value);
 }
 
 //------------------------------------------------------------------------------

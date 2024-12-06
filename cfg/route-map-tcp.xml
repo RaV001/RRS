@@ -6,4 +6,12 @@
 		<ReconnectInterval>100</ReconnectInterval>
 		<RequestInterval>100</RequestInterval>
 	</Client>
+	<RouteMap>
+		<!-- Длина отрисовки выбранной траектории стрелки, м -->
+		<SwitchLength>35.0</SwitchLength>
+		<!-- Радиус у схематичного отображения сигналов светофоров, м -->
+		<SignalRadius>2.0</SignalRadius>
+		<!-- Смещение схематичного светофора вправо от оси пути, м -->
+		<SignalOffset>2.5</SignalOffset>
+	</RouteMap>
 </Config>
