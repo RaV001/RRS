@@ -110,8 +110,8 @@ xcopy /Y /S %DATA_PATH%\animations\freight\*.* %RRS_DEV_ROOT%\data\animations\fr
 xcopy /Y /S %DATA_PATH%\sounds\freight\*.* %RRS_DEV_ROOT%\data\sounds\freight\
 
 rem Дефолтные модели светофоров и конфиги их анимации
-xcopy /Y /S %DATA_PATH%\models\experimental-polygon\*.* %RRS_DEV_ROOT%\data\models\experimental-polygon
-xcopy /Y /S %DATA_PATH%\animations\experimental-polygon\*.* %RRS_DEV_ROOT%\data\animations\experimental-polygon 
+xcopy /Y /S %DATA_PATH%\models\default-objects\*.* %RRS_DEV_ROOT%\data\models\default-objects
+xcopy /Y /S %DATA_PATH%\animations\default-objects\*.* %RRS_DEV_ROOT%\data\animations\default-objects 
 
 rem Шрифты вьювера и темы оформления лаунчера
 
