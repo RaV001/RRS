@@ -39,18 +39,10 @@ private:
 
     settings_t          settings;
     camera_position_t   init_pos;
-    osg::Vec3           rel_pos;
+    osg::Vec3d          rel_pos;
 
     float               angle_H;
     float               angle_V;
-
-    float               pos_X0;
-    float               pos_Y0;
-
-    bool                fixed;
-
-    osg::Vec3f          forward;
-    osg::Vec3f          traverse;
 
     osg::Camera         *camera;    
 };

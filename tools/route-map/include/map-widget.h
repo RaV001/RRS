@@ -42,6 +42,12 @@ public:
 
     void resize(int width, int height);
 
+    void setSwitchLength(double value);
+
+    void setSignalRadius(double value);
+
+    void SetSignalOffset(double value);
+
     double getScale() const
     {
         return scale;
@@ -73,6 +79,15 @@ private:
 
     /// Перемещение вслед за ПЕ
     bool folow_vehicle = true;
+
+    /// Длина отрисовки выбранной траектории стрелки, м
+    double switch_length = 35.0;
+
+    /// Радиус у схематичного отображения сигналов светофоров, м
+    double signal_radius = 2.0;
+
+    /// Смещение схематичного светофора вправо от оси пути, м
+    double signal_offset = 2.5;
 
     void paintEvent(QPaintEvent *event);
 

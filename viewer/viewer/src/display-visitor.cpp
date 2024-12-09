@@ -20,6 +20,7 @@ void DisplayVisitor::apply(osg::Transform &transform)
 
     if (matrix_trans->getName() == display_config.surface_name.toStdString())
     {
+        OSG_INFO << "Founded node for display with name: " << matrix_trans->getName() << std::endl;
         DisplaySurfaceVisitor dsv(dc, display_config);
         dsv.setTraversalMode(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN);
         matrix_trans->accept(dsv);

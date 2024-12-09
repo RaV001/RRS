@@ -1,6 +1,7 @@
 #ifndef     ENTER_SIGNAL_H
 #define     ENTER_SIGNAL_H
 
+#include    <trigger-counter.h>
 #include    <rail-signal.h>
 #include    <combine-releay.h>
 #include    <timer.h>
@@ -180,6 +181,14 @@ protected:
 
     bool is_yellow_wire_ON = false;
 
+    TriggerCounter reset_alsn;
+
+    Trigger set_alsn;
+
+    TriggerCounter free_route;
+
+    Timer *allow_alsn_timer = new Timer(10.0, false);
+
     void preStep(state_vector_t &Y, double t) override;
 
     void ode_system(const state_vector_t &Y,
@@ -208,6 +217,9 @@ private slots:
     void slotCloseTimer();
 
     void slotOnBlinkTimer();
+
+    void slotAllowAlsnTimer();
+
 private:
     Signal * route_control();
     void signal_control();

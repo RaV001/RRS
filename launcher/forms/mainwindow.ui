@@ -80,7 +80,7 @@
                  </widget>
                 </item>
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout" stretch=""/>
+                 <layout class="QHBoxLayout" name="horizontalLayout"/>
                 </item>
                </layout>
               </item>
@@ -261,9 +261,17 @@
             </item>
             <item>
              <widget class="QTableWidget" name="twActiveTrains">
+              <property name="cornerButtonEnabled">
+               <bool>false</bool>
+              </property>
               <column>
                <property name="text">
                 <string>Train</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Direction</string>
                </property>
               </column>
               <column>
@@ -274,11 +282,6 @@
               <column>
                <property name="text">
                 <string>Distance</string>
-               </property>
-              </column>
-              <column>
-               <property name="text">
-                <string>Direction</string>
                </property>
               </column>
              </widget>

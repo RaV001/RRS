@@ -104,12 +104,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     loadTheme();
 
     ui->twActiveTrains->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->twActiveTrains->horizontalHeader()->setSelectionMode(QAbstractItemView::NoSelection);
+    ui->twActiveTrains->horizontalHeader()->setSectionsClickable(false);
     ui->twActiveTrains->verticalHeader()->setDefaultSectionSize(18);
     ui->twActiveTrains->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->twActiveTrains->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->twActiveTrains->setCornerButtonEnabled(false);
+    ui->twActiveTrains->verticalHeader()->setVisible(false);
 
     QIcon icon(":/images/images/RRS_logo.png");
     setWindowIcon(icon);
+
+    ui->btnStart->setEnabled(false);
+    ui->pbAddTrain->setEnabled(false);
+    ui->pbDeleteTrain->setEnabled(false);
 }
 
 //------------------------------------------------------------------------------
@@ -200,26 +208,13 @@ void MainWindow::loadTrainsList(const std::string &trainsDir)
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-void MainWindow::setRouteScreenShot(const QString &path)
+void MainWindow::startSimulator()
 {
-    /*QFileInfo info(path);
-
-    if (!info.exists())
+    if (selectedRouteDirName.isEmpty() || active_trains.empty())
     {
-        ui->lRouteScreenShot->setText(tr("No screenshot"));
         return;
     }
 
-    QImage image(ui->lRouteScreenShot->width(), ui->lRouteScreenShot->height(), QImage::Format_ARGB32);
-    image.load(path);
-    ui->lRouteScreenShot->setPixmap(QPixmap::fromImage(image));*/
-}
-
-//------------------------------------------------------------------------------
-//
-//------------------------------------------------------------------------------
-void MainWindow::startSimulator()
-{
     FileSystem &fs = FileSystem::getInstance();
     QString simPath = SIMULATOR_NAME + EXE_EXP;
 
@@ -229,11 +224,6 @@ void MainWindow::startSimulator()
     QString traj_names = "";
     QString directions = "";
     QString init_coords = "";
-
-    if (active_trains.empty())
-    {
-        return;
-    }
 
     for (auto at = active_trains.begin(); at != active_trains.end(); ++at)
     {
@@ -277,46 +267,6 @@ void MainWindow::startViewer()
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-void MainWindow::loadTrajectories(QString &routeDir)
-{
-    /*QString path = routeDir + QDir::separator() +
-                   "topology" + QDir::separator() +
-                   + "trajectories";
-
-    QDir traj_dir(path);
-
-    QDirIterator traj_files(traj_dir.path(),
-                            QStringList() << "*.traj",
-                            QDir::NoDotAndDotDot | QDir::Files);
-
-
-    while (traj_files.hasNext())
-    {
-        QString fullpath = traj_files.next();
-
-        QFileInfo file_info(fullpath);
-
-    }*/
-}
-
-//------------------------------------------------------------------------------
-//
-//------------------------------------------------------------------------------
-bool MainWindow::isBackward()
-{
-    /*switch (ui->cbDirection->currentIndex())
-    {
-    case 0: return false;
-
-    case 1: return true;
-    }*/
-
-    return false;
-}
-
-//------------------------------------------------------------------------------
-//
-//------------------------------------------------------------------------------
 void MainWindow::loadTheme()
 {
     FileSystem &fs = FileSystem::getInstance();
@@ -343,50 +293,6 @@ void MainWindow::loadTheme()
     }
 }
 
-
-//------------------------------------------------------------------------------
-//
-//------------------------------------------------------------------------------
-void MainWindow::updateActiveTrains()
-{
-    for (int i = 0; i < ui->twActiveTrains->rowCount(); ++i)
-    {
-        QComboBox *waypoint = dynamic_cast<QComboBox *>(ui->twActiveTrains->cellWidget(i, 1));
-        QComboBox *dir = dynamic_cast<QComboBox *>(ui->twActiveTrains->cellWidget(i, 3));
-        QDoubleSpinBox *dist = dynamic_cast<QDoubleSpinBox *>(ui->twActiveTrains->cellWidget(i, 2));
-
-        waypoint->clear();
-        if (dir->currentIndex() == 0)
-        {
-            for (auto tp = fwd_train_positions.begin(); tp != fwd_train_positions.end(); ++tp)
-            {
-                waypoint->addItem((*tp).name);
-                dist->setValue((*tp).traj_coord);
-            }
-
-            if (waypoint->count() != 0)
-            {
-                waypoint->setCurrentIndex(0);
-                active_trains[i].train_position = fwd_train_positions[waypoint->currentIndex()];
-            }
-        }
-        else
-        {
-            for (auto tp = bwd_train_positions.begin(); tp != bwd_train_positions.end(); ++tp)
-            {
-                waypoint->addItem((*tp).name);
-                dist->setValue((*tp).traj_coord);
-            }
-
-            if (waypoint->count() != 0)
-            {
-                waypoint->setCurrentIndex(0);
-                active_trains[i].train_position = bwd_train_positions[waypoint->currentIndex()];
-            }
-        }
-    }
-}
-
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
@@ -399,6 +305,13 @@ void MainWindow::onRouteSelection()
     ui->ptRouteDescription->appendPlainText(routes_info[item_idx].route_description);    
 
     loadTrainPositions(routes_info[item_idx].route_dir_full_path);
+
+    ui->pbAddTrain->setEnabled(ui->lwTrains->currentRow() >= 0);
+
+    if (active_trains.empty())
+    {
+        return;
+    }
 
     updateActiveTrains();
 }
@@ -413,6 +326,8 @@ void MainWindow::onTrainSelection()
     ui->ptTrainDescription->clear();
     selectedTrain = trains_info[item_idx].train_config_path;
     ui->ptTrainDescription->appendPlainText(trains_info[item_idx].description);
+
+    ui->pbAddTrain->setEnabled(ui->lwRoutes->currentRow() >= 0);
 }
 
 //------------------------------------------------------------------------------
@@ -420,14 +335,14 @@ void MainWindow::onTrainSelection()
 //------------------------------------------------------------------------------
 void MainWindow::onStartPressed()
 {
-    // Check is train selected
-    if (selectedTrain.isEmpty())
+    // Check is route selected
+    if (selectedRouteDirName.isEmpty())
     {
         return;
     }
 
-    // Check is route selected
-    if (selectedRouteDirName.isEmpty())
+    // Check are active trains selected
+    if (active_trains.empty())
     {
         return;
     }
@@ -520,12 +435,18 @@ void MainWindow::slotApplyGraphSettings()
 //------------------------------------------------------------------------------
 void MainWindow::slotAddActiveTrain()
 {
-    QTableWidget *tt = ui->twActiveTrains;
+    if (ui->lwRoutes->currentRow() < 0)
+    {
+        return;
+    }
 
     int train_idx = ui->lwTrains->currentRow();
-
     if (train_idx < 0)
+    {
         return;
+    }
+
+    QTableWidget *tt = ui->twActiveTrains;
 
     active_train_t at;
     at.train_info = trains_info[train_idx];
@@ -538,31 +459,38 @@ void MainWindow::slotAddActiveTrain()
     dir->addItem(tr("Forward"));
     dir->addItem(tr("Backward"));
     dir->setCurrentIndex(0);
-
-    connect(dir, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &MainWindow::slotActiveTrainDirectionChange);
-
-    tt->setCellWidget(rowIdx, 3, dir);
+    tt->setCellWidget(rowIdx, 1, dir);
 
     QComboBox *waypoints = new QComboBox(this);
-    tt->setCellWidget(rowIdx, 1, waypoints);
-
-    connect(waypoints, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &MainWindow::slotActiveTrainTrajectoryChange);
+    tt->setCellWidget(rowIdx, 2, waypoints);
 
     QDoubleSpinBox *dist = new QDoubleSpinBox(this);
     dist->setMaximum(40000000.0);
     dist->setDecimals(2);
-    dist->setAlignment(Qt::AlignRight);    
+    dist->setAlignment(Qt::AlignRight);
+    tt->setCellWidget(rowIdx, 3, dist);
 
-    tt->setCellWidget(rowIdx, 2, dist);
+    for (auto tp = fwd_train_positions.begin(); tp != fwd_train_positions.end(); ++tp)
+    {
+        waypoints->addItem((*tp).name);
+    }
+    at.train_position = fwd_train_positions[waypoints->currentIndex()];
+    dist->setValue(fwd_train_positions[waypoints->currentIndex()].traj_coord);
 
     active_trains.push_back(at);
 
-    if (ui->lwRoutes->currentIndex().row() >= 0)
-    {
-        updateActiveTrains();
-    }
+    tt->selectRow(rowIdx);
+
+    ui->btnStart->setEnabled(true);
+    ui->pbDeleteTrain->setEnabled(true);
+
+    connect(dir, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, &MainWindow::slotActiveTrainDirectionChange);
+
+    connect(waypoints, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, &MainWindow::slotActiveTrainTrajectoryChange);
+
+    connect(dist, &QDoubleSpinBox::valueChanged, this, &MainWindow::slotTrainCoordValueChanged);
 }
 
 //------------------------------------------------------------------------------
@@ -580,6 +508,12 @@ void MainWindow::slotDeleteActiveTrain()
         tt->removeRow(index.row());
         active_trains.erase(active_trains.begin() + index.row());
     }
+
+    if (active_trains.empty())
+    {
+        ui->btnStart->setEnabled(false);
+        ui->pbDeleteTrain->setEnabled(false);
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -595,7 +529,41 @@ void MainWindow::slotActiveTrainCellChanged(int row, int column)
 //------------------------------------------------------------------------------
 void MainWindow::slotActiveTrainDirectionChange(int idx)
 {
-    updateActiveTrains();
+    int train_idx = ui->twActiveTrains->currentRow();
+
+    QComboBox *dir = dynamic_cast<QComboBox *>(ui->twActiveTrains->cellWidget(train_idx, 1));
+    QComboBox *waypoints = dynamic_cast<QComboBox *>(ui->twActiveTrains->cellWidget(train_idx, 2));
+    QDoubleSpinBox *dist = dynamic_cast<QDoubleSpinBox *>(ui->twActiveTrains->cellWidget(train_idx, 3));
+
+    waypoints->clear();
+    if (dir->currentIndex() == 0)
+    {
+        for (auto tp = fwd_train_positions.begin(); tp != fwd_train_positions.end(); ++tp)
+        {
+            waypoints->addItem((*tp).name);
+        }
+
+        if (waypoints->count() != 0)
+        {
+            waypoints->setCurrentIndex(0);
+            active_trains[train_idx].train_position = fwd_train_positions[waypoints->currentIndex()];
+            dist->setValue(fwd_train_positions[waypoints->currentIndex()].traj_coord);
+        }
+    }
+    else
+    {
+        for (auto tp = bwd_train_positions.begin(); tp != bwd_train_positions.end(); ++tp)
+        {
+            waypoints->addItem((*tp).name);
+        }
+
+        if (waypoints->count() != 0)
+        {
+            waypoints->setCurrentIndex(0);
+            active_trains[train_idx].train_position = bwd_train_positions[waypoints->currentIndex()];
+            dist->setValue(bwd_train_positions[waypoints->currentIndex()].traj_coord);
+        }
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -608,8 +576,8 @@ void MainWindow::slotActiveTrainTrajectoryChange(int idx)
     if (train_idx < 0)
         return;
 
-    QComboBox *dir = dynamic_cast<QComboBox *>(ui->twActiveTrains->cellWidget(train_idx, 3));
-    QDoubleSpinBox *dist = dynamic_cast<QDoubleSpinBox *>(ui->twActiveTrains->cellWidget(train_idx, 2));
+    QComboBox *dir = dynamic_cast<QComboBox *>(ui->twActiveTrains->cellWidget(train_idx, 1));
+    QDoubleSpinBox *dist = dynamic_cast<QDoubleSpinBox *>(ui->twActiveTrains->cellWidget(train_idx, 3));
 
     train_position_t tp;
 
@@ -627,6 +595,21 @@ void MainWindow::slotActiveTrainTrajectoryChange(int idx)
 
     active_trains[train_idx].train_position = tp;
     dist->setValue(tp.traj_coord);
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+void MainWindow::slotTrainCoordValueChanged(double value)
+{
+    int rowIdx = ui->twActiveTrains->currentRow();
+
+    if (rowIdx < 0)
+    {
+        return;
+    }
+
+    active_trains[rowIdx].train_position.traj_coord = value;
 }
 
 //------------------------------------------------------------------------------
@@ -894,4 +877,47 @@ int MainWindow::getSelectedActiveTrainIndex()
     QModelIndex index = *(selection.end() - 1);
 
     return index.row();
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+void MainWindow::updateActiveTrains()
+{
+    for (int i = 0; i < ui->twActiveTrains->rowCount(); ++i)
+    {
+        QComboBox *dir = dynamic_cast<QComboBox *>(ui->twActiveTrains->cellWidget(i, 1));
+        QComboBox *waypoints = dynamic_cast<QComboBox *>(ui->twActiveTrains->cellWidget(i, 2));
+        QDoubleSpinBox *dist = dynamic_cast<QDoubleSpinBox *>(ui->twActiveTrains->cellWidget(i, 3));
+
+        waypoints->clear();
+        if (dir->currentIndex() == 0)
+        {
+            for (auto tp = fwd_train_positions.begin(); tp != fwd_train_positions.end(); ++tp)
+            {
+                waypoints->addItem((*tp).name);
+            }
+
+            if (waypoints->count() != 0)
+            {
+                waypoints->setCurrentIndex(0);
+                active_trains[i].train_position = fwd_train_positions[waypoints->currentIndex()];
+                dist->setValue(fwd_train_positions[waypoints->currentIndex()].traj_coord);
+            }
+        }
+        else
+        {
+            for (auto tp = bwd_train_positions.begin(); tp != bwd_train_positions.end(); ++tp)
+            {
+                waypoints->addItem((*tp).name);
+            }
+
+            if (waypoints->count() != 0)
+            {
+                waypoints->setCurrentIndex(0);
+                active_trains[i].train_position = bwd_train_positions[waypoints->currentIndex()];
+                dist->setValue(bwd_train_positions[waypoints->currentIndex()].traj_coord);
+            }
+        }
+    }
 }

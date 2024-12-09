@@ -100,7 +100,8 @@ void AutoTrainStopEPK150::ode_system(const state_vector_t &Y,
 
     bool old_emergency_brake = is_emergency_brake;
 
-    is_emergency_brake = (u4 >= 0.5);
+    // Имитируем опускание диафрагмы в камере выдержки времени
+    is_emergency_brake = Y[1] <= 0.15;
 
     if (is_emergency_brake != old_emergency_brake)
     {

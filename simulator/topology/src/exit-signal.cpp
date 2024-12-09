@@ -30,6 +30,7 @@ ExitSignal::ExitSignal(QObject *parent) : Signal(parent)
     yellow_relay->read_config("combine-relay");
     yellow_relay->setInitContactState(YR_SR_CTRL, false);
     yellow_relay->setInitContactState(YR_SRS_PLUS, false);
+    yellow_relay->setInitContactState(YR_ALSN_CTRL, false);
 
     green_relay->read_config("combine-relay");
     green_relay->setInitContactState(GR_SRS_MINUS, false);
@@ -50,6 +51,9 @@ ExitSignal::ExitSignal(QObject *parent) : Signal(parent)
     line_relay->read_config("combine-relay");
     line_relay->setInitContactState(LINE_N_YELLOW, false);
     line_relay->setInitPlusContactState(LINE_PLUS_GREEN, false);
+
+    set_alsn.reset();
+    reset_alsn.reset();
 }
 
 //------------------------------------------------------------------------------
@@ -163,7 +167,21 @@ void ExitSignal::lens_control()
     if (lens_state != old_lens_state)
     {
         emit sendDataUpdate(this->serialize());
-    }    
+    }
+
+    // При снятии запрещающего показания
+    if (!lens_state[RED_LENS] && !set_alsn.getState())
+    {
+        // Взводим тригер разрешения АЛСН для следующего светофора
+        set_alsn.set();
+
+        // И передаем ему состояние этого триггера
+        if (next_signal != Q_NULLPTR)
+        {
+            next_signal->allowTransmitALSN(set_alsn.getState());
+            Journal::instance()->info("Allowed ASLN for " + next_signal->getLetter());
+        }
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -213,50 +231,93 @@ void ExitSignal::removal_area_control()
         return;
     }
 
-    Connector *cur_conn = conn;
 
-    bool is_GR_ON = false;
-    bool is_YR_ON = false;
+    bool is_GR_ON = true;
+    bool is_YR_ON = true;
 
-    // Ищем первый попутный светофор за горловиной
+    // Проверяем занятость 1 участка удаления
+    Connector *cur_conn = check_path_free(conn, is_YR_ON);
+
+    // Проверяем занятость 2 участка удаления
+    cur_conn = check_path_free(cur_conn, is_GR_ON);
+
+    // Отпитываем реле контроля участков приближения
+    yellow_relay->setVoltage(U_bat * static_cast<double>(is_YR_ON && line_relay->getContactState(LINE_N_YELLOW)));
+    green_relay->setVoltage(U_bat * static_cast<double>(is_GR_ON && line_relay->getPlusContactState(LINE_PLUS_GREEN)));
+
+    // Фиксируем факт освобождения 1-го участка удаления
+    // с помощью счетного тригера (взводиться, когда его сигнал меняется
+    // с false на true
+    reset_alsn.set(yellow_relay->getContactState(YR_ALSN_CTRL));
+
+    // Если взведен счетный тригер
+    if (reset_alsn.getState())
+    {
+        // Сбрасываем триггер разрешения АЛСН и счетный триггер
+        set_alsn.reset();
+        reset_alsn.reset();
+
+        Journal::instance()->info("Removal area are free");
+
+        // Сообщаем следующему сигналу чтобы вырубил трансмиттер
+        if (next_signal != Q_NULLPTR)
+        {
+            next_signal->allowTransmitALSN(set_alsn.getState());
+            Journal::instance()->info("Disallowed ASLN for " + next_signal->getLetter());
+        }
+    }
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+Connector *ExitSignal::check_path_free(Connector *cur_conn, bool &is_free)
+{
+    if (cur_conn == Q_NULLPTR)
+    {
+        is_free = false;
+        return cur_conn;
+    }
+
+    is_free = true;
+
     while (true)
     {
         Trajectory *traj = Q_NULLPTR;
 
-        // Берем следующую траекторию
         if (this->getDirection() == 1)
         {
             traj = cur_conn->getFwdTraj();
-
         }
-        else
+
+        if (this->getDirection() == -1)
         {
             traj = cur_conn->getBwdTraj();
         }
 
-        // Если её нет - ехать некуда
         if (traj == Q_NULLPTR)
         {
-            return;
+            is_free = false;
+            return Q_NULLPTR;
         }
 
-        // Берем следующий коннектор
+        is_free = is_free && (!traj->isBusy());
+
         if (this->getDirection() == 1)
         {
             cur_conn = traj->getFwdConnector();
         }
-        else
+
+        if (this->getDirection() == -1)
         {
             cur_conn = traj->getBwdConnector();
         }
 
-        // Если его нет - не будет никаких сигналов дальше, выходим
         if (cur_conn == Q_NULLPTR)
         {
-            return;
+            return Q_NULLPTR;
         }
 
-        // Проверяем, есть ли у коннектора сигнал
         Signal *signal = Q_NULLPTR;
 
         if (this->getDirection() == 1)
@@ -269,72 +330,15 @@ void ExitSignal::removal_area_control()
             signal = cur_conn->getSignalBwd();
         }
 
-        // если нет - это стык или стрелка, продолжаем поиск
         if (signal == Q_NULLPTR)
         {
             continue;
         }
 
-        // Если сигнал попутный - мы у цели
-        if (signal->getDirection() == this->getDirection())
-        {
-            // Берем коннектор сигнала
-            Connector *sig_conn = signal->getConnector();
-
-            // Страхуемся от бяки
-            if (sig_conn == Q_NULLPTR)
-            {
-                break;
-            }
-
-            // Берем траекторию перед сигналом
-            Trajectory *traj = Q_NULLPTR;
-
-            if (this->getDirection() == 1)
-            {
-                traj = sig_conn->getBwdTraj();
-            }
-            else
-            {
-                traj = sig_conn->getFwdTraj();
-            }
-
-            // Если дошли сюда, траектория точно не пустая
-
-            // Определяем занятость первого участка удаления
-            is_YR_ON = !traj->isBusy();
-
-            // Пытаемся найти второй участок удаления, беря траекторию
-            // спереди от коннектора
-            if (this->getDirection() == 1)
-            {
-                traj = sig_conn->getFwdTraj();
-            }
-            else
-            {
-                traj = sig_conn->getBwdTraj();
-            }
-
-            // Нет такой траектории, нет второго участка удаления
-            if (traj == Q_NULLPTR)
-            {
-                break;
-            }
-
-            // Если же есть, проверяем её занятость
-            is_GR_ON = !traj->isBusy();
-
-            break;
-        }
-        else
-        {
-            break;
-        }
+        break;
     }
 
-    // Отпитываем реле контроля участков приближения
-    yellow_relay->setVoltage(U_bat * static_cast<double>(is_YR_ON && line_relay->getContactState(LINE_N_YELLOW)));
-    green_relay->setVoltage(U_bat * static_cast<double>(is_GR_ON && line_relay->getPlusContactState(LINE_PLUS_GREEN)));
+    return cur_conn;
 }
 
 //------------------------------------------------------------------------------
@@ -429,7 +433,7 @@ void ExitSignal::route_control(Signal **next_signal)
 
         // Стрелка не по маршруту? Ловить нечего - выходим из поиска
         if (!is_switches_correct)
-        {
+        {            
             break;
         }
 
@@ -544,7 +548,14 @@ void ExitSignal::relay_control()
     // Напряжение, даваемое в линию входному
     double U_line_old = U_line_prev;
 
-    U_dsr = U_bat * static_cast<double>(allow_relay->getContactState(AR_OPEN));
+    U_dsr = U_bat * static_cast<double>(allow_relay->getContactState(AR_OPEN));    
+
+    // Линейное напряжение для следующего сигнала
+    double is_line_ON = static_cast<double>(fwd_way_relay->getContactState(FWD_BUSY));
+    double is_line_plus = static_cast<double>(!lens_state[RED_LENS]);
+    double is_line_minus = static_cast<double>(lens_state[RED_LENS]);
+
+    U_line_prev = U_bat * (is_line_plus - is_line_minus) * is_line_ON;
 
     if (qAbs(U_line_prev - U_line_old))
     {
@@ -559,7 +570,7 @@ void ExitSignal::relay_control()
     else
     {
         blink_timer->stop();
-    }
+    }    
 
     // Динамическая передача линейного напряжения, так как заранее не ясно
     // какой сигнал будет следующим
@@ -574,6 +585,12 @@ void ExitSignal::relay_control()
 //------------------------------------------------------------------------------
 void ExitSignal::alsn_control()
 {
+    if (!is_asln_transmit)
+    {
+        alsn_reset();
+        return;
+    }
+
     bool is_ALSN_RY_ON = semaphore_signal_relay->getContactState(SRS_N_RED);
 
     alsn_RY_relay->setVoltage(U_bat * static_cast<double>(is_ALSN_RY_ON));

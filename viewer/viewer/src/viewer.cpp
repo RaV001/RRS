@@ -22,6 +22,7 @@
 #include    <osgViewer/ViewerEventHandlers>
 #include    <osg/LightModel>
 #include    <osgViewer/View>
+#include    <osg/Texture>
 
 #include    <filesystem.h>
 #include    <config-reader.h>
@@ -165,6 +166,10 @@ bool RouteViewer::init(int argc, char *argv[])
 {
     FileSystem &fs = FileSystem::getInstance();
 
+    osgDB::DatabasePager *dp = viewer.getDatabasePager();
+    dp->setDoPreCompile(true);
+    dp->setTargetMaximumNumberOfPageLOD(1000);
+
     // Read settings from config file
     settings = loadSettings(fs.getConfigDir() + fs.separator() + "settings.xml");
 
@@ -240,11 +245,7 @@ bool RouteViewer::init(int argc, char *argv[])
     // Серия скриншотов отключена из-за просадки производительности
     screenCaptureHandler->setKeyEventToggleContinuousCapture(-1);
 
-    viewer.addEventHandler(screenCaptureHandler.get());        
-
-    osgDB::DatabasePager *dp = viewer.getDatabasePager();
-    dp->setDoPreCompile(true);
-    dp->setTargetMaximumNumberOfPageLOD(1000);    
+    viewer.addEventHandler(screenCaptureHandler.get());            
 
     return true;
 }

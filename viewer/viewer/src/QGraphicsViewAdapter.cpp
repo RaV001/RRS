@@ -484,7 +484,7 @@ bool QGraphicsViewAdapter::handleKeyEvent(int key, bool keyDown)
 
 void QGraphicsViewAdapter::setFrameLastRendered(const osg::FrameStamp* frameStamp)
 {
-    OSG_INFO<<"setFrameLastRendered("<<frameStamp->getFrameNumber()<<")"<<std::endl;
+    //OSG_INFO<<"setFrameLastRendered("<<frameStamp->getFrameNumber()<<")"<<std::endl;
 
     if (_newImageAvailable && _previousFrameNumber!=frameStamp->getFrameNumber())
     {
@@ -544,6 +544,13 @@ void QGraphicsViewAdapter::render()
     }
 
 #if 1
+    // Clear the image otherwise there are artifacts for some widgets that overpaint.
+    image.fill(_backgroundColor);
+
+    // Render image from widget
+    QRect sourceRect(0, 0, image.width(), image.height());
+    _widget->render(&image, {0,0}, sourceRect);
+#elif 1
     // paint the image with the graphics view
     QPainter painter(&image);
 
@@ -590,7 +597,7 @@ void QGraphicsViewAdapter::assignImage(unsigned int i)
     QImage& image = _qimages[i];
     unsigned char* data = image.bits();
 
-    OSG_INFO<<"assignImage("<<i<<") image = "<<&image<<" size = ("<<image.width()<<","<<image.height()<<") data = "<<(void*)data<<std::endl;
+    //OSG_INFO<<"assignImage("<<i<<") image = "<<&image<<" size = ("<<image.width()<<","<<image.height()<<") data = "<<(void*)data<<std::endl;
 
     _image->setImage(image.width(), image.height(), 1,
                      4, GL_RGBA, GL_UNSIGNED_BYTE,

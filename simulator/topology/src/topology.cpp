@@ -420,22 +420,22 @@ QByteArray Topology::serialize()
         stream << sdata;
     }
 
-    // Указываем число коннекторов
-    stream << switches.size();
-
-    // Складываем в буффер сериализованную информацию о коннекторах
-    for (auto sw = switches.begin(); sw != switches.end(); ++sw)
-    {
-        stream << sw.value()->serialize();
-    }
-
+    // Указываем число траекторий
     stream << traj_list.size();
 
+    // Складываем в буфер сериализованную информацию о траекториях
     for (auto traj = traj_list.begin(); traj != traj_list.end(); ++traj)
     {
         stream << traj.value()->serialize();
-        serialize_connector_name(stream, traj.value()->getFwdConnector());
-        serialize_connector_name(stream, traj.value()->getBwdConnector());
+    }
+
+    // Указываем число коннекторов
+    stream << switches.size();
+
+    // Складываем в буфер сериализованную информацию о коннекторах
+    for (auto sw = switches.begin(); sw != switches.end(); ++sw)
+    {
+        stream << sw.value()->serialize();
     }
 
     return data.data();
@@ -469,32 +469,37 @@ void Topology::deserialize(QByteArray &data)
     traj_list.clear();
     switches.clear();
 
+    // Число траекторий
+    qsizetype traj_count = 0;
+    stream >> traj_count;
+
+    // Создаём все траектории
+    for (qsizetype i = 0; i < traj_count; ++i)
+    {
+        Trajectory *traj = new Trajectory;;
+
+        QByteArray traj_data;
+        stream >> traj_data;
+        traj->deserialize(traj_data);
+
+        traj_list.insert(traj->getName(), traj);
+    }
+
+    // Число коннекторов
     qsizetype conn_count = 0;
     stream >> conn_count;
 
+    // Создаём все коннекторы
     for (qsizetype i = 0; i < conn_count; ++i)
     {
         Switch *sw = new Switch;
 
         QByteArray conn_data;
         stream >> conn_data;
-
         sw->deserialize(conn_data, traj_list);
 
         switches.insert(sw->getName(), sw);
     }
-
-    qsizetype traj_count = 0;
-    stream >> traj_count;
-
-    for (auto traj : traj_list)
-    {
-        QByteArray traj_data;
-        stream >> traj_data;
-        traj->deserialize(traj_data);
-        traj->setFwdConnector(deserialize_traj_connectors(stream, switches));
-        traj->setBwdConnector(deserialize_traj_connectors(stream, switches));
-    }    
 }
 
 //------------------------------------------------------------------------------
@@ -687,30 +692,24 @@ void Topology::load_signals(CfgReader &cfg, QDomNode secNode, Connector *conn)
         signal_dir_bwd = -1;
     }
 
-    QString tmp = "";
-    cfg.getString(secNode, "RelPosVector", tmp);
-
-    if (tmp.isEmpty())
-    {
-        return;
-    }
-
-    dvec3 rel_pos;
-    strignToVector(tmp, rel_pos);
-
-    cfg.getString(secNode, "RelRotVector", tmp);
-
-    if (tmp.isEmpty())
-    {
-        return;
-    }
-
-    dvec3 rel_rot;
-    strignToVector(tmp, rel_rot);
-
-
     if (signal_dir_fwd == 1)
     {
+        QString tmp;
+        dvec3 rel_pos = {0.0, 0.0, 0.0};
+        dvec3 rel_rot = {0.0, 0.0, 0.0};
+
+        tmp = "";
+        cfg.getString(secNode, "RelPosVectorFwd", tmp);
+
+        if (!tmp.isEmpty())
+            strignToVector(tmp, rel_pos);
+
+        tmp = "";
+        cfg.getString(secNode, "RelRotVectorFwd", tmp);
+
+        if (!tmp.isEmpty())
+            strignToVector(tmp, rel_rot);
+
         QString signal_letter = "";
         cfg.getString(secNode, "SignalLiterFwd", signal_letter);
 
@@ -771,6 +770,22 @@ void Topology::load_signals(CfgReader &cfg, QDomNode secNode, Connector *conn)
 
     if (signal_dir_bwd == -1)
     {
+        QString tmp;
+        dvec3 rel_pos = {0.0, 0.0, 0.0};
+        dvec3 rel_rot = {0.0, 0.0, 0.0};
+
+        tmp = "";
+        cfg.getString(secNode, "RelPosVectorBwd", tmp);
+
+        if (!tmp.isEmpty())
+            strignToVector(tmp, rel_pos);
+
+        tmp = "";
+        cfg.getString(secNode, "RelRotVectorBwd", tmp);
+
+        if (!tmp.isEmpty())
+            strignToVector(tmp, rel_rot);
+
         QString signal_letter = "";
         cfg.getString(secNode, "SignalLiterBwd", signal_letter);
 

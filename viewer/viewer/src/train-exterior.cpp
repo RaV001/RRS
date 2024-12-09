@@ -119,6 +119,8 @@ bool TrainExteriorHandler::handle(const osgGA::GUIEventAdapter &ea,
 
             moveCamera(viewer, delta_time);
 
+            updateDisplays();
+
             break;
         }
 
@@ -375,13 +377,12 @@ void TrainExteriorHandler::load(const simulator_info_t &info_data)
 
         anim_managers.push_back(new AnimationManager(vehicle_ext.anims));
 
-        loadDisplays(cfg_dir, cabine.get(), *vehicle_ext.displays);
+        loadDisplays(cfg_dir, vehicle_model.get(), *vehicle_ext.displays);
 
         vehicles_ext.push_back(vehicle_ext);
         trainExterior->addChild(vehicle_ext.transform.get());
         OSG_FATAL << "Vehicle " << i + 1 << " / " << count << " loaded" << std::endl;
     }
-    this->startTimer(100);
 }
 
 //------------------------------------------------------------------------------
@@ -782,7 +783,11 @@ void TrainExteriorHandler::loadDisplays(const std::string &configDir,
 
     ConfigReader displays_cfg(cfg_path);
 
-    if (!displays_cfg.isOpenned())
+    if (displays_cfg.isOpenned())
+    {
+        OSG_INFO << "Loaded file " << cfg_path << std::endl;
+    }
+    else
     {
         OSG_FATAL << "File " << cfg_path << " is't found" << std::endl;
         return;
@@ -808,6 +813,9 @@ void TrainExteriorHandler::loadDisplays(const std::string &configDir,
             osgDB::XmlNode *surface_name_node = displays_cfg.findSection(display_node, "SurfaceName");
             display_config.surface_name = QString(surface_name_node->contents.c_str());
 
+            osgDB::XmlNode *upd_interval_node = displays_cfg.findSection(display_node, "UpdateInterval");
+            display_config.update_interval = QString(upd_interval_node->contents.c_str()).toDouble();
+
             display_config.texcoord = new osg::Vec2Array;
             size_t i = 0;
 
@@ -832,10 +840,18 @@ void TrainExteriorHandler::loadDisplays(const std::string &configDir,
             loadDisplayModule(display_config, dc, model);
 
             if (dc->display == nullptr)
+            {
+                OSG_FATAL << "Fail to load display module " << module_path << std::endl;
                 continue;
+            }
+            else
+            {
+                OSG_INFO << "Loaded display module " << module_path << std::endl;
+            }
 
             dc->display->setConfigDir(QString(vehicle_config_dir.c_str()));
             dc->display->setRouteDir(QString(settings.route_dir_full_path.c_str()));
+            dc->display->setUpdateInterval(display_config.update_interval);
             dc->display->init();
 
             displays.push_back(dc);
@@ -846,13 +862,20 @@ void TrainExteriorHandler::loadDisplays(const std::string &configDir,
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-void TrainExteriorHandler::timerEvent(QTimerEvent *)
+void TrainExteriorHandler::updateDisplays()
 {
     if ((old_data == -1) || (new_data == -1))
         return;
-
+/*
     if (is_displays_locked)
         return;
+*/
+    double dt = update_data[new_data].time - prev_time_display_upd;
+    if (dt < 0.1)
+        return;
+
+    double t = update_data[new_data].time;
+    prev_time_display_upd = t;
 
     for (size_t i = 0; i < vehicles_ext.size(); ++i)
     {
@@ -860,6 +883,7 @@ void TrainExteriorHandler::timerEvent(QTimerEvent *)
         {
             display_container_t *dc = *it;
             dc->display->setInputSignals(update_data[new_data].vehicles[i].analogSignal);
+            dc->display->update(t, dt);
         }
     }
 }

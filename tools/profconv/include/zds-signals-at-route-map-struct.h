@@ -5,12 +5,15 @@
 #include    <vector>
 
 #include    "vec3.h"
+#include    "zds-route-map-struct.h"
 
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
 struct zds_signal_position_t
 {
+    zds_object_position_t *zds_object_pos = nullptr;
+
     std::string obj_name = "";
     dvec3       position = dvec3(0.0, 0.0, 0.0);
     dvec3       attitude = dvec3(0.0, 0.0, 0.0);

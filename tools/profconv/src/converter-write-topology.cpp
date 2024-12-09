@@ -70,8 +70,13 @@ void addTopologyNode(CfgEditor &editor, split_zds_trajectory_t* connector, size_
         if (!bwd_type.isEmpty())
         {
             flist.append(QPair<QString, QString>("SignalModelBwd", "ab_" + bwd_type.right(4)));
-            flist.append(QPair<QString, QString>("RelPosVector", "2.5 0.0 0.0"));
-            flist.append(QPair<QString, QString>("RelRotVector", "0.0 0.0 0.0"));
+
+            if (connector->is_signal_bwd_left)
+                flist.append(QPair<QString, QString>("RelPosVectorBwd", "-2.5 -2.75 0.0"));
+            else
+                flist.append(QPair<QString, QString>("RelPosVectorBwd", "2.5 -2.75 0.0"));
+
+            flist.append(QPair<QString, QString>("RelRotVectorBwd", "0.0 0.0 0.0"));
         }
     }
     // Светофор вперёд
@@ -83,8 +88,13 @@ void addTopologyNode(CfgEditor &editor, split_zds_trajectory_t* connector, size_
         if (!fwd_type.isEmpty())
         {
             flist.append(QPair<QString, QString>("SignalModelFwd", "ab_" + fwd_type.right(4)));
-            flist.append(QPair<QString, QString>("RelPosVector", "2.5 0.0 0.0"));
-            flist.append(QPair<QString, QString>("RelRotVector", "0.0 0.0 0.0"));
+
+            if (connector->is_signal_fwd_left)
+                flist.append(QPair<QString, QString>("RelPosVectorFwd", "-2.5 -2.75 0.0"));
+            else
+                flist.append(QPair<QString, QString>("RelPosVectorFwd", "2.5 -2.75 0.0"));
+
+            flist.append(QPair<QString, QString>("RelRotVectorFwd", "0.0 0.0 0.0"));
         }
     }
     //editor.writeFile("Joint", flist);
@@ -116,7 +126,7 @@ void ZDSimConverter::writeTopologyConnectors()
         ++i;
         addTopologyNode(editor, connector, i);
     }
-    // Соединения главного пути "обратно" и однопутных участков
+    // Соединения главного пути "обратно"
     for (auto connector : split_data2)
     {
         ++i;

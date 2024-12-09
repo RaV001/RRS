@@ -137,6 +137,12 @@ void LineSignal::yellow_blink_control()
 //------------------------------------------------------------------------------
 void LineSignal::alsn_control()
 {
+    if (!is_asln_transmit)
+    {
+        alsn_reset();
+        return;
+    }
+
     bool is_ALSN_RY_ON = line_relay->getContactState(LR_NEUTRAL_PROHIBITING);
 
     alsn_RY_relay->setVoltage(U_bat * static_cast<double>(is_ALSN_RY_ON));

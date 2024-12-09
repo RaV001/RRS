@@ -26,6 +26,7 @@ void ZDSimConverter::writeStations(const zds_start_km_data_t &waypoints)
 
     QTextStream stream(&file);
     stream.setEncoding(QStringConverter::Utf8);
+    stream.setRealNumberNotation(QTextStream::FixedNotation);
 
     for (auto station = waypoints.begin(); station != waypoints.end(); ++station)
     {

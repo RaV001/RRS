@@ -150,6 +150,20 @@ CmdLineParseResult ZDSimConverter::parseCommandLine(int argc, char *argv[])
     trajectoriesDir = toNativeSeparators(compinePath(topologyDir, DIR_TRAJECTORIES));
     topology.mkpath(trajectoriesDir.c_str());
 
+    // Бэкап расстановки объектов
+    if (topology.exists(DIR_ROUTE1MAP.c_str()))
+    {
+        std::string backup = FILE_BACKUP_PREFIX + DIR_ROUTE1MAP + FILE_BACKUP_EXTENTION;
+        if (topology.exists(backup.c_str()))
+        {
+            std::string old_backup_path = compinePath(topologyDir, backup);
+            QDir(old_backup_path.c_str()).removeRecursively();
+        }
+        topology.rename(DIR_ROUTE1MAP.c_str(), backup.c_str());
+    }
+    route1mapDir = toNativeSeparators(compinePath(topologyDir, DIR_ROUTE1MAP));
+    topology.mkpath(route1mapDir.c_str());
+
     // Бэкап карты АЛСН
     if (topology.exists(DIR_ALSN_MAP.c_str()))
     {
@@ -395,6 +409,10 @@ bool ZDSimConverter::conversion(const std::string &routeDir)
         // Координаты центральных точек станций
         writeStations(start_km_data);
     }
+
+    writeMap();
+
+    writeModelsConfig();
 
     writeALSN();
 

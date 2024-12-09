@@ -116,6 +116,10 @@ public:
 
     bool calcPosition(dvec3 &pos);
 
+    void allowTransmitALSN(bool is_allow)
+    {
+        is_asln_transmit = is_allow;
+    }
 
 signals:
 
@@ -210,10 +214,16 @@ protected:
 
     Relay *alsn_G_relay = new Relay(NUM_ALSN_G_CONTACTS);
 
+    /// Признак работы путевого трансмитера
+    bool is_asln_transmit = true;
+
     void load_config(CfgReader &cfg) override;
 
     /// Получить координаты коннектора и трек, лежащий за светофором
     bool getConnectorPos(Connector *conn, dvec3 &conn_pos, track_t &track);
+
+    /// Сброс кода путевого трансмитера
+    void alsn_reset();
 
 public slots:
 

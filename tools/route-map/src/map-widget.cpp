@@ -31,6 +31,30 @@ void MapWidget::resize(int width, int height)
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
+void MapWidget::setSwitchLength(double value)
+{
+    switch_length = value;
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+void MapWidget::setSignalRadius(double value)
+{
+    signal_radius = value;
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+void MapWidget::SetSignalOffset(double value)
+{
+    signal_offset = value;
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
 void MapWidget::paintEvent(QPaintEvent *event)
 {
     if (traj_list == Q_NULLPTR)
@@ -43,19 +67,29 @@ void MapWidget::paintEvent(QPaintEvent *event)
         return;
     }
 
-    if (train_data == Q_NULLPTR)
-    {
-        return;
-    }
-
     for (auto traj : *traj_list)
     {
         drawTrajectory(traj);
     }
 
-    drawConnectors(conn_list);
+    if (train_data == Q_NULLPTR)
+    {
+        return;
+    }
+
+    if (folow_vehicle)
+    {
+        int curr = train_data->current_vehicle;
+
+        map_shift.setX(- train_data->vehicles[curr].position_y * scale);
+        map_shift.setY(- train_data->vehicles[curr].position_x * scale);
+    }
 
     drawTrain(train_data);
+
+    drawConnectors(conn_list);
+
+    drawSignals(signals_data);
 
     if (stations == Q_NULLPTR)
     {
@@ -63,8 +97,6 @@ void MapWidget::paintEvent(QPaintEvent *event)
     }
 
     drawStations(stations);
-
-    drawSignals(signals_data);
 }
 
 //------------------------------------------------------------------------------
@@ -130,13 +162,13 @@ void MapWidget::drawVehicle(simulator_vehicle_update_t &vehicle, QColor color)
     p.setPen(pen);
 
     dvec3 fwd;
-    fwd.x = vehicle.position_x + vehicle.orth_x * (vehicle.length / 2.0 - 0.45);
-    fwd.y = vehicle.position_y + vehicle.orth_y * (vehicle.length / 2.0 - 0.45);
+    fwd.x = vehicle.position_x + vehicle.orth_x * (vehicle.length / 2.0 - 0.51);
+    fwd.y = vehicle.position_y + vehicle.orth_y * (vehicle.length / 2.0 - 0.51);
     fwd.z = 0;
 
     dvec3 bwd;
-    bwd.x = vehicle.position_x - vehicle.orth_x * (vehicle.length / 2.0 - 0.45);
-    bwd.y = vehicle.position_y - vehicle.orth_y * (vehicle.length / 2.0 - 0.45);
+    bwd.x = vehicle.position_x - vehicle.orth_x * (vehicle.length / 2.0 - 0.51);
+    bwd.y = vehicle.position_y - vehicle.orth_y * (vehicle.length / 2.0 - 0.51);
     bwd.z = 0;
 
     QPoint fwd_point = coord_transform(fwd);
@@ -240,7 +272,7 @@ void MapWidget::drawConnector(Connector *conn)
             painter.begin(this);
             painter.setPen(pen);
 
-            double conn_length_fwd = std::min(35.0, fwd_traj->getLength());
+            double conn_length_fwd = std::min(switch_length, std::max(fwd_traj->getLength() - 1.0, 15.0));
             dvec3 fwd = center;
             QPoint fwd_point = center_point;
             track_t track_next = fwd_track;
@@ -294,7 +326,7 @@ void MapWidget::drawConnector(Connector *conn)
             painter.begin(this);
             painter.setPen(pen);
 
-            double conn_length_bwd = std::min(35.0, bwd_traj->getLength());
+            double conn_length_bwd = std::min(switch_length, std::max(bwd_traj->getLength() - 1.0, 15.0));
             dvec3 bwd = center;
             QPoint bwd_point = center_point;
             track_t track_next = bwd_track;
@@ -414,8 +446,8 @@ void MapWidget::drawEnterSignal(Signal *signal)
         signal_label = signal_labels_bwd.value(conn->getName(), Q_NULLPTR);
     }
 
-    double radius = 2.5;
-    double right_shift = 3.5;
+    double radius = signal_radius;
+    double right_shift = signal_offset;
     bottom_signal_pos += track.trav * (right_shift * signal->getDirection());
     dvec3 w_signal_pos = bottom_signal_pos + track.orth * (2 * radius * signal->getDirection());
     dvec3 by_signal_pos = bottom_signal_pos + track.orth * (4 * radius * signal->getDirection());
@@ -551,8 +583,8 @@ void MapWidget::drawExitSignal(Signal *signal)
         signal_label = signal_labels_bwd.value(conn->getName(), Q_NULLPTR);
     }
 
-    double radius = 2.5;
-    double right_shift = 3.5;
+    double radius = signal_radius;
+    double right_shift = signal_offset;
     bottom_signal_pos += track.trav * (right_shift * signal->getDirection());
     dvec3 r_signal_pos = bottom_signal_pos + track.orth * (2 * radius * signal->getDirection());
     dvec3 g_signal_pos = bottom_signal_pos + track.orth * (4 * radius * signal->getDirection());
@@ -668,8 +700,8 @@ void MapWidget::drawLineSignal(Signal *signal)
         signal_label = signal_labels_bwd.value(conn->getName(), Q_NULLPTR);
     }
 
-    double radius = 2.5;
-    double right_shift = 3.5;
+    double radius = signal_radius;
+    double right_shift = signal_offset;
     bottom_signal_pos += track.trav * (right_shift * signal->getDirection());
     dvec3 r_signal_pos = bottom_signal_pos + track.orth * (2 * radius * signal->getDirection());
     dvec3 g_signal_pos = bottom_signal_pos + track.orth * (4 * radius * signal->getDirection());
@@ -744,14 +776,9 @@ QPoint MapWidget::coord_transform(dvec3 point)
 {
     QPoint p;
 
-    if (folow_vehicle)
-    {
-        int curr = train_data->current_vehicle;
-
-        map_shift.setX(- train_data->vehicles[curr].position_y * scale);
-        map_shift.setY(- train_data->vehicles[curr].position_x * scale);
-    }
-
+    // У маршрутов направление вперёд в основном по оси Y,
+    // отрисовываем его слева направо - по оси X виджета,
+    // т.е. меняем оси местами
     p.setX(this->width() / 2 + map_shift.x() + scale * point.y);
     p.setY(this->height() / 2 + map_shift.y() + scale * point.x);
 
@@ -763,18 +790,26 @@ QPoint MapWidget::coord_transform(dvec3 point)
 //------------------------------------------------------------------------------
 void MapWidget::wheelEvent(QWheelEvent *event)
 {
+    // Вектор из центра карты к курсору
+    QPointF mouse_pos = QPointF(width() / 2.0 - event->position().x(),
+                                height() / 2.0 - event->position().y());
+
     if ((event->angleDelta().y() > 0) && (scale < 16.0))
     {
         scale *= scale_inc_step_coeff;
-        map_shift = map_shift * scale_inc_step_coeff;
-        prev_map_shift = prev_map_shift * scale_inc_step_coeff;
+
+        QPoint shift_by_mouse_pos = QPointF(mouse_pos * (scale_inc_step_coeff - 1.0)).toPoint();
+        map_shift = map_shift * scale_inc_step_coeff + shift_by_mouse_pos;
+        prev_map_shift = prev_map_shift * scale_inc_step_coeff + shift_by_mouse_pos;
     }
 
     if ((event->angleDelta().y() < 0) && (scale > 0.25))
     {
         scale *= scale_dec_step_coeff;
-        map_shift = map_shift * scale_dec_step_coeff;
-        prev_map_shift = prev_map_shift * scale_dec_step_coeff;
+
+        QPoint shift_by_mouse_pos = QPointF(mouse_pos * (scale_dec_step_coeff - 1.0)).toPoint();
+        map_shift = map_shift * scale_dec_step_coeff + shift_by_mouse_pos;
+        prev_map_shift = prev_map_shift * scale_dec_step_coeff + shift_by_mouse_pos;
     }
 
     event->accept();
