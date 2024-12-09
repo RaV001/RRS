@@ -14,7 +14,7 @@ set(CMAKE_AUTOUIC ON)
 # Путь, куда надо сложить собранное
 set (LIBRARY_OUTPUT_PATH "../../../../modules")
 # Указываем не добавлять к имени бинарника никаких префиксов
-set (CMAKE_SHARED_LIBRARY_PREFIX "")
+set (CMAKE_SHARED_MODULE_PREFIX "")
 
 # Ищем зависимости Qt6
 find_package(Qt6 COMPONENTS Xml REQUIRED)
