@@ -123,6 +123,14 @@ public:
 
     /// Загрузка станций из ЭК
     virtual bool loadStationsMap(const QString &path) = 0;
+
+    enum
+    {
+        NUM_SOUNDS = 3,
+        ON_SOUND = 0,
+        BUTTON_SOUND = 1,
+        OVER_SPEED = 2
+    };
 };
 
 typedef SafetyDevice* (*GetSafetyDevice)();

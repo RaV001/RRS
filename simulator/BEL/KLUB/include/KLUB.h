@@ -173,14 +173,6 @@ private:
 
     enum
     {
-        NUM_SOUNDS = 3,
-        ON_SOUND = 0,
-        BUTTON_SOUND = 1,
-        OVER_SPEED = 2
-    };
-
-    enum
-    {
         STATION_MAX_SYMBOLS = 8,
         INFO_MAX_SYMBOLS = 24,
     };
@@ -254,9 +246,6 @@ private:
 
     /// Положение центра локомотива в пространстве
     dvec3   coord = {0.0, 0.0, 0.0};
-
-    /// Радиус поиска ближайшей станции
-    double  station_search_radius = 3000.0;
 
     double  train_length = 22.532;
 
@@ -349,7 +338,7 @@ private:
     bool    is_working_TSKBM_device = true;
 
     /// Флаг работы устройства в режиме ЭК
-    bool    is_mode_EK = false;
+    bool    is_mode_EK = true;
 
     /// Состояние срыва ЭПК
     bool    failure_EPK_state = false;

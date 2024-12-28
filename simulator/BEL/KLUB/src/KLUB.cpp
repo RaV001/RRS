@@ -10,6 +10,8 @@
 const QString KLUB_CFG = "KLUB-config";
 
 constexpr double SPEED_START_MOVEMENT = 2.0;
+/// Радиус поиска ближайшей станции
+constexpr double STATION_SEARCH_RADIUS = 3000.0;
 constexpr double EPS_SPEED = 0.1;
 constexpr double TRAIN_STOP_EPS_SPEED = 0.001;
 
@@ -882,7 +884,9 @@ void KLUB::calcSpeedLimits()
 
     double v_lim = V_green;
 
-    limit_dist = pf(train_dir * (V_target_lim.coord - rail_coord));
+    // limit_dist = pf(train_dir * (V_target_lim.coord - rail_coord));
+
+    limit_dist = V_target_lim.coord;
 
     if(V_permissible_lim.value > V_target_lim.value)
     {
@@ -975,17 +979,21 @@ void KLUB::limitsALSN(speed_limit_t &V_permissible_lim, speed_limit_t &V_target_
 
     case ALSN::YELLOW:
     {
-        V_target_lim.coord = rail_coord + distance_target * train_dir;
-        V_target_lim.value = klub_cfg.V_yellow;
+        V_target_lim.coord = distance_target;
+
+        if(V_target_lim.value > klub_cfg.V_yellow)
+            V_target_lim.value = klub_cfg.V_yellow;
+
         break;
     }
 
     case ALSN::RED_YELLOW:
     {
         // Максимально допустимая скорость движения на участке - допустимая скорость движения при жёлтом сигнале
-        V_permissible_lim.value = klub_cfg.V_yellow;
+        if(V_permissible_lim.value > klub_cfg.V_yellow)
+            V_permissible_lim.value = klub_cfg.V_yellow;
 
-        V_target_lim.coord = rail_coord + distance_target * train_dir;
+        V_target_lim.coord = distance_target;
         V_target_lim.value = 0.0;
         break;
     }
@@ -995,7 +1003,7 @@ void KLUB::limitsALSN(speed_limit_t &V_permissible_lim, speed_limit_t &V_target_
         if((old_code_alsn == ALSN::RED_YELLOW) && isMove())
         {
             // Срыв ЭПК при движении на красный
-            V_permissible_lim.coord = V_target_lim.coord = rail_coord + distance_target * train_dir;
+            V_permissible_lim.coord = V_target_lim.coord = distance_target;
             V_permissible_lim.value = V_target_lim.value = 0.0;
         }
         else
@@ -1003,7 +1011,7 @@ void KLUB::limitsALSN(speed_limit_t &V_permissible_lim, speed_limit_t &V_target_
             if(!is_red.getState())
             {
                 // Срыв ЭПК при движении > 40 км/ч на белый
-                V_target_lim.coord = rail_coord + distance_target * train_dir;
+                V_target_lim.coord = distance_target;
                 V_target_lim.value = 40.0;
             }
         }
@@ -1023,7 +1031,8 @@ void KLUB::stations_process()
     if(stations.empty())
         return;
 
-    double min_distance = station_search_radius;
+    double min_distance = STATION_SEARCH_RADIUS;
+
     for(size_t i = 0; i < stations.size(); ++i)
     {
         double distance = length(coord - stations[i].coord);
