@@ -501,10 +501,15 @@ bool KLUB::checkVigStartMoveProhibiting()
     return is_start_move_prohibiting && code_alsn < ALSN::YELLOW && isMove() ? true : false;
 }
 
+bool KLUB::isALSNChange()
+{
+    return code_alsn != old_code_alsn ? true : false;
+}
+
 bool KLUB::checkVigChangingALSN()
 {
     // Проверка бдительности при смене сигнала АЛСН на КЖ и Б
-    if(code_alsn < old_code_alsn && code_alsn < ALSN::YELLOW)
+    if(isALSNChange() && code_alsn < ALSN::YELLOW)
         return is_changing_ALSN = true;
     else
         return false;
@@ -770,7 +775,7 @@ void KLUB::checkChangesALSN()
 {
     // Однократный предупреждающий звуковой сигнал при любой смене сигнала АЛСН
     // Сброс таймера периодической проверки бдительности
-    if(code_alsn != old_code_alsn)
+    if(isALSNChange())
     {
         stopSafetyTimer();
 
@@ -873,8 +878,6 @@ void KLUB::calcSpeedLimits()
     V_target_lim.value = speed_map->getNextLimit();
     V_target_lim.coord = speed_map->getNextLimitDistance();
 
-    // findLimitsCassette(V_permissible_lim, V_target_lim);
-
     limitsALSN(V_permissible_lim, V_target_lim);
 
     if(V_permissible_lim.value > V_green)
@@ -883,8 +886,6 @@ void KLUB::calcSpeedLimits()
     }
 
     double v_lim = V_green;
-
-    // limit_dist = pf(train_dir * (V_target_lim.coord - rail_coord));
 
     limit_dist = V_target_lim.coord;
 
@@ -921,7 +922,7 @@ void KLUB::calcSpeedLimitsNoEK()
 
     case ALSN::YELLOW:
     {
-        if(code_alsn != old_code_alsn)
+        if(isALSNChange())
             V_permissible = V_green + klub_cfg.speed_limit_error;
 
         V_target = klub_cfg.V_yellow;
@@ -1226,21 +1227,6 @@ void KLUB::onSafetyTimer()
     startFailureEPKTimer();
 
     stopSafetyTimer();
-
-    // if(code_alsn == CodeAlsn::Green || code_alsn == CodeAlsn::White)
-    //     safety_timer->setTimeout(getSafetyTimerInterval(klub_cfg.min_green_vig_check_interval,
-    //                                                     klub_cfg.max_green_vig_check_interval));
-    // else if(code_alsn == CodeAlsn::RedYellow || code_alsn == CodeAlsn::Red)
-    //     safety_timer->setTimeout(getSafetyTimerInterval(klub_cfg.min_vig_check_interval,
-    //                                                     klub_cfg.max_vig_check_interval));
-    // else if(code_alsn == CodeAlsn::Yellow)
-    // {
-    //     if(v_kmh > 60.0)
-    //         safety_timer->setTimeout(getSafetyTimerInterval(klub_cfg.min_vig_check_interval,
-    //                                                         klub_cfg.max_vig_check_interval));
-    //     else
-    //         safety_timer->setTimeout(klub_cfg.other_vig_check_interval);
-    // }
 }
 
 void KLUB::onFailureEPKTimer()
