@@ -6,7 +6,6 @@
 #include    "reversor-direction-enum.h"
 #include    "train-direction-enum.h"
 #include    "vigilanse-check-state-enum.h"
-#include    "code-info-msg-enum.h"
 
 class AbstractDeviceTSKBM;
 class SpeedMap;
@@ -100,6 +99,7 @@ public:
     /// Задать состояние реверсора
     void setReversorDirection(int reversor_direction) override;
 
+    /// Вернуть дистанцию до ограничения
     double getLimitDistance() const override;
 
     double getRailCoord() const override;
@@ -108,8 +108,17 @@ public:
 
     int getStationIndex() const override;
 
+    /// Задать тип цели
+    void setTypeTarget(QString type_target) override;
+
+    /// Вернуть тип цели
+    QString getTypeTarget() const override;
+
     /// Задать имя цели
-    void setNameTarget(QString &name_target) override;
+    void setNameTarget(QString name_target) override;
+
+    /// Вернуть имя цели
+    QString getNameTarget() const override;
 
     /// Вернуть время по графику
     QString getScheduleTime() const override;
@@ -123,8 +132,8 @@ public:
     /// Задать дистанцию до цели
     void setDistanceTarget(int distance_target) override;
 
-    /// Вернуть код информационного сообщения
-    int getCodeInfoMsg() const override;
+    /// Вернуть информационное сообщение
+    QString getInfoMsg() const override;
 
     /// Загрузка станций из ЭК
     bool loadStationsMap(const QString &path) override;
@@ -234,12 +243,17 @@ private:
 
     Trigger is_red;
 
+    QString type_target = "";
+
     QString name_target = "";
 
     QString cur_station = "";
 
     /// Время по графику
     QString schedule_time = "";
+
+    /// Информационное сообщение
+    QString info_msg = "";
 
     /// Текущая ордината локомотива
     double  rail_coord = 0.0;
@@ -308,9 +322,6 @@ private:
 
     /// Состояние реверсора
     int     reversor_direction = ReversorDirection::Neutral;
-
-    /// Код информационного сообщения
-    int     code_info_msg = CodeInfoMsg::None;
 
     /// Дистанция до цели
     int     distance_target = 0;

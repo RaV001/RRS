@@ -295,9 +295,24 @@ int KLUB::getStationIndex() const
     return station_idx;
 }
 
-void KLUB::setNameTarget(QString &name_target)
+void KLUB::setTypeTarget(QString type_target)
+{
+    this->type_target = type_target;
+}
+
+QString KLUB::getTypeTarget() const
+{
+    return type_target;
+}
+
+void KLUB::setNameTarget(QString name_target)
 {
     this->name_target = name_target;
+}
+
+QString KLUB::getNameTarget() const
+{
+    return name_target;
 }
 
 QString KLUB::getScheduleTime() const
@@ -320,12 +335,11 @@ void KLUB::setDistanceTarget(int distance_target)
     this->distance_target = distance_target;
 }
 
-int KLUB::getCodeInfoMsg() const
+QString KLUB::getInfoMsg() const
 {
-    if(key_epk)
-        return code_info_msg;
-    else
-        return CodeInfoMsg::None;
+    QString tmp = info_msg;
+    tmp.resize(INFO_MAX_SYMBOLS, QChar(' '));
+    return tmp;
 }
 
 void KLUB::preStep(state_vector_t &Y, double t)
@@ -338,6 +352,7 @@ void KLUB::preStep(state_vector_t &Y, double t)
         is_red.reset();
         is_dislplay_ON = false;
         cur_station = "";
+        info_msg = "";
         return;
     }
 
@@ -1167,6 +1182,8 @@ void KLUB::EPKTurnedOff()
 
     cur_station = "";
 
+    info_msg = "";
+
     epk_power_state.set();
 
     is_red.reset();
@@ -1197,15 +1214,15 @@ void KLUB::warningBeep()
 void KLUB::infoMsgNoEKMode()
 {
     if(!is_mode_EK)
-        code_info_msg = CodeInfoMsg::NoEKMode;
+        info_msg = "РЕЖИМ БЕЗ ЭК";
     else
-        code_info_msg = CodeInfoMsg::None;
+        info_msg = "";
 }
 
 void KLUB::infoMsgFailureEPK()
 {
     if(failure_EPK_state)
-        code_info_msg = CodeInfoMsg::FailureEPK;
+        info_msg = "СРЫВ ЭПК";
 }
 
 void KLUB::setLampState(size_t lamp_idx, bool state, bool clear_state)

@@ -95,6 +95,7 @@ public:
     /// Задать состояние реверсора
     virtual void setReversorDirection(int reversor_direction);
 
+    /// Вернуть дистанцию до ограничения
     virtual double getLimitDistance() const = 0;
 
     virtual double getRailCoord() const = 0;
@@ -103,8 +104,17 @@ public:
 
     virtual int getStationIndex() const;
 
+    /// Задать тип цели
+    virtual void setTypeTarget(QString type_target = "СВЕТОФОР") = 0;
+
+    /// Вернуть тип цели
+    virtual QString getTypeTarget() const = 0;
+
     /// Задать имя цели
-    virtual void setNameTarget(QString &name_target) = 0;
+    virtual void setNameTarget(QString name_target) = 0;
+
+    /// Вернуть имя цели
+    virtual QString getNameTarget() const = 0;
 
     /// Вернуть время по графику
     virtual QString getScheduleTime() const = 0;
@@ -118,8 +128,8 @@ public:
     /// Задать дистанцию до цели
     virtual void setDistanceTarget(int distance_target) = 0;
 
-    /// Вернуть код информационного сообщения
-    virtual int getCodeInfoMsg() const = 0;
+    /// Вернуть информационное сообщение
+    virtual QString getInfoMsg() const = 0;
 
     /// Загрузка станций из ЭК
     virtual bool loadStationsMap(const QString &path) = 0;
